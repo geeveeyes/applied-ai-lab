@@ -33,11 +33,16 @@ form.addEventListener("submit", async (event) => {
 
 function render(result) {
   document.querySelector("#summary").textContent = result.summary;
-  renderList("#priorities", result.priorities, (item) => `<strong>${escapeHtml(item.title)} <span class="score">${escapeHtml(String(item.score))}</span></strong><p>${escapeHtml(item.why)}</p>`);
+  renderList("#priorities", result.priorities, (item) => `<strong>${escapeHtml(item.title)}${renderScore(item.score)}</strong><p>${escapeHtml(item.why)}</p>`);
   renderList("#actions", result.next_actions, (item) => `<strong>${escapeHtml(item.action)}</strong><p>${escapeHtml(item.timebox)}</p>`);
   renderList("#risks", result.risks, (item) => `<strong>${escapeHtml(item.risk)}</strong><p>${escapeHtml(item.mitigation)}</p>`);
   renderList("#questions", result.questions, (item) => `<p>${escapeHtml(item)}</p>`);
   document.querySelector("#tools").textContent = JSON.stringify(result.tool_results, null, 2);
+}
+
+function renderScore(score) {
+  if (score === undefined || score === null || score === "") return "";
+  return ` <span class="score">${escapeHtml(String(score))}</span>`;
 }
 
 function renderList(selector, items, template) {

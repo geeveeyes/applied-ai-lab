@@ -57,7 +57,7 @@ form.addEventListener("submit", async (event) => {
 function render(result) {
   document.querySelector("#summary").textContent = result.summary;
   renderList("#priorities", result.priorities, (item) => `
-    <strong>${escapeHtml(item.title)} <span class="score">${escapeHtml(String(item.score))}</span></strong>
+    <strong>${escapeHtml(item.title)}${renderScore(item.score)}</strong>
     <p>${escapeHtml(item.why)}</p>
   `);
   renderList("#actions", result.next_actions, (item) => `
@@ -72,6 +72,11 @@ function render(result) {
     <p>${escapeHtml(item)}</p>
   `);
   document.querySelector("#tools").textContent = JSON.stringify(result.tool_results, null, 2);
+}
+
+function renderScore(score) {
+  if (score === undefined || score === null || score === "") return "";
+  return ` <span class="score">${escapeHtml(String(score))}</span>`;
 }
 
 function renderList(selector, items, template) {

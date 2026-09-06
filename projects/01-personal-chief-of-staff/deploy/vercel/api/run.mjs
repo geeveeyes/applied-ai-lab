@@ -127,7 +127,22 @@ ${prompt}
 Tool context:
 ${JSON.stringify(context, null, 2)}
 
-Return exactly one JSON object with summary, priorities, risks, next_actions, questions, confidence, and tool_results.
+Return exactly one JSON object with this shape:
+{
+  "summary": "short executive summary",
+  "priorities": [
+    {"title": "priority title", "why": "why this matters", "score": 1}
+  ],
+  "risks": [
+    {"risk": "risk description", "mitigation": "mitigation"}
+  ],
+  "next_actions": [
+    {"action": "specific next action", "timebox": "time estimate"}
+  ],
+  "questions": ["important question to answer"],
+  "confidence": 0.0,
+  "tool_results": {}
+}
 Do not include markdown fences or commentary outside the JSON.
 `;
 }
@@ -182,15 +197,45 @@ function scorePrompt(prompt) {
 }
 
 function normalize(data, tools) {
+  const baseScore = tools.priority_scorer.score;
   return {
     summary: String(data.summary || "No summary returned."),
-    priorities: Array.isArray(data.priorities) ? data.priorities : [],
-    risks: Array.isArray(data.risks) ? data.risks : [],
-    next_actions: Array.isArray(data.next_actions) ? data.next_actions : [],
-    questions: Array.isArray(data.questions) ? data.questions : [],
+    priorities: normalizePriorities(data.priorities, baseScore),
+    risks: normalizeObjects(data.risks, ["risk", "mitigation"]),
+    next_actions: normalizeObjects(data.next_actions, ["action", "timebox"]),
+    questions: normalizeStrings(data.questions),
     confidence: clamp(Number(data.confidence || 0.5), 0, 1),
     tool_results: tools,
   };
+}
+
+function normalizePriorities(items, baseScore) {
+  return asArray(items).map((item, index) => {
+    const row = typeof item === "object" && item !== null ? item : { title: String(item) };
+    const score = Number(row.score);
+    return {
+      title: String(row.title || "Priority"),
+      why: String(row.why || ""),
+      score: Number.isFinite(score) ? score : Math.max(1, baseScore - index * 10),
+    };
+  });
+}
+
+function normalizeObjects(items, keys) {
+  return asArray(items).map((item) => {
+    const row = typeof item === "object" && item !== null ? item : { [keys[0]]: String(item) };
+    return Object.fromEntries(keys.map((key) => [key, String(row[key] || "")]));
+  });
+}
+
+function normalizeStrings(items) {
+  return asArray(items).map((item) => String(item));
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) return value;
+  if (value === undefined || value === null || value === "") return [];
+  return [value];
 }
 
 function extractJson(text) {
