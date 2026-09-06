@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Personal Chief of Staff</title>
+    <link rel="stylesheet" href="/styles.css?v=2" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Project 01</p>
+          <h1>Personal Chief of Staff</h1>
+          <p class="lede">Turn a messy goal into priorities, risks, next actions, and sharp questions.</p>
+        </div>
+        <div class="status" id="status">Mock-ready</div>
+      </section>
+
+      <section class="workspace">
+        <form id="ask-form" class="input-panel">
+          <label for="provider">Provider</label>
+          <select id="provider" name="provider">
+            <option value="mock">Mock</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+          </select>
+
+          <label for="prompt">Goal or decision</label>
+          <textarea id="prompt" name="prompt" rows="11">I am considering switching from a stable big tech role to an AI startup. I care about learning, compensation, family stability, and long-term career growth. What should I focus on this week?</textarea>
+
+          <button type="submit" id="run-button">Run analysis</button>
+        </form>
+
+        <section class="output-panel" aria-live="polite">
+          <div class="notice" id="notice" hidden></div>
+
+          <div class="summary">
+            <p class="eyebrow">Summary</p>
+            <p id="summary">Run an analysis to see the structured output.</p>
+          </div>
+
+          <div class="grid">
+            <div>
+              <h2>Priorities</h2>
+              <div id="priorities" class="stack"></div>
+            </div>
+            <div>
+              <h2>Next Actions</h2>
+              <div id="actions" class="stack"></div>
+            </div>
+            <div>
+              <h2>Risks</h2>
+              <div id="risks" class="stack"></div>
+            </div>
+            <div>
+              <h2>Questions</h2>
+              <div id="questions" class="stack"></div>
+            </div>
+          </div>
+
+          <details>
+            <summary>Tool results</summary>
+            <pre id="tools">{}</pre>
+          </details>
+        </section>
+      </section>
+    </main>
+    <script src="/main.js?v=2"></script>
+  </body>
+</html>

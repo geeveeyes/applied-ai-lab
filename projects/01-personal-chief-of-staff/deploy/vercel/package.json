@@ -1,0 +1,9 @@
+{
+  "name": "personal-chief-of-staff-production",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check api/run.mjs"
+  }
+}

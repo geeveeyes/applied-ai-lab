@@ -1,0 +1,3 @@
+{"id":"career-switch","prompt":"I am considering switching from a stable big tech role to an AI startup. I care about learning, compensation, family stability, and long-term career growth. What should I focus on this week?","must_include":["priorities","risks","next_actions"]}
+{"id":"weekend-plan","prompt":"I have 5 hours this weekend and want to make progress on AI portfolio projects without burning out. Help me choose what to do.","must_include":["timebox","portfolio","action"]}
+{"id":"learning-plan","prompt":"I know basic prompting and Python. I want to learn agents, evals, RAG, and MCP. Create a practical one-month plan.","must_include":["learning","questions","confidence"]}
