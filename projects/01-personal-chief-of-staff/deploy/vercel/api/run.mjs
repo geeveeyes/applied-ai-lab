@@ -127,7 +127,7 @@ ${prompt}
 Tool context:
 ${JSON.stringify(context, null, 2)}
 
-Return exactly one JSON object with this shape:
+Return exactly one JSON object with this exact shape and exact field names:
 {
   "summary": "short executive summary",
   "priorities": [
@@ -143,6 +143,7 @@ Return exactly one JSON object with this shape:
   "confidence": 0.0,
   "tool_results": {}
 }
+Each priority must use "title", "why", and "score". Each question must be a plain string, not an object.
 Do not include markdown fences or commentary outside the JSON.
 `;
 }
@@ -213,9 +214,11 @@ function normalizePriorities(items, baseScore) {
   return asArray(items).map((item, index) => {
     const row = typeof item === "object" && item !== null ? item : { title: String(item) };
     const score = Number(row.score);
+    const title = firstText(row, ["title", "priority", "name", "action", "task", "focus", "area"]);
+    const why = firstText(row, ["why", "reason", "rationale", "description", "details", "explanation"]);
     return {
-      title: String(row.title || "Priority"),
-      why: String(row.why || ""),
+      title: title || "Priority",
+      why,
       score: Number.isFinite(score) ? score : Math.max(1, baseScore - index * 10),
     };
   });
@@ -224,18 +227,45 @@ function normalizePriorities(items, baseScore) {
 function normalizeObjects(items, keys) {
   return asArray(items).map((item) => {
     const row = typeof item === "object" && item !== null ? item : { [keys[0]]: String(item) };
-    return Object.fromEntries(keys.map((key) => [key, String(row[key] || "")]));
+    return Object.fromEntries(keys.map((key) => [key, normalizeField(row, key)]));
   });
 }
 
 function normalizeStrings(items) {
-  return asArray(items).map((item) => String(item));
+  return asArray(items)
+    .map((item) => {
+      if (typeof item !== "object" || item === null) return String(item);
+      return firstText(item, ["question", "text", "title", "prompt", "ask", "value"]);
+    })
+    .filter(Boolean);
 }
 
 function asArray(value) {
   if (Array.isArray(value)) return value;
   if (value === undefined || value === null || value === "") return [];
   return [value];
+}
+
+function normalizeField(row, key) {
+  if (key === "risk") return firstText(row, ["risk", "title", "name", "issue", "description"]);
+  if (key === "mitigation") return firstText(row, ["mitigation", "recommendation", "next_step", "action", "details"]);
+  if (key === "action") return firstText(row, ["action", "title", "task", "next_step", "description"]);
+  if (key === "timebox") return firstText(row, ["timebox", "time", "duration", "estimate", "when"]);
+  return firstText(row, [key]);
+}
+
+function firstText(row, keys) {
+  for (const key of keys) {
+    const value = row[key];
+    if (value === undefined || value === null || value === "") continue;
+    if (typeof value === "object") {
+      const nested = firstText(value, ["text", "title", "value", "description"]);
+      if (nested) return nested;
+      continue;
+    }
+    return String(value);
+  }
+  return "";
 }
 
 function extractJson(text) {

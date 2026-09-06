@@ -33,10 +33,10 @@ form.addEventListener("submit", async (event) => {
 
 function render(result) {
   document.querySelector("#summary").textContent = result.summary;
-  renderList("#priorities", result.priorities, (item) => `<strong>${escapeHtml(item.title)}${renderScore(item.score)}</strong><p>${escapeHtml(item.why)}</p>`);
-  renderList("#actions", result.next_actions, (item) => `<strong>${escapeHtml(item.action)}</strong><p>${escapeHtml(item.timebox)}</p>`);
-  renderList("#risks", result.risks, (item) => `<strong>${escapeHtml(item.risk)}</strong><p>${escapeHtml(item.mitigation)}</p>`);
-  renderList("#questions", result.questions, (item) => `<p>${escapeHtml(item)}</p>`);
+  renderList("#priorities", result.priorities, (item) => `<strong>${escapeHtml(readText(item, ["title", "priority", "name", "action"], "Priority"))}${renderScore(item.score)}</strong><p>${escapeHtml(readText(item, ["why", "reason", "rationale", "description"]))}</p>`);
+  renderList("#actions", result.next_actions, (item) => `<strong>${escapeHtml(readText(item, ["action", "title", "task", "next_step"], "Action"))}</strong><p>${escapeHtml(readText(item, ["timebox", "time", "duration", "estimate"]))}</p>`);
+  renderList("#risks", result.risks, (item) => `<strong>${escapeHtml(readText(item, ["risk", "title", "issue", "description"], "Risk"))}</strong><p>${escapeHtml(readText(item, ["mitigation", "recommendation", "action", "details"]))}</p>`);
+  renderList("#questions", result.questions, (item) => `<p>${escapeHtml(readText(item, ["question", "text", "title", "prompt", "value"], item))}</p>`);
   document.querySelector("#tools").textContent = JSON.stringify(result.tool_results, null, 2);
 }
 
@@ -61,6 +61,18 @@ function escapeHtml(value) {
     const entities = {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"};
     return entities[character];
   });
+}
+
+function readText(value, keys, fallback = "") {
+  if (value === undefined || value === null || value === "") return fallback;
+  if (typeof value !== "object") return String(value);
+  for (const key of keys) {
+    const nested = value[key];
+    if (nested === undefined || nested === null || nested === "") continue;
+    if (typeof nested === "object") return readText(nested, ["text", "title", "value", "description"], fallback);
+    return String(nested);
+  }
+  return fallback;
 }
 
 function showNotice(message) {
