@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deep Research Briefing Agent</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark">02</span><span>Applied AI Lab <b>/ Research Briefing</b></span></div><span class="status">LOCAL WORKSPACE</span></header>
+  <main>
+    <section class="workspace">
+      <div class="editor">
+        <div class="section-head"><div><p class="eyebrow">RESEARCH DESK</p><h1>Build a briefing</h1></div><button class="quiet" id="example" type="button">Load example</button></div>
+        <form id="form">
+          <label for="question">Research question</label>
+          <textarea id="question" rows="3" maxlength="1000" placeholder="What should we learn before choosing an AI portfolio project?" required></textarea>
+          <div class="source-heading"><div><h2>Sources</h2><p>Paste relevant passages from sources you trust. Each finding will point back to one or more of them.</p></div><button class="icon-button" id="add-source" type="button" aria-label="Add source" title="Add source">+</button></div>
+          <div id="sources"></div>
+          <div class="controls"><label for="provider">Analysis provider</label><select id="provider"><option value="mock">Mock (free)</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option></select><button class="primary" id="run" type="submit">Generate briefing</button></div>
+          <p class="error" id="error" role="alert" hidden></p>
+        </form>
+      </div>
+      <section class="output" aria-live="polite">
+        <div class="output-head"><div><p class="eyebrow">BRIEFING</p><h2 id="output-title">Ready for sources</h2></div><button class="quiet" id="export" type="button" hidden>Export Markdown</button></div>
+        <div id="result" class="empty"><span class="empty-icon">⌕</span><p>Your briefing will appear here.</p></div>
+      </section>
+    </section>
+  </main>
+  <template id="source-template"><fieldset class="source"><div class="source-top"><legend>Source <span class="source-number"></span></legend><button class="remove icon-button" type="button" aria-label="Remove source" title="Remove source">×</button></div><label>Title<input class="title" maxlength="180" placeholder="Report or article title" required></label><label>URL <span class="optional">optional</span><input class="url" type="url" placeholder="https://example.com/report"></label><label>Relevant passage<textarea class="note" rows="4" maxlength="5000" minlength="40" placeholder="Paste at least 40 characters of relevant source text." required></textarea></label></fieldset></template>
+  <script src="/main.js" defer></script>
+</body>
+</html>

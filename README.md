@@ -25,14 +25,19 @@ applied-ai-lab/
       docs/
       evals/
       README.md
+    02-deep-research-briefing/
+      app/
+      docs/
+      evals/
+      README.md
 ```
 
 ## Project Index
 
 | # | Project | Concepts | Status |
 |---|---|---|---|
-| 01 | Personal Chief of Staff | provider abstraction, structured outputs, tool use, evals | scaffolded |
-| 02 | Deep Research Briefing Agent | planning, citations, critique loops | planned |
+| 01 | Personal Chief of Staff | provider abstraction, structured outputs, tool use, evals | deployed |
+| 02 | Deep Research Briefing Agent | planning, citations, critique loops | local MVP |
 | 03 | Ask My Documents | RAG, embeddings, retrieval quality | planned |
 | 04 | Personal Context MCP Server | tools, resources, reusable context | planned |
 | 05 | LLM Eval Arena | eval design, model comparison, scoring | planned |
@@ -66,3 +71,12 @@ The app works in mock mode with no API keys. Add `OPENAI_API_KEY` or `ANTHROPIC_
 ## GitHub Profile
 
 Designed for ongoing additions under [geeveeyes](https://github.com/geeveeyes).
+
+## Project 02
+
+```bash
+cd projects/02-deep-research-briefing
+python3 -m app.server
+```
+
+Open `http://127.0.0.1:8002` and choose **Load example**. See the [Project 02 README](projects/02-deep-research-briefing/README.md) for API key setup and scope.
