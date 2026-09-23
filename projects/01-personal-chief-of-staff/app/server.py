@@ -38,6 +38,9 @@ class Handler(SimpleHTTPRequestHandler):
             if not prompt:
                 self.send_json({"error": "Please enter a goal or decision."}, status=400)
                 return
+            if len(prompt) > 2000:
+                self.send_json({"error": "Keep the request under 2,000 characters."}, status=400)
+                return
 
             tool_results = {"priority_scorer": score_prompt(prompt)}
             context = {"tools": tool_results}
@@ -52,8 +55,11 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_json({"provider": "mock", "requested_provider": provider_name, "result": normalize_response(fallback), "warning": str(error)})
                 return
 
+            usage = result.pop("_provider_usage", None)
             result = normalize_response(result)
             result["tool_results"] = result.get("tool_results") or tool_results
+            if usage:
+                result["tool_results"]["provider_usage"] = usage
             self.send_json({"provider": provider.name, "result": result})
         except Exception as error:
             self.send_json({"error": str(error)}, status=500)

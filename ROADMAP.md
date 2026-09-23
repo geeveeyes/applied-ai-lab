@@ -30,6 +30,8 @@ Weekend 3: Add one real integration or advanced feature.
 Weekend 4: Refactor shared patterns into reusable lab utilities.
 ```
 
+Every project must apply the shared [cost and prompt caching standard](docs/COST_OPTIMIZATION.md): stable prompt prefixes, usage telemetry, bounded inputs and outputs, inexpensive model defaults, and deterministic work outside the model.
+
 ## Resume Positioning
 
 Use project bullets that combine product value and engineering concept:

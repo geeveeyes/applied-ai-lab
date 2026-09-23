@@ -23,6 +23,15 @@ Python local server
 4. The provider is asked to return one structured JSON object.
 5. The server validates and normalizes the result.
 6. The UI renders sections from the structured output.
+7. Provider token and cache usage is attached to the tool results for measurement.
+
+## Cost Controls
+
+- Stable provider instructions and schemas precede the changing user request.
+- OpenAI uses `prompt_cache_key=applied-ai-lab:chief-of-staff:v1` and disables response storage.
+- Anthropic uses automatic ephemeral prompt caching.
+- Server-side prompt and output limits bound each request.
+- The deterministic priority scorer and Mock provider avoid paid calls during development and evals.
 
 ## Why Tools Run Before The Model
 

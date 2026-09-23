@@ -2,7 +2,7 @@ import json
 import os
 import urllib.request
 
-from .base import ProviderError, extract_json, read_error
+from .base import ProviderError, anthropic_usage, extract_json, read_error, token_limit
 from ..schema import response_schema_text
 
 
@@ -17,7 +17,8 @@ class AnthropicProvider:
         model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
         body = {
             "model": model,
-            "max_tokens": 1200,
+            "max_tokens": token_limit(),
+            "cache_control": {"type": "ephemeral"},
             "system": "You are a practical Personal Chief of Staff. Be decisive, specific, and concise.",
             "messages": [
                 {
@@ -51,16 +52,18 @@ class AnthropicProvider:
         )
         if not text:
             raise ProviderError("Anthropic response did not include text content.")
-        return extract_json(text)
+        result = extract_json(text)
+        result["_provider_usage"] = anthropic_usage(payload)
+        return result
 
 
 def build_prompt(prompt, context):
     return f"""
+{response_schema_text()}
+
 User request:
 {prompt}
 
 Tool context:
 {json.dumps(context, indent=2)}
-
-{response_schema_text()}
 """

@@ -1,6 +1,6 @@
 import unittest
 
-from app.research import mock_brief, normalize, prepare
+from app.research import mock_brief, normalize, prepare, prompt_for
 
 
 SOURCES = [
@@ -28,6 +28,17 @@ class ResearchTests(unittest.TestCase):
             prepare("Which project should the team build next?", [])
         with self.assertRaises(ValueError):
             prepare("Which project should the team build next?", [{"title": "Thin", "note": "Too short"}])
+
+    def test_cost_limit_rejects_oversized_source_packet(self):
+        sources = [{"title": f"Source {index}", "note": "x" * 4600} for index in range(4)]
+        with self.assertRaisesRegex(ValueError, "18,000"):
+            prepare("Which project should the team build next?", sources)
+
+    def test_reusable_source_packet_precedes_question(self):
+        context = prepare("Which project should the team build next?", SOURCES)
+        prompt = prompt_for(context)
+        self.assertLess(prompt.index("Source packet:"), prompt.index("Research question:"))
+        self.assertLess(prompt.index("The team chose a narrow prototype"), prompt.index(context["question"]))
 
 
 if __name__ == "__main__":

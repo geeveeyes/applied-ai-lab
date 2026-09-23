@@ -20,3 +20,7 @@ The browser renders response text using DOM `textContent`, so pasted source text
 - No database or saved history in version 1.
 - No automatic mock fallback after a paid provider error, so a failed call cannot look like successful research.
 - OpenAI uses a strict JSON schema; Anthropic is prompted for the same shape and normalized before display.
+- The reusable source packet precedes the changing research question to improve prompt-cache reuse.
+- OpenAI uses a stable, versioned cache key; Anthropic enables automatic ephemeral caching.
+- Provider usage is returned separately from the research result and displayed in the critique.
+- Source text and output tokens have server-side limits.

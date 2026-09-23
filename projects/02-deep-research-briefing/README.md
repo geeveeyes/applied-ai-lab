@@ -25,6 +25,12 @@ To use a model, add your key to a local `.env` (copy `.env.example`) or export i
 
 This first version uses **user-supplied source excerpts**. It does not fetch URLs, search the web, check publication dates, or verify whether a pasted excerpt matches a linked page. A link is only a source reference. Mock mode extracts sentences and intentionally gives low confidence; it is a workflow demo, not research analysis. The app accepts six sources to keep cost and latency bounded. Avoid putting confidential material into model-backed requests unless your provider setup permits it.
 
+## Cost controls
+
+The server limits combined source text to 18,000 characters and model output to 1,400 tokens by default. OpenAI uses a stable cache key; Anthropic uses automatic five-minute caching. The source packet comes before the changing question so follow-up questions over the same sources can reuse a longer prefix. The critique section displays token and cache usage after a paid provider call.
+
+See the lab-wide [cost and prompt caching standard](../../docs/COST_OPTIMIZATION.md).
+
 ## Evals
 
 ```bash

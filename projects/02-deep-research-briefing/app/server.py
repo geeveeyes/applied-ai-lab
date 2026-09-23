@@ -40,8 +40,9 @@ class Handler(SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(length))
             context = prepare(data.get("question"), data.get("sources"))
             provider = str(data.get("provider") or "mock")
-            result = normalize(complete(provider, context), context)
-            self.send_json({"provider": provider, "result": result})
+            raw_result, usage = complete(provider, context)
+            result = normalize(raw_result, context)
+            self.send_json({"provider": provider, "result": result, "usage": usage})
         except (ValueError, json.JSONDecodeError) as error:
             self.send_json({"error": str(error)}, 400)
         except Exception as error:

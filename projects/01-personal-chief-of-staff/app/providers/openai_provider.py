@@ -2,7 +2,7 @@ import json
 import os
 import urllib.request
 
-from .base import ProviderError, extract_json, read_error
+from .base import ProviderError, extract_json, openai_usage, read_error, token_limit
 from ..schema import response_schema_text
 
 
@@ -17,6 +17,9 @@ class OpenAIProvider:
         model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         body = {
             "model": model,
+            "store": False,
+            "max_output_tokens": token_limit(),
+            "prompt_cache_key": "applied-ai-lab:chief-of-staff:v1",
             "input": [
                 {
                     "role": "system",
@@ -56,18 +59,20 @@ class OpenAIProvider:
         text = payload.get("output_text")
         if not text:
             text = extract_output_text(payload)
-        return extract_json(text)
+        result = extract_json(text)
+        result["_provider_usage"] = openai_usage(payload)
+        return result
 
 
 def build_prompt(prompt, context):
     return f"""
+{response_schema_text()}
+
 User request:
 {prompt}
 
 Tool context:
 {json.dumps(context, indent=2)}
-
-{response_schema_text()}
 """
 
 

@@ -30,16 +30,20 @@ export default {
       if (!prompt) {
         return json({ error: "Please enter a goal or decision." }, 400);
       }
+      if (prompt.length > 2000) {
+        return json({ error: "Keep the request under 2,000 characters." }, 400);
+      }
 
       const tools = { priority_scorer: scorePrompt(prompt) };
       const context = { tools };
       let result;
+      let usage = null;
 
       try {
         if (provider === "openai") {
-          result = await callOpenAI(prompt, context);
+          ({ result, usage } = await callOpenAI(prompt, context));
         } else if (provider === "anthropic") {
-          result = await callAnthropic(prompt, context);
+          ({ result, usage } = await callAnthropic(prompt, context));
         } else {
           provider = "mock";
           result = mockAnalysis(context);
@@ -55,7 +59,9 @@ export default {
         });
       }
 
-      return json({ provider, result: normalize(result, tools) });
+      const normalized = normalize(result, tools);
+      if (usage) normalized.tool_results.provider_usage = usage;
+      return json({ provider, result: normalized });
     } catch (error) {
       return json({ error: String(error.message || error) }, 500);
     }
@@ -74,6 +80,9 @@ async function callOpenAI(prompt, context) {
     },
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      store: false,
+      max_output_tokens: readTokenLimit(),
+      prompt_cache_key: "applied-ai-lab:chief-of-staff:v1",
       input: [
         { role: "system", content: "You are a practical Personal Chief of Staff. Be decisive, specific, and concise." },
         { role: "user", content: buildPrompt(prompt, context) },
@@ -91,7 +100,10 @@ async function callOpenAI(prompt, context) {
 
   const payload = await response.json();
   if (!response.ok) throw new Error(JSON.stringify(payload));
-  return extractJson(payload.output_text || extractOpenAIText(payload));
+  return {
+    result: extractJson(payload.output_text || extractOpenAIText(payload)),
+    usage: openAIUsage(payload),
+  };
 }
 
 async function callAnthropic(prompt, context) {
@@ -107,7 +119,8 @@ async function callAnthropic(prompt, context) {
     },
     body: JSON.stringify({
       model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5",
-      max_tokens: 1200,
+      max_tokens: readTokenLimit(),
+      cache_control: { type: "ephemeral" },
       system: "You are a practical Personal Chief of Staff. Be decisive, specific, and concise.",
       messages: [{ role: "user", content: buildPrompt(prompt, context) }],
     }),
@@ -116,17 +129,37 @@ async function callAnthropic(prompt, context) {
   const payload = await response.json();
   if (!response.ok) throw new Error(JSON.stringify(payload));
   const text = (payload.content || []).filter((block) => block.type === "text").map((block) => block.text).join("\n");
-  return extractJson(text);
+  return { result: extractJson(text), usage: anthropicUsage(payload) };
+}
+
+function readTokenLimit() {
+  const value = Number(process.env.MAX_OUTPUT_TOKENS || 1200);
+  return Number.isInteger(value) ? Math.max(256, Math.min(value, 2000)) : 1200;
+}
+
+function openAIUsage(payload) {
+  const usage = payload.usage || {};
+  const details = usage.input_tokens_details || {};
+  return {
+    input_tokens: Number(usage.input_tokens || 0),
+    cached_input_tokens: Number(details.cached_tokens || 0),
+    cache_write_tokens: Number(details.cache_write_tokens || 0),
+    output_tokens: Number(usage.output_tokens || 0),
+  };
+}
+
+function anthropicUsage(payload) {
+  const usage = payload.usage || {};
+  return {
+    input_tokens: Number(usage.input_tokens || 0),
+    cached_input_tokens: Number(usage.cache_read_input_tokens || 0),
+    cache_write_tokens: Number(usage.cache_creation_input_tokens || 0),
+    output_tokens: Number(usage.output_tokens || 0),
+  };
 }
 
 function buildPrompt(prompt, context) {
   return `
-User request:
-${prompt}
-
-Tool context:
-${JSON.stringify(context, null, 2)}
-
 Return exactly one JSON object with this exact shape and exact field names:
 {
   "summary": "short executive summary",
@@ -145,6 +178,12 @@ Return exactly one JSON object with this exact shape and exact field names:
 }
 Each priority must use "title", "why", and "score". Each question must be a plain string, not an object.
 Do not include markdown fences or commentary outside the JSON.
+
+User request:
+${prompt}
+
+Tool context:
+${JSON.stringify(context, null, 2)}
 `;
 }
 

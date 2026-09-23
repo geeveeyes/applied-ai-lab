@@ -37,7 +37,7 @@ form.addEventListener('submit', async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `Request failed (${response.status}).`);
     current = data.result;
-    render(data.result, data.provider);
+    render(data.result, data.provider, data.usage);
   } catch (error) { errorEl.textContent = error.message; errorEl.hidden = false; }
   finally { button.disabled = false; button.textContent = 'Generate briefing'; }
 });
@@ -45,7 +45,7 @@ form.addEventListener('submit', async (event) => {
 function node(tag, text, className) { const el = document.createElement(tag); el.textContent = text; if (className) el.className = className; return el; }
 function section(title) { const el = document.createElement('section'); el.append(node('h3', title)); return el; }
 function list(items) { const ul = document.createElement('ul'); items.forEach(item => ul.append(node('li', item))); return ul; }
-function render(brief, provider) {
+function render(brief, provider, usage) {
   document.querySelector('#output-title').textContent = provider === 'mock' ? 'Draft brief · Mock' : 'Research brief';
   document.querySelector('#export').hidden = false;
   resultEl.className = 'brief'; resultEl.replaceChildren();
@@ -57,6 +57,7 @@ function render(brief, provider) {
   if (brief.counterpoints.length) { const s = section('Counterpoints'); s.append(list(brief.counterpoints)); resultEl.append(s); }
   const next = section('Next steps'); next.append(list(brief.next_steps)); resultEl.append(next);
   const critique = section('Critique'); critique.append(node('span', `Confidence: ${brief.critique.confidence}`, 'badge'), node('p', `Sources: ${brief.source_audit.source_count}; linked domains: ${brief.source_audit.linked_domains}. ${brief.source_audit.note}`, 'muted'));
+  if (usage) critique.append(node('p', `Tokens: input ${usage.input_tokens}; cached ${usage.cached_input_tokens}; cache write ${usage.cache_write_tokens}; output ${usage.output_tokens}.`, 'muted'));
   critique.append(list(brief.critique.limitations.concat(brief.critique.follow_up_questions.map(q => `Open question: ${q}`)))); resultEl.append(critique);
   const sources = section('Sources'); const ul = document.createElement('ul'); ul.className = 'source-list';
   brief.sources.forEach(source => { const li = document.createElement('li'); li.append(node('span', `[${source.id}] ${source.title} `)); if (source.url) { const a = node('a', 'Open source'); a.href = source.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; li.append(a); } ul.append(li); });

@@ -38,6 +38,7 @@ OPENAI_API_KEY
 OPENAI_MODEL=gpt-4o-mini
 ANTHROPIC_API_KEY
 ANTHROPIC_MODEL=claude-sonnet-4-5
+MAX_OUTPUT_TOKENS=1200
 ```
 
 Only add keys for providers you want to enable.
@@ -60,3 +61,7 @@ That checks the function file parses. Full serverless routing is handled by Verc
 - Request logs with redaction.
 - Saved analysis history.
 - Stripe billing for paid tiers.
+
+## Cost controls
+
+The endpoint uses stable prompt-cache prefixes, enables Anthropic automatic caching, caps requests at 2,000 characters, caps model output, and returns provider token/cache usage inside `tool_results.provider_usage`. A short prompt can fall below a provider's cache threshold, so confirm savings from the usage fields rather than assuming every request is a cache hit.

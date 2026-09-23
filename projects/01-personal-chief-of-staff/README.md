@@ -73,6 +73,7 @@ You can override them:
 ```bash
 export OPENAI_MODEL="gpt-4o-mini"
 export ANTHROPIC_MODEL="claude-sonnet-4-5"
+export MAX_OUTPUT_TOKENS="1200"
 ```
 
 If OpenAI says the model does not exist or you do not have access, list models available to your key:
@@ -100,6 +101,12 @@ python3 evals/run_evals.py
 ```
 
 The eval harness currently validates schema shape and basic answer quality. It is meant to become the shared pattern for later projects in the lab.
+
+## Cost controls
+
+The app limits prompts to 2,000 characters and model output to 1,200 tokens by default. OpenAI requests use a stable prompt cache key; Anthropic requests enable automatic five-minute prompt caching. Provider usage, including cache reads and writes, appears in **Tool results**. Short requests may be below the provider's cacheable length, so use those measurements to confirm whether caching helped.
+
+See the lab-wide [cost and prompt caching standard](../../docs/COST_OPTIMIZATION.md).
 
 ## Resume Bullet
 

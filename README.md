@@ -13,12 +13,17 @@ Each project in this repo should:
 - Include a `README.md`, architecture notes, example prompts, and a tiny eval.
 - Run locally with minimal setup.
 - Solve a recognizable user problem instead of feeling like coursework.
+- Follow the shared [cost and prompt caching standard](docs/COST_OPTIMIZATION.md).
 
 ## Structure
 
 ```text
 applied-ai-lab/
   ROADMAP.md
+  docs/
+    COST_OPTIMIZATION.md
+  templates/
+    PROJECT_CHECKLIST.md
   projects/
     01-personal-chief-of-staff/
       app/
@@ -56,6 +61,7 @@ applied-ai-lab/
 3. Add one screenshot or short demo recording after it works.
 4. Add 3-5 eval cases before calling it complete.
 5. Write a resume bullet that explains the engineering concept and user value.
+6. Complete the [project shipping checklist](templates/PROJECT_CHECKLIST.md), including cache and cost measurements.
 
 ## Getting Started With Project 01
 
