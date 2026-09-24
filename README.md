@@ -53,6 +53,7 @@ applied-ai-lab/
 | 10 | AI Data Cleaning Copilot | schema inference, transform suggestions | planned |
 | 11 | Voice Journal Memory Coach | speech, memory, reflection loops | planned |
 | 12 | Agent Reliability Dashboard | observability, traces, regression testing | planned |
+| 13 | Equity Research Lab | source-grounded financial research, provider abstraction, immutable prediction snapshots, retrospective evals | MVP |
 
 ## Weekend Workflow
 
@@ -86,3 +87,15 @@ python3 -m app.server
 ```
 
 Open `http://127.0.0.1:8002` and choose **Load example**. See the [Project 02 README](projects/02-deep-research-briefing/README.md) for API key setup and scope.
+
+
+## Project 13
+
+```bash
+cd projects/13-equity-research-lab
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Equity Research Lab runs in demo mode without API keys and is designed to add SEC, analyst, options, persistence, and retrospective-evaluation providers incrementally. See the [Project 13 README](projects/13-equity-research-lab/README.md).

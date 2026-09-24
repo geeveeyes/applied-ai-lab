@@ -1,0 +1,86 @@
+export type ScoreKey =
+  | "businessQuality"
+  | "financialPerformance"
+  | "growthRunway"
+  | "industryMoat"
+  | "leadershipGovernance"
+  | "valuation"
+  | "analystExpectations"
+  | "sentimentPositioning"
+  | "technicalLiquidity"
+  | "catalysts"
+  | "riskResilience"
+  | "portfolioFit";
+
+export type ResearchScores = Record<ScoreKey, number>;
+
+export type Citation = {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt?: string;
+  retrievedAt: string;
+  tier: 1 | 2 | 3 | 4 | 5;
+};
+
+export type AnalystCall = {
+  analyst: string;
+  firm: string;
+  rating: "Buy" | "Hold" | "Sell" | "Other";
+  priceTarget?: number;
+  analystRank?: number;
+  successRate?: number;
+  averageReturn?: number;
+  date?: string;
+  sourceUrl?: string;
+};
+
+export type Scenario = {
+  label: "Bull" | "Base" | "Bear";
+  probability: number;
+  fairValue: number;
+  thesis: string[];
+};
+
+export type OptionIdea = {
+  strategy: string;
+  fit: "Strong" | "Moderate" | "Weak";
+  rationale: string;
+  maxLoss: string;
+  capitalProfile: string;
+  volatilityView: string;
+};
+
+export type ResearchRun = {
+  id: string;
+  ticker: string;
+  companyName: string;
+  analyzedAt: string;
+  asOfPrice: number;
+  dataMode: "demo" | "live" | "hybrid";
+  skillVersion: string;
+  score: number;
+  confidence: number;
+  verdict: "Buy candidate" | "Watch" | "Avoid for now" | "Insufficient data";
+  scores: ResearchScores;
+  highlights: string[];
+  risks: string[];
+  catalysts: string[];
+  managementCredibility: string[];
+  expectationGap: string;
+  valuationSummary: string;
+  analystSummary: string;
+  analysts: AnalystCall[];
+  scenarios: Scenario[];
+  thesisKillers: string[];
+  optionIdeas: OptionIdea[];
+  benchmark: string;
+  expectedReturn12m: { low: number; high: number };
+  citations: Citation[];
+  notes: string[];
+};
+
+export type ResearchInput = {
+  ticker: string;
+  portfolioFit?: number;
+};

@@ -1,4 +1,4 @@
-# 12-Project AI Portfolio Roadmap
+# Applied AI Portfolio Roadmap
 
 Each project is designed for a 3-6 hour first version. Later weekends can add polish, tests, screenshots, deployment, or deeper integrations.
 
@@ -16,6 +16,7 @@ Each project is designed for a 3-6 hour first version. Later weekends can add po
 | 10 | AI Data Cleaning Copilot | Inspect CSVs, infer schema problems, and suggest transformations. | Code generation, data profiling, human-in-the-loop transforms | Practical data/AI tooling. | CSV upload, profile summary, safe transform preview. |
 | 11 | Voice Journal Memory Coach | Record or paste reflections and receive themes, goals, and follow-up prompts. | Speech/text pipeline, memory, personalization | Human-centered AI product signal. | Text-first version, memory JSON file, weekly summary. |
 | 12 | Agent Reliability Dashboard | Track prompts, model responses, latency, failures, eval scores, and regressions across lab projects. | Observability, traces, reliability engineering | Excellent senior-engineering signal. | Local JSONL logs, dashboard, eval trend chart. |
+| 13 | Equity Research Lab | Research any public ticker, preserve the thesis, and grade predictions against realized returns. | Source-grounded agents, provider abstraction, financial data, evals, immutable snapshots | Demonstrates applied AI + finance product thinking and self-evaluating research workflows. | Demo-mode Next.js portal, SEC/analyst adapters, 12-factor scorecard, archive, retrospective grading. |
 
 ## Suggested Order
 
