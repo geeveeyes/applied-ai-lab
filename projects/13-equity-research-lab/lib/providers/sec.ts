@@ -8,18 +8,26 @@ const SEC_HEADERS = {
 type TickerMap = Record<string, { cik_str: number; ticker: string; title: string }>;
 type FactUnit = { val?: number; form?: string; filed?: string; start?: string; end?: string; fp?: string; fy?: number };
 
-function latestAnnualUsd(fact: any): FactUnit | undefined {
+function annualCandidates(fact: any): FactUnit[] {
   const units = fact?.units?.USD;
-  if (!Array.isArray(units)) return undefined;
-  const annual = (units as FactUnit[])
-    .filter((x) => x.form === "10-K" && x.end && x.filed)
+  if (!Array.isArray(units)) return [];
+  return (units as FactUnit[])
+    .filter((x) => x.form === "10-K" && x.end && x.filed && typeof x.val === "number")
     .filter((x) => {
       if (!x.start || !x.end) return true;
       const days = (new Date(x.end).getTime() - new Date(x.start).getTime()) / 86400000;
       return days >= 300 && days <= 430;
-    })
-    .sort((a, b) => String(b.filed).localeCompare(String(a.filed)));
-  return annual[0];
+    });
+}
+
+function latestAnnualAcross(...facts: any[]): FactUnit | undefined {
+  return facts
+    .flatMap(annualCandidates)
+    .sort((a, b) => {
+      const endCompare = String(b.end).localeCompare(String(a.end));
+      if (endCompare !== 0) return endCompare;
+      return String(b.filed).localeCompare(String(a.filed));
+    })[0];
 }
 
 export class SecProvider implements FundamentalsProvider {
@@ -30,17 +38,34 @@ export class SecProvider implements FundamentalsProvider {
     const tickerMap = (await tickersRes.json()) as TickerMap;
     const match = Object.values(tickerMap).find((x) => x.ticker.toUpperCase() === ticker.toUpperCase());
     if (!match) throw new Error(`Ticker ${ticker} not found in SEC company map`);
+
     const cik = String(match.cik_str).padStart(10, "0");
     const factsUrl = `https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`;
     const factsRes = await fetch(factsUrl, { headers: SEC_HEADERS, next: { revalidate: 21600 } });
     if (!factsRes.ok) throw new Error(`SEC companyfacts failed: ${factsRes.status}`);
+
     const data = await factsRes.json();
     const gaap = data?.facts?.["us-gaap"] ?? {};
 
-    const revenueFact = latestAnnualUsd(gaap.Revenues ?? gaap.RevenueFromContractWithCustomerExcludingAssessedTax);
-    const incomeFact = latestAnnualUsd(gaap.NetIncomeLoss);
-    const cashFact = latestAnnualUsd(gaap.NetCashProvidedByUsedInOperatingActivities);
-    const anchor = revenueFact ?? incomeFact ?? cashFact;
+    // Companies can migrate between XBRL taxonomy tags over time.
+    // Choose the newest annual fact ACROSS compatible tags rather than taking
+    // the first tag that happens to exist.
+    const revenueFact = latestAnnualAcross(
+      gaap.RevenueFromContractWithCustomerExcludingAssessedTax,
+      gaap.Revenues,
+      gaap.SalesRevenueNet,
+    );
+    const incomeFact = latestAnnualAcross(
+      gaap.NetIncomeLoss,
+      gaap.ProfitLoss,
+    );
+    const cashFact = latestAnnualAcross(
+      gaap.NetCashProvidedByUsedInOperatingActivities,
+      gaap.NetCashProvidedByUsedInOperatingActivitiesContinuingOperations,
+    );
+
+    const periodCandidates = [revenueFact, incomeFact, cashFact].filter(Boolean) as FactUnit[];
+    const anchor = periodCandidates.sort((a, b) => String(b.end).localeCompare(String(a.end)))[0];
 
     return {
       companyName: data?.entityName ?? match.title,

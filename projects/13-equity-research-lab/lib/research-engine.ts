@@ -26,7 +26,7 @@ function liveShell(ticker: string): ResearchRun {
     analyzedAt: new Date().toISOString(),
     asOfPrice: 0,
     dataMode: "hybrid",
-    skillVersion: "equity-research-v0.3.0",
+    skillVersion: "equity-research-v0.3.1",
     score: 0,
     confidence: 0,
     verdict: "Insufficient data",
@@ -123,13 +123,28 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
   }
 
   const latestActualPeriod = fundamentals?.latestAnnualPeriodEnd;
+  const analysisDate = run.analyzedAt.slice(0, 10);
+
+  // FMP estimate dates are fiscal period-end dates. Historical rows can be
+  // returned together with future rows. Keep only periods that are both:
+  // 1) later than the latest reported annual actual, and
+  // 2) later than today's analysis date.
+  //
+  // Rule (2) prevents already-ended fiscal periods from being used as a
+  // "nearest-forward" valuation input if reporting has lagged or the actual
+  // period anchor is incomplete.
   const forwardEstimates = (analystData?.estimates ?? [])
-    .filter((x) => x.date && (!latestActualPeriod || x.date > latestActualPeriod))
+    .filter((x) => x.date)
+    .filter((x) => !latestActualPeriod || String(x.date) > latestActualPeriod)
+    .filter((x) => String(x.date) > analysisDate)
     .sort((a, b) => String(a.date).localeCompare(String(b.date)))
     .slice(0, 4);
 
   const nearestForward = forwardEstimates.find((x) => x.epsAvg || x.revenueAvg);
-  const hasSecAnnual = Boolean(fundamentals?.latestAnnualPeriodEnd && (fundamentals?.revenue || fundamentals?.netIncome || fundamentals?.operatingCashFlow));
+  const hasSecAnnual = Boolean(
+    fundamentals?.latestAnnualPeriodEnd &&
+    (fundamentals?.revenue || fundamentals?.netIncome || fundamentals?.operatingCashFlow)
+  );
   const coverage = coverageScore({
     market: Boolean(market.price),
     secAnnual: hasSecAnnual,
@@ -155,7 +170,7 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
       unavailable: analystData.unavailable,
     } : null,
     evidenceCoverageScore: coverage,
-    sourcePolicy: "SEC facts are primary-source evidence. FMP quote/consensus/estimates are professional-data evidence. Estimate dates are fiscal period-end dates. Missing fields must not be inferred.",
+    sourcePolicy: "SEC facts are primary-source evidence. FMP quote/consensus/estimates are professional-data evidence. Estimate dates are fiscal period-end dates. Only future estimate periods relative to the analysis date are supplied to the AI.",
     scoreWeights: {
       businessQuality: 10,
       financialPerformance: 15,
@@ -207,12 +222,12 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     })) : [];
 
     if (!baseEps) {
-      run.notes.push("Scenario fair values were withheld because no usable nearest-forward EPS estimate was available.");
+      run.notes.push("Scenario fair values were withheld because no usable future EPS estimate was available.");
     }
 
     run.notes = [
       `Evidence coverage score: ${coverage}/100. Final confidence blends 75% deterministic data coverage with 25% model interpretation confidence.`,
-      latestActualPeriod ? `Latest reported annual period end: ${latestActualPeriod}. Only estimate periods after this date were used as forward estimates.` : "Latest reported annual period end unavailable.",
+      latestActualPeriod ? `Latest reported annual period end: ${latestActualPeriod}. Only estimate periods after both this date and the analysis date were used as forward estimates.` : "Latest reported annual period end unavailable.",
       "Sell-side price targets are treated as sentiment evidence only and are not used as scenario fair values.",
       ...run.notes,
       ...errors.map((x) => `Data coverage note: ${x}`),
