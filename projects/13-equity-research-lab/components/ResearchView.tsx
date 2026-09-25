@@ -12,7 +12,7 @@ function moneyBillions(value?: number) {
 }
 
 export function ResearchView({ run }: { run: ResearchRun }) {
-  const calibrated = run.scenarios.some(s => s.valuationMethod?.includes("Price-anchored")) || /^equity-research-v0\.[56]\./.test(run.skillVersion);
+  const calibrated = run.scenarios.some(s => s.valuationMethod?.includes("price-anchored")) || /^equity-research-v0\.[56]\./.test(run.skillVersion);
   const hasScores = run.score > 0 && run.confidence > 0;
   return <>
     <SnapshotRecorder run={run} />

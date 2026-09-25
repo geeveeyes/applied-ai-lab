@@ -1,6 +1,20 @@
 # Project Status
 
-## v0.5.2 — foreign-filer and partial-evidence support
+## v0.6.0 — private durable research and end-of-day fallback
+
+Supabase stores immutable server-generated reports in private browser workspaces.
+Alpha Vantage supplies end-of-day quotes when FMP fails, with a six-hour persistent
+cache and atomic 24-call daily cap. Archive reads do not rerun research. Legacy
+browser copies remain available. Database failures fall back visibly to browser storage.
+
+Production migration applied and RLS/public-access restrictions verified on 2026-09-25.
+Live NVDA, AMZN, GOOGL, MSFT and NBIS reports saved successfully. NBIS now has a
+verified Alpha Vantage price and SEC-backed partial analysis; missing forecasts still
+withhold scenarios and cap confidence. Saved report equality and cross-workspace
+404s verified for all four FMP sample reports; browser archive reopening verified for NBIS.
+30 automated tests and production build/type checks passed.
+
+## Prior v0.5.2 research controls
 
 Deterministic evidence confidence and scenario arithmetic, categorical evidence-adjusted ratings with per-dimension explanations, matched SEC periods, forecast horizon guards, and saved browser snapshot review are implemented.
 
@@ -9,8 +23,8 @@ Validation: 21 regression tests pass; production build and type checks pass. Liv
 ## Remaining capabilities
 
 - Independent intrinsic valuation and deeper primary-source qualitative analysis.
-- Broader market-data entitlement for additional symbols.
-- Durable server-side snapshots and scheduled historical-price evaluation.
+- Broader forecast coverage and deeper financial context for less-covered symbols.
+- Account sign-in/cross-device recovery and scheduled historical-price evaluation.
 - Analyst-level track records and supported options-chain analytics.
 - Separate dependency maintenance for reported framework/test-tool advisories.
 

@@ -21,7 +21,7 @@ export function saveRun(run: ResearchRun) {
 export async function loadArchive(): Promise<{ runs: ResearchRun[]; message: string }> {
   const local = loadRuns();
   try {
-    const response = await fetch("/api/research", { cache: "no-store" });
+    const response = await fetch("/api/research", { cache: "no-store", signal: AbortSignal.timeout(10000) });
     if (!response.ok) throw new Error("Cloud archive unavailable");
     const { runs: cloud } = await response.json() as { runs: ResearchRun[] };
     const merged = new Map(local.map(run => [run.id, run]));

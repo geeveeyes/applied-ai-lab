@@ -11,7 +11,7 @@ export default function SavedResearch({ params }: { params: Promise<{ id: string
     let active = true;
     setRun(undefined);
     const local = loadRuns().find(r => r.id === id) ?? null;
-    fetch(`/api/research/${encodeURIComponent(id)}`, { cache: "no-store" })
+    fetch(`/api/research/${encodeURIComponent(id)}`, { cache: "no-store", signal: AbortSignal.timeout(10000) })
       .then(async response => response.ok ? await response.json() as ResearchRun : local)
       .then(saved => { if (active) setRun(saved); })
       .catch(() => { if (active) setRun(local); });
