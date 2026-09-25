@@ -14,10 +14,12 @@ export function selectHorizonEstimate(
 ): EstimateRow | undefined {
   const target = addYearsIso(analysisDate, horizonYears);
   const usable = estimates
-    .filter((x) => x.date && Number.isFinite(x.epsAvg) && (x.epsAvg ?? 0) > 0)
+    .filter((x) => x.date && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && Number.isFinite(Date.parse(x.date)))
     .sort((a, b) => String(a.date).localeCompare(String(b.date)));
   // Never silently substitute an expired forecast or one more than a fiscal year away.
-  return usable.find((x) => String(x.date) >= target && String(x.date) <= addYearsIso(target, 1));
+  const selected = usable.find((x) => String(x.date) >= target && String(x.date) <= addYearsIso(target, 1));
+  // A loss-making target year cannot be skipped in favor of a later profit year.
+  return selected && Number.isFinite(selected.epsAvg) && (selected.epsAvg ?? 0) > 0 ? selected : undefined;
 }
 
 function enterpriseValueFromFcf(

@@ -28,6 +28,9 @@ describe("deterministic calibration", () => {
     expect(selectHorizonEstimate([{date:"2027-01-01", epsAvg:10}], "2026-09-25")).toBeUndefined();
     expect(selectHorizonEstimate([{date:"2030-01-01", epsAvg:10}], "2026-09-25")).toBeUndefined();
   });
+  it("does not skip a loss-making horizon year for later positive EPS", () => {
+    expect(selectHorizonEstimate([{date:"2027-12-31", epsAvg:-2}, {date:"2028-06-30", epsAvg:3}], "2026-09-25")).toBeUndefined();
+  });
   it("handles inverted ranges and negative lower estimates without negative prices", () => {
     const inverted = calibratedScenarios(100, {epsAvg:10, epsLow:15, epsHigh:5}, "2027-09-25");
     expect(inverted[2].fairValue).toBe(64);

@@ -1,34 +1,17 @@
 # Project Status
 
-## Implemented in v0.1.0
+## v0.5.1 — review release
 
-- Reusable `skills/equity-research/SKILL.md`
-- Next.js / TypeScript portal shell
-- Ticker analysis route and UI
-- 12-factor weighted research scorecard
-- Bull/base/bear scenarios and thesis killers
-- SEC company-facts provider
-- FMP/TipRanks analyst provider boundary with sourced analyst calls
-- Options-chain provider interface and strategy comparison UI
-- Browser research archive for MVP use
-- Supabase schema for persistent snapshots, claims and retrospectives
-- Retrospective grading logic for prediction-vs-actual evaluation
-- Core-logic smoke tests
-- Vercel deployment metadata
+Deterministic evidence confidence and scenario arithmetic, categorical evidence-adjusted ratings with per-dimension explanations, matched SEC periods, forecast horizon guards, and saved browser snapshot review are implemented.
 
-## Validation completed
+Validation: 17 regression tests pass; production build and type checks pass. Live NVDA, AMZN, GOOGL and MSFT reports exercised; CROX, DECK and IBM fail safely under current FMP subscription restrictions. See [live review](evals/LIVE_REVIEW_2026-09-25.md) for recorded results and limits.
 
-Core TypeScript research/scoring modules were compiled with TypeScript 5.8.3 and smoke-tested locally. Package installation / full Next.js build could not be completed in the current runtime because access to the npm registry timed out.
+## Remaining capabilities
 
-## Repository
+- Independent intrinsic valuation and deeper primary-source qualitative analysis.
+- Broader market-data entitlement for additional symbols.
+- Durable server-side snapshots and scheduled historical-price evaluation.
+- Analyst-level track records and supported options-chain analytics.
+- Separate dependency maintenance for reported framework/test-tool advisories.
 
-This project lives at `projects/13-equity-research-lab/` inside `geeveeyes/applied-ai-lab`.
-
-## Next milestones
-
-1. Run `npm install`, `npm test`, and `npm run build` in an environment with npm access.
-2. Connect Supabase persistence.
-3. Add historical-price retrieval and scheduled retrospective grading.
-4. Implement reverse DCF and richer fundamentals normalization.
-5. Add live options chain / Greeks / IV analytics.
-6. Deploy the project to Vercel.
+The portal is suitable for reviewing the research workflow and its disclosed sensitivity assumptions; it is not a trading system. No trades are executed.
