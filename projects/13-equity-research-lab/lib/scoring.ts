@@ -1,4 +1,4 @@
-import type { ResearchScores, ScoreKey } from "./types";
+import type { DimensionCoverage, ResearchScores, ScoreKey } from "./types";
 
 export const SCORE_WEIGHTS: Record<ScoreKey, number> = {
   businessQuality: 10,
@@ -21,6 +21,28 @@ export function weightedScore(scores: ResearchScores): number {
     0,
   );
   return Math.round(total);
+}
+
+export function weightedCoverage(coverage: DimensionCoverage): number {
+  const total = (Object.keys(SCORE_WEIGHTS) as ScoreKey[]).reduce(
+    (sum, key) => sum + (coverage[key] / 100) * SCORE_WEIGHTS[key],
+    0,
+  );
+  return Math.round(total);
+}
+
+export function evidenceAdjustScores(
+  raw: ResearchScores,
+  coverage: DimensionCoverage,
+): ResearchScores {
+  return Object.fromEntries(
+    (Object.keys(raw) as ScoreKey[]).map((key) => {
+      // The model may reason from supplied evidence, but weakly-covered dimensions
+      // cannot receive near-certain scores simply from pretrained knowledge.
+      const cap = Math.min(100, coverage[key] + 20);
+      return [key, Math.round(Math.min(raw[key], cap))];
+    }),
+  ) as ResearchScores;
 }
 
 export function verdictFor(score: number, confidence: number) {

@@ -8,26 +8,66 @@ const SEC_HEADERS = {
 type TickerMap = Record<string, { cik_str: number; ticker: string; title: string }>;
 type FactUnit = { val?: number; form?: string; filed?: string; start?: string; end?: string; fp?: string; fy?: number };
 
+function durationDays(x: FactUnit) {
+  if (!x.start || !x.end) return undefined;
+  return (new Date(x.end).getTime() - new Date(x.start).getTime()) / 86400000;
+}
+
 function annualCandidates(fact: any): FactUnit[] {
   const units = fact?.units?.USD;
   if (!Array.isArray(units)) return [];
   return (units as FactUnit[])
     .filter((x) => x.form === "10-K" && x.end && x.filed && typeof x.val === "number")
     .filter((x) => {
-      if (!x.start || !x.end) return true;
-      const days = (new Date(x.end).getTime() - new Date(x.start).getTime()) / 86400000;
-      return days >= 300 && days <= 430;
+      const days = durationDays(x);
+      return days == null || (days >= 300 && days <= 430);
     });
 }
 
+function quarterCandidates(fact: any): FactUnit[] {
+  const units = fact?.units?.USD;
+  if (!Array.isArray(units)) return [];
+  return (units as FactUnit[])
+    .filter((x) => x.form === "10-Q" && x.end && x.filed && typeof x.val === "number")
+    .filter((x) => {
+      const days = durationDays(x);
+      return days != null && days >= 60 && days <= 120;
+    });
+}
+
+function newest(candidates: FactUnit[]) {
+  return candidates.sort((a, b) => {
+    const endCompare = String(b.end).localeCompare(String(a.end));
+    if (endCompare !== 0) return endCompare;
+    return String(b.filed).localeCompare(String(a.filed));
+  })[0];
+}
+
 function latestAnnualAcross(...facts: any[]): FactUnit | undefined {
-  return facts
-    .flatMap(annualCandidates)
-    .sort((a, b) => {
-      const endCompare = String(b.end).localeCompare(String(a.end));
-      if (endCompare !== 0) return endCompare;
-      return String(b.filed).localeCompare(String(a.filed));
-    })[0];
+  return newest(facts.flatMap(annualCandidates));
+}
+
+function latestQuarterAcross(...facts: any[]): FactUnit | undefined {
+  return newest(facts.flatMap(quarterCandidates));
+}
+
+function latestFiling(submissions: any, form: string, cikNumber: number) {
+  const recent = submissions?.filings?.recent;
+  if (!recent?.form || !Array.isArray(recent.form)) return undefined;
+  for (let i = 0; i < recent.form.length; i++) {
+    if (recent.form[i] !== form) continue;
+    const accession = recent.accessionNumber?.[i];
+    const primaryDocument = recent.primaryDocument?.[i];
+    if (!accession || !primaryDocument) continue;
+    const accessionNoDashes = String(accession).replaceAll("-", "");
+    return {
+      form,
+      filedAt: recent.filingDate?.[i],
+      periodEnd: recent.reportDate?.[i],
+      url: `https://www.sec.gov/Archives/edgar/data/${cikNumber}/${accessionNoDashes}/${primaryDocument}`,
+    };
+  }
+  return undefined;
 }
 
 export class SecProvider implements FundamentalsProvider {
@@ -41,40 +81,90 @@ export class SecProvider implements FundamentalsProvider {
 
     const cik = String(match.cik_str).padStart(10, "0");
     const factsUrl = `https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`;
-    const factsRes = await fetch(factsUrl, { headers: SEC_HEADERS, next: { revalidate: 21600 } });
+    const submissionsUrl = `https://data.sec.gov/submissions/CIK${cik}.json`;
+
+    const [factsRes, submissionsRes] = await Promise.all([
+      fetch(factsUrl, { headers: SEC_HEADERS, next: { revalidate: 21600 } }),
+      fetch(submissionsUrl, { headers: SEC_HEADERS, next: { revalidate: 21600 } }),
+    ]);
     if (!factsRes.ok) throw new Error(`SEC companyfacts failed: ${factsRes.status}`);
 
     const data = await factsRes.json();
+    const submissions = submissionsRes.ok ? await submissionsRes.json() : null;
     const gaap = data?.facts?.["us-gaap"] ?? {};
 
-    // Companies can migrate between XBRL taxonomy tags over time.
-    // Choose the newest annual fact ACROSS compatible tags rather than taking
-    // the first tag that happens to exist.
     const revenueFact = latestAnnualAcross(
       gaap.RevenueFromContractWithCustomerExcludingAssessedTax,
       gaap.Revenues,
       gaap.SalesRevenueNet,
     );
-    const incomeFact = latestAnnualAcross(
-      gaap.NetIncomeLoss,
-      gaap.ProfitLoss,
-    );
+    const incomeFact = latestAnnualAcross(gaap.NetIncomeLoss, gaap.ProfitLoss);
     const cashFact = latestAnnualAcross(
       gaap.NetCashProvidedByUsedInOperatingActivities,
       gaap.NetCashProvidedByUsedInOperatingActivitiesContinuingOperations,
     );
+    const capexFact = latestAnnualAcross(
+      gaap.PaymentsToAcquirePropertyPlantAndEquipment,
+      gaap.PaymentsToAcquireProductiveAssets,
+    );
+
+    const quarterRevenue = latestQuarterAcross(
+      gaap.RevenueFromContractWithCustomerExcludingAssessedTax,
+      gaap.Revenues,
+      gaap.SalesRevenueNet,
+    );
+    const quarterIncome = latestQuarterAcross(gaap.NetIncomeLoss, gaap.ProfitLoss);
+    const quarterGrossProfit = latestQuarterAcross(gaap.GrossProfit);
 
     const periodCandidates = [revenueFact, incomeFact, cashFact].filter(Boolean) as FactUnit[];
-    const anchor = periodCandidates.sort((a, b) => String(b.end).localeCompare(String(a.end)))[0];
+    const annualAnchor = newest(periodCandidates);
+    const quarterCandidatesForAnchor = [quarterRevenue, quarterIncome, quarterGrossProfit].filter(Boolean) as FactUnit[];
+    const quarterAnchor = newest(quarterCandidatesForAnchor);
+    const latest10Q = submissions ? latestFiling(submissions, "10-Q", match.cik_str) : undefined;
+
+    const operatingCashFlow = cashFact?.val;
+    const capitalExpenditures = capexFact?.val != null ? Math.abs(capexFact.val) : undefined;
+    const freeCashFlow = operatingCashFlow != null && capitalExpenditures != null
+      ? operatingCashFlow - capitalExpenditures
+      : undefined;
+    const latestQuarterRevenue = quarterRevenue?.val;
+    const latestQuarterGrossProfit = quarterGrossProfit?.val;
+    const latestQuarterGrossMargin =
+      latestQuarterRevenue && latestQuarterGrossProfit
+        ? latestQuarterGrossProfit / latestQuarterRevenue
+        : undefined;
+
+    const citations: FundamentalsSnapshot["citations"] = [
+      { title: `${match.title} SEC company facts`, url: factsUrl, source: "SEC", retrievedAt, tier: 1 },
+    ];
+    if (latest10Q?.url) {
+      citations.push({
+        title: `${match.title} latest 10-Q`,
+        url: latest10Q.url,
+        source: "SEC",
+        publishedAt: latest10Q.filedAt,
+        retrievedAt,
+        tier: 1,
+      });
+    }
 
     return {
       companyName: data?.entityName ?? match.title,
       revenue: revenueFact?.val,
       netIncome: incomeFact?.val,
-      operatingCashFlow: cashFact?.val,
-      latestAnnualPeriodEnd: anchor?.end,
-      latestAnnualFiledAt: anchor?.filed,
-      citations: [{ title: `${match.title} SEC company facts`, url: factsUrl, source: "SEC", retrievedAt, tier: 1 }],
+      operatingCashFlow,
+      capitalExpenditures,
+      freeCashFlow,
+      latestAnnualPeriodEnd: annualAnchor?.end,
+      latestAnnualFiledAt: annualAnchor?.filed,
+      latestQuarterPeriodEnd: quarterAnchor?.end ?? latest10Q?.periodEnd,
+      latestQuarterFiledAt: quarterAnchor?.filed ?? latest10Q?.filedAt,
+      latestQuarterRevenue,
+      latestQuarterNetIncome: quarterIncome?.val,
+      latestQuarterGrossProfit,
+      latestQuarterGrossMargin,
+      latestQuarterFormUrl: latest10Q?.url,
+      citations,
     };
   }
 }

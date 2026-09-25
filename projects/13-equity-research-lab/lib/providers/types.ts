@@ -5,8 +5,17 @@ export type FundamentalsSnapshot = {
   revenue?: number;
   netIncome?: number;
   operatingCashFlow?: number;
+  capitalExpenditures?: number;
+  freeCashFlow?: number;
   latestAnnualPeriodEnd?: string;
   latestAnnualFiledAt?: string;
+  latestQuarterPeriodEnd?: string;
+  latestQuarterFiledAt?: string;
+  latestQuarterRevenue?: number;
+  latestQuarterNetIncome?: number;
+  latestQuarterGrossProfit?: number;
+  latestQuarterGrossMargin?: number;
+  latestQuarterFormUrl?: string;
   citations: Citation[];
 };
 
@@ -24,7 +33,7 @@ export type MarketSnapshot = {
 };
 
 export type EstimateRow = {
-  date?: string; // fiscal period end, NOT estimate publication date
+  date?: string;
   revenueAvg?: number;
   revenueLow?: number;
   revenueHigh?: number;
@@ -50,11 +59,9 @@ export type AnalystSnapshot = {
 export interface FundamentalsProvider {
   getFundamentals(ticker: string): Promise<FundamentalsSnapshot>;
 }
-
 export interface MarketProvider {
   getMarket(ticker: string): Promise<MarketSnapshot>;
 }
-
 export interface AnalystProvider {
   getAnalysts(ticker: string): Promise<AnalystSnapshot>;
 }

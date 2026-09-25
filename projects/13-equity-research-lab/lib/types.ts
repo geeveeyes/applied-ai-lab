@@ -13,6 +13,7 @@ export type ScoreKey =
   | "portfolioFit";
 
 export type ResearchScores = Record<ScoreKey, number>;
+export type DimensionCoverage = Record<ScoreKey, number>;
 
 export type Citation = {
   title: string;
@@ -44,6 +45,17 @@ export type Scenario = {
   assumptions?: string[];
 };
 
+export type ReverseDcf = {
+  available: boolean;
+  marketCap?: number;
+  baseFreeCashFlow?: number;
+  discountRate?: number;
+  terminalGrowth?: number;
+  explicitYears?: number;
+  impliedFcfGrowth?: number;
+  note: string;
+};
+
 export type OptionIdea = {
   strategy: string;
   fit: "Strong" | "Moderate" | "Weak";
@@ -66,12 +78,14 @@ export type ResearchRun = {
   confidence: number;
   verdict: "Buy candidate" | "Watch" | "Avoid for now" | "Insufficient data";
   scores: ResearchScores;
+  dimensionCoverage?: DimensionCoverage;
   highlights: string[];
   risks: string[];
   catalysts: string[];
   managementCredibility: string[];
   expectationGap: string;
   valuationSummary: string;
+  reverseDcf?: ReverseDcf;
   analystSummary: string;
   analysts: AnalystCall[];
   scenarios: Scenario[];

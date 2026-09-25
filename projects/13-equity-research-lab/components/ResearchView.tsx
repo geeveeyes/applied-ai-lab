@@ -7,6 +7,10 @@ function utcLabel(iso?: string) {
   return iso.replace("T", " ").replace(".000Z", " UTC").replace("Z", " UTC");
 }
 
+function moneyBillions(value?: number) {
+  return value == null ? "—" : `$${(value / 1e9).toFixed(1)}B`;
+}
+
 export function ResearchView({ run }: { run: ResearchRun }) {
   const hasScores = run.score > 0 && run.confidence > 0;
   return <>
@@ -29,14 +33,26 @@ export function ResearchView({ run }: { run: ResearchRun }) {
     {run.dataMode === "demo" && <div className="warning"><strong>Demo mode.</strong> Placeholder scores are for product development only, not an investment decision.</div>}
     {run.dataMode !== "demo" && !hasScores && <div className="warning"><strong>Live-data mode, incomplete analysis.</strong> The app did not substitute demo scores when a provider or AI synthesis failed. Check Research notes below.</div>}
 
-    {hasScores && <section><h2>Research scorecard</h2><ScoreGrid scores={run.scores} /></section>}
+    {hasScores && <section>
+      <h2>Research scorecard</h2>
+      <p className="muted">Scores are evidence-adjusted. A weakly researched dimension cannot receive an extreme score simply from model prior knowledge.</p>
+      <ScoreGrid scores={run.scores} coverage={run.dimensionCoverage} />
+    </section>}
 
     <div className="two-col">
       <section className="panel"><h2>Expectation gap</h2><p>{run.expectationGap}</p><h3>Valuation</h3><p>{run.valuationSummary}</p></section>
       <section className="panel"><h2>Catalysts</h2>{run.catalysts.length ? <ul>{run.catalysts.map(x => <li key={x}>{x}</li>)}</ul> : <p className="muted">Not available.</p>}<h3>Risks</h3>{run.risks.length ? <ul>{run.risks.map(x => <li key={x}>{x}</li>)}</ul> : <p className="muted">Not available.</p>}</section>
     </div>
 
-    {run.scenarios.length > 0 && <section><h2>Bull / base / bear</h2><div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}%</p><h3>${s.fairValue.toFixed(2)}</h3><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
+    {run.reverseDcf && <section className="panel">
+      <h2>Reverse DCF · what must the price be assuming?</h2>
+      {run.reverseDcf.available ? <>
+        <p>At the current market capitalization of <strong>{moneyBillions(run.reverseDcf.marketCap)}</strong>, a simplified cash-flow model requires roughly <strong>{((run.reverseDcf.impliedFcfGrowth ?? 0) * 100).toFixed(1)}% annual FCF growth</strong> for {run.reverseDcf.explicitYears} years from a base of {moneyBillions(run.reverseDcf.baseFreeCashFlow)}.</p>
+        <p className="muted">Assumptions: {((run.reverseDcf.discountRate ?? 0) * 100).toFixed(0)}% discount rate · {((run.reverseDcf.terminalGrowth ?? 0) * 100).toFixed(0)}% terminal growth. {run.reverseDcf.note}</p>
+      </> : <p className="muted">{run.reverseDcf.note}</p>}
+    </section>}
+
+    {run.scenarios.length > 0 && <section><h2>12-month bull / base / bear</h2><div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}%</p><h3>${s.fairValue.toFixed(2)}</h3><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
 
     {run.thesisKillers.length > 0 && <section className="panel"><h2>What would make us change our mind?</h2><ul>{run.thesisKillers.map(x => <li key={x}>{x}</li>)}</ul></section>}
 
