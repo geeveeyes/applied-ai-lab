@@ -14,7 +14,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: `${ticker}-${Date.now()}`, ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.5.1",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.5.2",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -93,10 +93,23 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     if (analystData.estimates.length || analystData.consensusTarget) liveComponents += 1;
   } else errors.push(analystResult.reason instanceof Error ? analystResult.reason.message : "FMP analyst provider failed");
 
+  if (fundamentals?.latestAnnualPeriodEnd) {
+    run.annualFinancials = {
+      periodEnd: fundamentals.latestAnnualPeriodEnd, form: fundamentals.latestAnnualForm,
+      filedAt: fundamentals.latestAnnualFiledAt, revenue: fundamentals.revenue,
+      netIncome: fundamentals.netIncome, operatingCashFlow: fundamentals.operatingCashFlow,
+      capitalExpenditures: fundamentals.capitalExpenditures, freeCashFlow: fundamentals.freeCashFlow,
+    };
+  }
   run.citations = citations;
   run.dataMode = liveComponents >= 3 ? "live" : "hybrid";
   if (!market?.price || !Number.isFinite(market.price) || market.price <= 0) {
-    run.notes = ["Live research stopped before AI synthesis because no verified current price was available.", ...errors.map((x) => `Provider note: ${x}`)];
+    run.expectationGap = "Price-based expectations analysis is unavailable because the market-data provider did not supply a verified quote.";
+    run.valuationSummary = "Valuation and return scenarios are withheld until a verified market price and suitable forecasts are available.";
+    run.notes = ["Live research stopped before AI synthesis because no verified current price was available.",
+      run.annualFinancials ? `Verified annual ${run.annualFinancials.form ?? "filing"} figures for ${run.annualFinancials.periodEnd} are shown separately; these do not establish a current investment verdict.` : "No supported annual financial facts were extracted; a source link alone does not establish financial coverage.",
+      "For HTTP 402, check the configured FMP account's endpoint and symbol entitlements. The application cannot determine the exact subscription from the HTTP status alone.",
+      ...errors.map((x) => `Provider note: ${x}`)];
     return run;
   }
 

@@ -71,3 +71,15 @@ it("SEC never subtracts capex or computes margin across different periods", asyn
   expect(result.latestQuarterRevenue).toBe(300);
   expect(result.latestQuarterGrossMargin).toBeUndefined();
 });
+
+it("extracts USD annual 20-F facts for foreign issuers even without 10-K or 10-Q", async () => {
+  const fact = (val:number) => ({units:{USD:[{val,start:"2025-01-01",end:"2025-12-31",form:"20-F",filed:"2026-04-30"}]}});
+  const gaap = {Revenues:fact(529800000),NetIncomeLoss:fact(82500000),NetCashProvidedByUsedInOperatingActivities:fact(384800000),PaymentsToAcquirePropertyPlantAndEquipment:fact(4066000000)};
+  vi.stubGlobal("fetch", vi.fn(async (url:string) => ({ok:true,json:async()=>url.includes("company_tickers") ? {0:{ticker:"NBIS",cik_str:1513845,title:"Nebius"}} : url.includes("companyfacts") ? {facts:{"us-gaap":gaap}} : {}})));
+  const result = await new SecProvider().getFundamentals("NBIS");
+  expect(result.latestAnnualForm).toBe("20-F");
+  expect(result.latestAnnualPeriodEnd).toBe("2025-12-31");
+  expect(result.revenue).toBe(529800000);
+  expect(result.freeCashFlow).toBe(-3681200000);
+  expect(result.latestQuarterRevenue).toBeUndefined();
+});

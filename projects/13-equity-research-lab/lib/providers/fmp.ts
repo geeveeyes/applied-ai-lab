@@ -3,13 +3,34 @@ import type { Citation } from "../types";
 
 const BASE = "https://financialmodelingprep.com/stable";
 
+export function providerErrorDetail(status: number, body: string, apiKey: string): string {
+  let message = "";
+  try {
+    const data = JSON.parse(body);
+    const value = data?.["Error Message"] ?? data?.message ?? data?.error;
+    if (typeof value === "string") message = value;
+  } catch { /* Unstructured HTML/proxy responses are not suitable for display. */ }
+  // Providers may echo their request URL. Never expose a configured credential
+  // or other query-string values in a public report.
+  for (const secret of [apiKey, encodeURIComponent(apiKey)]) {
+    if (secret) message = message.split(secret).join("[redacted]");
+  }
+  message = message.replace(/https?:\/\/[^\s<>"']+/gi, "[provider URL]")
+    .replace(/(?:api[_-]?key|token|authorization)\s*[:=]\s*[^\s,;]+/gi, "credential=[redacted]")
+    .replace(/[\r\n\t]+/g, " ").trim().slice(0, 240);
+  const meaning = status === 402 ? "access or subscription restriction; endpoint or symbol entitlement must be checked" :
+    status === 401 || status === 403 ? "authentication or access denied" :
+    status === 429 ? "provider request limit reached" : "provider request failed";
+  return `HTTP ${status}: ${meaning}${message ? `. Provider message: ${message}` : "; provider supplied no usable error detail"}`;
+}
+
 async function fmp(path: string) {
   const key = process.env.FMP_API_KEY;
   if (!key) throw new Error("FMP_API_KEY is not configured");
   const joiner = path.includes("?") ? "&" : "?";
   const res = await fetch(`${BASE}/${path}${joiner}apikey=${encodeURIComponent(key)}`, { next: { revalidate: 900 } });
   if (!res.ok) {
-    const detail = res.status === 402 ? "endpoint not included in current FMP plan" : `HTTP ${res.status}`;
+    const detail = providerErrorDetail(res.status, await res.text(), key);
     throw new Error(`FMP ${path.split("?")[0]} failed: ${detail}`);
   }
   return res.json();

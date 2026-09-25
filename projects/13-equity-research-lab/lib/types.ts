@@ -80,6 +80,11 @@ export type ResearchRun = {
   verdict: "Buy candidate" | "Watch" | "Avoid for now" | "Insufficient data";
   scores: ResearchScores;
   scoreReasons?: Partial<Record<ScoreKey, string>>;
+  annualFinancials?: {
+    periodEnd: string; form?: string; filedAt?: string;
+    revenue?: number; netIncome?: number; operatingCashFlow?: number;
+    capitalExpenditures?: number; freeCashFlow?: number;
+  };
   dimensionCoverage?: DimensionCoverage;
   highlights: string[];
   risks: string[];

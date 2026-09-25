@@ -17,7 +17,7 @@ function annualCandidates(fact: any): FactUnit[] {
   const units = fact?.units?.USD;
   if (!Array.isArray(units)) return [];
   return (units as FactUnit[])
-    .filter((x) => x.form === "10-K" && x.end && x.filed && typeof x.val === "number")
+    .filter((x) => ["10-K", "10-K/A", "20-F", "20-F/A", "40-F", "40-F/A"].includes(x.form ?? "") && x.end && x.filed && typeof x.val === "number")
     .filter((x) => {
       const days = durationDays(x);
       return days != null && days >= 300 && days <= 430;
@@ -161,6 +161,7 @@ export class SecProvider implements FundamentalsProvider {
       capitalExpenditures,
       freeCashFlow,
       latestAnnualPeriodEnd: annualAnchor?.end,
+      latestAnnualForm: annualAnchor?.form,
       latestAnnualFiledAt: annualAnchor?.filed,
       latestQuarterPeriodEnd: quarterAnchor?.end ?? latest10Q?.periodEnd,
       latestQuarterFiledAt: quarterAnchor?.filed ?? latest10Q?.filedAt,

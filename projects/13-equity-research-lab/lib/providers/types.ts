@@ -8,6 +8,7 @@ export type FundamentalsSnapshot = {
   capitalExpenditures?: number;
   freeCashFlow?: number;
   latestAnnualPeriodEnd?: string;
+  latestAnnualForm?: string;
   latestAnnualFiledAt?: string;
   latestQuarterPeriodEnd?: string;
   latestQuarterFiledAt?: string;

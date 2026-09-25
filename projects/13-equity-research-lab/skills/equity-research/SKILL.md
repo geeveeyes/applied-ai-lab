@@ -1,6 +1,6 @@
 # Equity Research Skill
 
-Version: `equity-research-v0.5.1`
+Version: `equity-research-v0.5.2`
 
 ## Purpose
 Analyze a public company without conflating business quality, valuation, market expectations and trade timing. Preserve every conclusion as a timestamped prediction so later retrospectives can improve the process.
@@ -68,3 +68,5 @@ Return: ticker, company, analysis date, market-data timestamp, data freshness, v
 Confidence is an evidence quality index calculated only by code, not model interpretation or investment-success probability. Scenarios use price / horizon EPS as their same-period multiple anchor, analyst EPS range (minimum ±10%, fallback ±20%) and explicit ±20% multiple stress. Base is neutral by construction. Weights 25/50/25 are illustrative, not calibrated probabilities. Withhold Buy candidate until independent valuation evidence exists. Missing horizon EPS withholds scenarios; never substitute an expired forecast.
 
 Categorical model ratings avoid numeric scale ambiguity. Insufficient evidence is neutral 50. Evidence-adjust every rating symmetrically with 50 + (raw − 50) × coverage / 100; missing evidence must not produce a negative business verdict. Show a reason for every dimension. This supersedes earlier one-sided score-cap language.
+
+US-GAAP USD annual facts from 20-F/40-F and annual amendments are supported alongside 10-K. Show available annual facts even if current quotes fail; never turn partial fundamentals into a price-based verdict. Provider HTTP 402 is an entitlement/access diagnostic, not proof that a particular endpoint is excluded.

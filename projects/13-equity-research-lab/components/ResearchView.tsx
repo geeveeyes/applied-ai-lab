@@ -34,6 +34,17 @@ export function ResearchView({ run }: { run: ResearchRun }) {
     {run.dataMode === "demo" && <div className="warning"><strong>Demo mode.</strong> Placeholder scores are for product development only, not an investment decision.</div>}
     {run.dataMode !== "demo" && !hasScores && <div className="warning"><strong>Live-data mode, incomplete analysis.</strong> The app did not substitute demo scores when a provider or AI synthesis failed. Check Research notes below.</div>}
 
+    {run.annualFinancials && <section className="panel">
+      <h2>Verified annual financials</h2>
+      <p className="muted">{run.annualFinancials.form ?? "SEC filing"} · period ended {run.annualFinancials.periodEnd}{run.annualFinancials.filedAt ? ` · filed ${run.annualFinancials.filedAt}` : ""}. USD; reported figures, not normalized earnings or a valuation.</p>
+      <div className="table-wrap"><table><thead><tr><th>Metric</th><th>Reported amount</th></tr></thead><tbody>{([
+        ["Revenue", run.annualFinancials.revenue], ["Net income / loss", run.annualFinancials.netIncome],
+        ["Operating cash flow", run.annualFinancials.operatingCashFlow], ["Cash capital expenditures", run.annualFinancials.capitalExpenditures],
+        ["Operating cash flow minus cash capex", run.annualFinancials.freeCashFlow],
+      ] as const).map(([label, value]) => <tr key={label}><td>{label}</td><td>{value == null ? "Unavailable" : `${value < 0 ? "−" : ""}$${(Math.abs(value) / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 })}M`}</td></tr>)}</tbody></table></div>
+      <p className="muted">Source: SEC company facts below. Annual figures can differ substantially from current operating conditions. Quarterly evidence may be unavailable for foreign filers.</p>
+    </section>}
+
     {hasScores && <section>
       <h2>Research scorecard</h2>
       <p className="muted">{run.scoreReasons ? "Ratings are evidence-adjusted toward neutral (50) when coverage is weak. Missing evidence lowers confidence; it does not establish that a business is poor." : "This report uses its recorded score methodology; see Research notes for the version and evidence policy."}</p>
