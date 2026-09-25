@@ -40,6 +40,8 @@ export type Scenario = {
   probability: number;
   fairValue: number;
   thesis: string[];
+  valuationMethod?: string;
+  assumptions?: string[];
 };
 
 export type OptionIdea = {
@@ -56,6 +58,7 @@ export type ResearchRun = {
   ticker: string;
   companyName: string;
   analyzedAt: string;
+  marketAsOf?: string;
   asOfPrice: number;
   dataMode: "demo" | "live" | "hybrid";
   skillVersion: string;

@@ -5,6 +5,8 @@ export type FundamentalsSnapshot = {
   revenue?: number;
   netIncome?: number;
   operatingCashFlow?: number;
+  latestAnnualPeriodEnd?: string;
+  latestAnnualFiledAt?: string;
   citations: Citation[];
 };
 
@@ -22,13 +24,15 @@ export type MarketSnapshot = {
 };
 
 export type EstimateRow = {
-  date?: string;
+  date?: string; // fiscal period end, NOT estimate publication date
   revenueAvg?: number;
   revenueLow?: number;
   revenueHigh?: number;
   epsAvg?: number;
   epsLow?: number;
   epsHigh?: number;
+  numAnalystsRevenue?: number;
+  numAnalystsEps?: number;
 };
 
 export type AnalystSnapshot = {

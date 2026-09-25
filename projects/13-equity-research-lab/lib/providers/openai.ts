@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ResearchScores, Scenario, OptionIdea } from "../types";
+import type { ResearchScores, OptionIdea } from "../types";
 
 const scoreKeys = [
   "businessQuality", "financialPerformance", "growthRunway", "industryMoat",
@@ -12,7 +12,7 @@ const scoreShape = Object.fromEntries(scoreKeys.map((key) => [key, z.number().mi
 };
 
 const schema = z.object({
-  confidence: z.number().min(0).max(100),
+  analysisConfidence: z.number().min(0).max(100),
   scores: z.object(scoreShape),
   highlights: z.array(z.string()).max(6),
   risks: z.array(z.string()).max(6),
@@ -24,7 +24,8 @@ const schema = z.object({
   scenarios: z.array(z.object({
     label: z.enum(["Bull", "Base", "Bear"]),
     probability: z.number().min(0).max(100),
-    fairValue: z.number().min(0),
+    epsFactor: z.number().min(0.25).max(2),
+    peMultiple: z.number().min(5).max(80),
     thesis: z.array(z.string()).min(1).max(5),
   })).length(3),
   thesisKillers: z.array(z.string()).min(2).max(6),
@@ -41,7 +42,7 @@ const schema = z.object({
 });
 
 export type AIResearch = {
-  confidence: number;
+  analysisConfidence: number;
   scores: ResearchScores;
   highlights: string[];
   risks: string[];
@@ -50,7 +51,13 @@ export type AIResearch = {
   expectationGap: string;
   valuationSummary: string;
   analystSummary: string;
-  scenarios: Scenario[];
+  scenarios: Array<{
+    label: "Bull" | "Base" | "Bear";
+    probability: number;
+    epsFactor: number;
+    peMultiple: number;
+    thesis: string[];
+  }>;
   thesisKillers: string[];
   optionIdeas: OptionIdea[];
   expectedReturn12m: { low: number; high: number };
@@ -63,12 +70,12 @@ function jsonSchema() {
     type: "object",
     additionalProperties: false,
     required: [
-      "confidence","scores","highlights","risks","catalysts","managementCredibility",
+      "analysisConfidence","scores","highlights","risks","catalysts","managementCredibility",
       "expectationGap","valuationSummary","analystSummary","scenarios","thesisKillers",
       "optionIdeas","expectedReturn12m","benchmark"
     ],
     properties: {
-      confidence: { type: "number", minimum: 0, maximum: 100 },
+      analysisConfidence: { type: "number", minimum: 0, maximum: 100 },
       scores: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: scoreProperties },
       highlights: { type: "array", maxItems: 6, items: { type: "string" } },
       risks: { type: "array", maxItems: 6, items: { type: "string" } },
@@ -81,11 +88,12 @@ function jsonSchema() {
         type: "array", minItems: 3, maxItems: 3,
         items: {
           type: "object", additionalProperties: false,
-          required: ["label","probability","fairValue","thesis"],
+          required: ["label","probability","epsFactor","peMultiple","thesis"],
           properties: {
             label: { type: "string", enum: ["Bull","Base","Bear"] },
             probability: { type: "number", minimum: 0, maximum: 100 },
-            fairValue: { type: "number", minimum: 0 },
+            epsFactor: { type: "number", minimum: 0.25, maximum: 2 },
+            peMultiple: { type: "number", minimum: 5, maximum: 80 },
             thesis: { type: "array", minItems: 1, maxItems: 5, items: { type: "string" } },
           },
         },
@@ -136,20 +144,23 @@ export class OpenAIResearchProvider {
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
         store: false,
         reasoning: { effort: "medium" },
-        prompt_cache_key: "applied-ai-lab:equity-research:v1",
+        prompt_cache_key: "applied-ai-lab:equity-research:v2",
         input: [
           {
             role: "system",
             content: [{
               type: "input_text",
               text: `You are the Equity Research Lab research engine. Use ONLY the supplied evidence packet.
-Never invent a price, financial metric, analyst call, catalyst, valuation input, or historical fact.
-If evidence is missing, reduce confidence and say so explicitly.
-Business quality is not the same thing as stock attractiveness. Focus on what expectations appear embedded in the current price.
-Scores are evidence-based judgments from 0-100. A high business-quality score must not automatically create a high valuation score.
-Scenario fair values must be plausible relative to the supplied current price and clearly reflect uncertainty.
-Do not recommend a specific option contract because no live options chain/Greeks are supplied. optionIdeas may compare shares, no-trade, or state that options require live IV/Greeks/liquidity.
+Never invent a price, financial metric, analyst call, catalyst, valuation input, historical fact, or estimate timestamp.
+Analyst-estimate "date" values are FISCAL PERIOD END DATES, not publication dates.
+Only compare forecast periods with actual periods after the evidence packet has already filtered them.
+Price-target consensus is sentiment evidence only. NEVER use sell-side price targets as bull/base/bear fair values or as the anchor for a valuation.
+For profitable companies with a usable nearest-forward EPS estimate, scenario valuation must use explicit EPS-factor x P/E assumptions. epsFactor scales the supplied nearest-forward EPS; peMultiple is the terminal/forward multiple used to produce scenario fair value in deterministic code.
+Scores are evidence-based judgments from 0-100. Missing evidence should lower the relevant dimension, not cause invented facts.
+analysisConfidence is your confidence in the qualitative interpretation, not overall data coverage. Data coverage is calculated separately in code.
+Do not recommend a specific option contract because no live options chain/Greeks are supplied.
 The three scenario probabilities must sum to approximately 100.
+Business quality is not the same thing as stock attractiveness. Focus on what expectations are embedded in the price.
 This is research support, not a guarantee of returns.`
             }],
           },

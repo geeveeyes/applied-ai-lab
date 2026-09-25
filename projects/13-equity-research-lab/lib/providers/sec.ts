@@ -6,13 +6,20 @@ const SEC_HEADERS = {
 };
 
 type TickerMap = Record<string, { cik_str: number; ticker: string; title: string }>;
+type FactUnit = { val?: number; form?: string; filed?: string; start?: string; end?: string; fp?: string; fy?: number };
 
-function latestUsd(fact: any): number | undefined {
+function latestAnnualUsd(fact: any): FactUnit | undefined {
   const units = fact?.units?.USD;
   if (!Array.isArray(units)) return undefined;
-  const annual = units.filter((x: any) => x.form === "10-K" || x.form === "10-Q");
-  const item = annual.sort((a: any, b: any) => String(b.filed).localeCompare(String(a.filed)))[0];
-  return item?.val;
+  const annual = (units as FactUnit[])
+    .filter((x) => x.form === "10-K" && x.end && x.filed)
+    .filter((x) => {
+      if (!x.start || !x.end) return true;
+      const days = (new Date(x.end).getTime() - new Date(x.start).getTime()) / 86400000;
+      return days >= 300 && days <= 430;
+    })
+    .sort((a, b) => String(b.filed).localeCompare(String(a.filed)));
+  return annual[0];
 }
 
 export class SecProvider implements FundamentalsProvider {
@@ -29,11 +36,19 @@ export class SecProvider implements FundamentalsProvider {
     if (!factsRes.ok) throw new Error(`SEC companyfacts failed: ${factsRes.status}`);
     const data = await factsRes.json();
     const gaap = data?.facts?.["us-gaap"] ?? {};
+
+    const revenueFact = latestAnnualUsd(gaap.Revenues ?? gaap.RevenueFromContractWithCustomerExcludingAssessedTax);
+    const incomeFact = latestAnnualUsd(gaap.NetIncomeLoss);
+    const cashFact = latestAnnualUsd(gaap.NetCashProvidedByUsedInOperatingActivities);
+    const anchor = revenueFact ?? incomeFact ?? cashFact;
+
     return {
       companyName: data?.entityName ?? match.title,
-      revenue: latestUsd(gaap.Revenues ?? gaap.RevenueFromContractWithCustomerExcludingAssessedTax),
-      netIncome: latestUsd(gaap.NetIncomeLoss),
-      operatingCashFlow: latestUsd(gaap.NetCashProvidedByUsedInOperatingActivities),
+      revenue: revenueFact?.val,
+      netIncome: incomeFact?.val,
+      operatingCashFlow: cashFact?.val,
+      latestAnnualPeriodEnd: anchor?.end,
+      latestAnnualFiledAt: anchor?.filed,
       citations: [{ title: `${match.title} SEC company facts`, url: factsUrl, source: "SEC", retrievedAt, tier: 1 }],
     };
   }

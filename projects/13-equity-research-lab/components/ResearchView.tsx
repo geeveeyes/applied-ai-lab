@@ -2,6 +2,11 @@ import type { ResearchRun } from "@/lib/types";
 import { ScoreGrid } from "./ScoreGrid";
 import { SnapshotRecorder } from "./SnapshotRecorder";
 
+function utcLabel(iso?: string) {
+  if (!iso) return null;
+  return iso.replace("T", " ").replace(".000Z", " UTC").replace("Z", " UTC");
+}
+
 export function ResearchView({ run }: { run: ResearchRun }) {
   const hasScores = run.score > 0 && run.confidence > 0;
   return <>
@@ -10,7 +15,10 @@ export function ResearchView({ run }: { run: ResearchRun }) {
       <div>
         <p className="eyebrow">{run.ticker} · {run.dataMode.toUpperCase()} DATA · {run.skillVersion}</p>
         <h1>{run.companyName}</h1>
-        <p>{run.asOfPrice > 0 ? <>As-of price <strong>${run.asOfPrice.toFixed(2)}</strong> · </> : null}analyzed {new Date(run.analyzedAt).toLocaleString()}</p>
+        <p>
+          {run.asOfPrice > 0 ? <>Market price <strong>${run.asOfPrice.toFixed(2)}</strong>{run.marketAsOf ? <> · market timestamp {utcLabel(run.marketAsOf)}</> : null}<br /></> : null}
+          Research generated {utcLabel(run.analyzedAt)}
+        </p>
       </div>
       <div className="verdict">
         <span>Research verdict</span><strong>{run.verdict}</strong>
@@ -28,7 +36,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
       <section className="panel"><h2>Catalysts</h2>{run.catalysts.length ? <ul>{run.catalysts.map(x => <li key={x}>{x}</li>)}</ul> : <p className="muted">Not available.</p>}<h3>Risks</h3>{run.risks.length ? <ul>{run.risks.map(x => <li key={x}>{x}</li>)}</ul> : <p className="muted">Not available.</p>}</section>
     </div>
 
-    {run.scenarios.length > 0 && <section><h2>Bull / base / bear</h2><div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}%</p><h3>${s.fairValue.toFixed(2)}</h3><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul></article>)}</div></section>}
+    {run.scenarios.length > 0 && <section><h2>Bull / base / bear</h2><div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}%</p><h3>${s.fairValue.toFixed(2)}</h3><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
 
     {run.thesisKillers.length > 0 && <section className="panel"><h2>What would make us change our mind?</h2><ul>{run.thesisKillers.map(x => <li key={x}>{x}</li>)}</ul></section>}
 
@@ -39,7 +47,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
 
     {run.optionIdeas.length > 0 && <section><h2>Options decision frame</h2><p className="muted">No specific option contract is recommended without a live chain, Greeks, IV and liquidity data.</p><div className="scenario-grid">{run.optionIdeas.map(o => <article className="panel" key={o.strategy}><p className="eyebrow">FIT: {o.fit}</p><h3>{o.strategy}</h3><p>{o.rationale}</p><small>Max loss: {o.maxLoss} · Capital: {o.capitalProfile} · IV: {o.volatilityView}</small></article>)}</div></section>}
 
-    <section className="panel"><h2>Sources</h2>{run.citations.length ? <ol>{run.citations.map((c, i) => <li key={`${c.url}-${i}`}><a href={c.url} target="_blank" rel="noreferrer">{c.title}</a> <span className="muted">— {c.source}, tier {c.tier}, retrieved {new Date(c.retrievedAt).toLocaleDateString()}</span></li>)}</ol> : <p className="muted">No verified sources loaded.</p>}</section>
+    <section className="panel"><h2>Sources</h2>{run.citations.length ? <ol>{run.citations.map((c, i) => <li key={`${c.url}-${i}`}><a href={c.url} target="_blank" rel="noreferrer">{c.title}</a> <span className="muted">— {c.source}, tier {c.tier}, retrieved {new Date(c.retrievedAt).toISOString().slice(0, 10)}</span></li>)}</ol> : <p className="muted">No verified sources loaded.</p>}</section>
     {run.notes.length > 0 && <section className="panel"><h2>Research notes</h2><ul>{run.notes.map((x, i) => <li key={`${x}-${i}`}>{x}</li>)}</ul></section>}
   </>;
 }

@@ -55,14 +55,13 @@ export class FmpAnalystProvider implements AnalystProvider {
     const unavailable: string[] = [];
     const result: AnalystSnapshot = { calls, estimates: [], citations, unavailable };
 
+    // ratings-historical is intentionally not called on the current plan; it returned 402.
     const requests = [
-      ["estimates", `analyst-estimates?symbol=${symbol}&period=annual&page=0&limit=6`] as const,
+      ["estimates", `analyst-estimates?symbol=${symbol}&period=annual&page=0&limit=8`] as const,
       ["targets", `price-target-consensus?symbol=${symbol}`] as const,
-      ["ratings", `ratings-historical?symbol=${symbol}&limit=12`] as const,
     ];
 
     const settled = await Promise.allSettled(requests.map(([, path]) => fmp(path)));
-
     for (let i = 0; i < settled.length; i++) {
       const name = requests[i][0];
       const response = settled[i];
@@ -70,11 +69,10 @@ export class FmpAnalystProvider implements AnalystProvider {
         unavailable.push(response.reason instanceof Error ? response.reason.message : `${name} unavailable`);
         continue;
       }
-
       const payload = response.value;
       if (name === "estimates") {
         const rows = Array.isArray(payload) ? payload : payload?.data ?? [];
-        result.estimates = rows.slice(0, 6).map((r: any) => ({
+        result.estimates = rows.map((r: any) => ({
           date: r.date,
           revenueAvg: Number(r.revenueAvg ?? r.estimatedRevenueAvg) || undefined,
           revenueLow: Number(r.revenueLow ?? r.estimatedRevenueLow) || undefined,
@@ -82,10 +80,11 @@ export class FmpAnalystProvider implements AnalystProvider {
           epsAvg: Number(r.epsAvg ?? r.estimatedEpsAvg) || undefined,
           epsLow: Number(r.epsLow ?? r.estimatedEpsLow) || undefined,
           epsHigh: Number(r.epsHigh ?? r.estimatedEpsHigh) || undefined,
+          numAnalystsRevenue: Number(r.numAnalystsRevenue ?? r.numberAnalystsEstimatedRevenue) || undefined,
+          numAnalystsEps: Number(r.numAnalystsEps ?? r.numberAnalystsEstimatedEps) || undefined,
         }));
         if (result.estimates.length) citations.push(citation(`${ticker} analyst estimates`, "analyst-estimates", ticker));
       }
-
       if (name === "targets") {
         const row = Array.isArray(payload) ? payload[0] : payload?.[0] ?? payload;
         result.consensusTarget = Number(row?.targetConsensus) || undefined;
@@ -94,26 +93,9 @@ export class FmpAnalystProvider implements AnalystProvider {
         result.targetMedian = Number(row?.targetMedian) || undefined;
         if (row) citations.push(citation(`${ticker} price target consensus`, "price-target-consensus", ticker));
       }
-
-      if (name === "ratings") {
-        const rows = Array.isArray(payload) ? payload : payload?.data ?? [];
-        const latest = rows[0];
-        if (latest) {
-          result.ratings = {
-            strongBuy: Number(latest.ratingStrongBuy ?? latest.strongBuy) || 0,
-            buy: Number(latest.ratingBuy ?? latest.buy) || 0,
-            hold: Number(latest.ratingHold ?? latest.hold) || 0,
-            sell: Number(latest.ratingSell ?? latest.sell) || 0,
-            strongSell: Number(latest.ratingStrongSell ?? latest.strongSell) || 0,
-          };
-          citations.push(citation(`${ticker} ratings history`, "ratings-historical", ticker));
-        }
-      }
     }
 
-    // Individual analyst identity / track-record data is intentionally optional.
-    // TipRanks-backed FMP endpoints return 402 unless that add-on is purchased.
-    unavailable.push("Individual analyst names and track records require the optional TipRanks data add-on.");
+    unavailable.push("Individual analyst identities and track records require the optional TipRanks data add-on.");
     return result;
   }
 }
