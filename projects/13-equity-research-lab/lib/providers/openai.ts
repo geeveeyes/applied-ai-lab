@@ -12,7 +12,6 @@ const scoreShape = Object.fromEntries(scoreKeys.map((key) => [key, z.number().mi
 };
 
 const schema = z.object({
-  analysisConfidence: z.number().min(0).max(100),
   scores: z.object(scoreShape),
   highlights: z.array(z.string()).max(6),
   risks: z.array(z.string()).max(6),
@@ -21,13 +20,6 @@ const schema = z.object({
   expectationGap: z.string(),
   valuationSummary: z.string(),
   analystSummary: z.string(),
-  scenarios: z.array(z.object({
-    label: z.enum(["Bull", "Base", "Bear"]),
-    probability: z.number().min(0).max(100),
-    epsFactor: z.number().min(0.25).max(2),
-    peMultiple: z.number().min(5).max(80),
-    thesis: z.array(z.string()).min(1).max(5),
-  })).length(3),
   thesisKillers: z.array(z.string()).min(2).max(6),
   optionIdeas: z.array(z.object({
     strategy: z.string(),
@@ -42,7 +34,6 @@ const schema = z.object({
 });
 
 export type AIResearch = {
-  analysisConfidence: number;
   scores: ResearchScores;
   highlights: string[];
   risks: string[];
@@ -51,13 +42,6 @@ export type AIResearch = {
   expectationGap: string;
   valuationSummary: string;
   analystSummary: string;
-  scenarios: Array<{
-    label: "Bull" | "Base" | "Bear";
-    probability: number;
-    epsFactor: number;
-    peMultiple: number;
-    thesis: string[];
-  }>;
   thesisKillers: string[];
   optionIdeas: OptionIdea[];
   expectedReturn12m: { low: number; high: number };
@@ -70,12 +54,11 @@ function jsonSchema() {
     type: "object",
     additionalProperties: false,
     required: [
-      "analysisConfidence","scores","highlights","risks","catalysts","managementCredibility",
-      "expectationGap","valuationSummary","analystSummary","scenarios","thesisKillers",
+      "scores","highlights","risks","catalysts","managementCredibility",
+      "expectationGap","valuationSummary","analystSummary","thesisKillers",
       "optionIdeas","expectedReturn12m","benchmark"
     ],
     properties: {
-      analysisConfidence: { type: "number", minimum: 0, maximum: 100 },
       scores: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: scoreProperties },
       highlights: { type: "array", maxItems: 6, items: { type: "string" } },
       risks: { type: "array", maxItems: 6, items: { type: "string" } },
@@ -84,20 +67,6 @@ function jsonSchema() {
       expectationGap: { type: "string" },
       valuationSummary: { type: "string" },
       analystSummary: { type: "string" },
-      scenarios: {
-        type: "array", minItems: 3, maxItems: 3,
-        items: {
-          type: "object", additionalProperties: false,
-          required: ["label","probability","epsFactor","peMultiple","thesis"],
-          properties: {
-            label: { type: "string", enum: ["Bull","Base","Bear"] },
-            probability: { type: "number", minimum: 0, maximum: 100 },
-            epsFactor: { type: "number", minimum: 0.25, maximum: 2 },
-            peMultiple: { type: "number", minimum: 5, maximum: 80 },
-            thesis: { type: "array", minItems: 1, maxItems: 5, items: { type: "string" } },
-          },
-        },
-      },
       thesisKillers: { type: "array", minItems: 2, maxItems: 6, items: { type: "string" } },
       optionIdeas: {
         type: "array", minItems: 1, maxItems: 4,
@@ -144,7 +113,7 @@ export class OpenAIResearchProvider {
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
         store: false,
         reasoning: { effort: "medium" },
-        prompt_cache_key: "applied-ai-lab:equity-research:v4",
+        prompt_cache_key: "applied-ai-lab:equity-research:v5",
         input: [
           {
             role: "system",
@@ -155,11 +124,11 @@ Never invent a price, financial metric, analyst call, catalyst, valuation input,
 Analyst-estimate dates are FISCAL PERIOD END DATES, not publication dates.
 Price-target consensus is sentiment evidence only, never a valuation anchor.
 The packet includes per-dimension evidence coverage. Score ONLY what the evidence supports. Do not use general pretrained knowledge to fill missing moat, leadership, governance, customer, regulatory, product-roadmap, or competitive evidence.
-For scenario valuation, use the supplied valuationHorizonEstimate as the earnings base. epsFactor scales that EPS; peMultiple is the P/E applied at the 12-month target horizon. Do not substitute another EPS period.
+Scenario arithmetic is already supplied in calibratedScenarios. Discuss these exact sensitivities only; never invent prices, multiples, probabilities, or different EPS periods. The base is price-neutral by construction, not evidence that the stock is fairly valued. No independent valuation multiple is established, so do not infer cheapness from a low horizon P/E alone.
 The reverse DCF is a deterministic expectations test supplied by code. Discuss its implication and limitations; do not recompute it or present it as intrinsic value.
-analysisConfidence is confidence in your interpretation of supplied evidence only. Overall confidence and score evidence caps are applied later in deterministic code.
+Evidence confidence is fully deterministic and is not a probability of investment success.
 Do not recommend a specific option contract because no live options chain/Greeks are supplied.
-The three scenario probabilities must sum to approximately 100.
+Scenario weights are illustrative, not empirical probabilities.
 Business quality is not the same thing as stock attractiveness.
 This is research support, not a guarantee of returns.`
             }],

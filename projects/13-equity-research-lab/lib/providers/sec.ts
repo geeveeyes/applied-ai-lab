@@ -20,7 +20,7 @@ function annualCandidates(fact: any): FactUnit[] {
     .filter((x) => x.form === "10-K" && x.end && x.filed && typeof x.val === "number")
     .filter((x) => {
       const days = durationDays(x);
-      return days == null || (days >= 300 && days <= 430);
+      return days != null && days >= 300 && days <= 430;
     });
 }
 
@@ -76,7 +76,7 @@ export class SecProvider implements FundamentalsProvider {
     const tickersRes = await fetch("https://www.sec.gov/files/company_tickers.json", { headers: SEC_HEADERS, next: { revalidate: 86400 } });
     if (!tickersRes.ok) throw new Error(`SEC ticker lookup failed: ${tickersRes.status}`);
     const tickerMap = (await tickersRes.json()) as TickerMap;
-    const match = Object.values(tickerMap).find((x) => x.ticker.toUpperCase() === ticker.toUpperCase());
+    const match = Object.values(tickerMap).find((x) => x.ticker.toUpperCase().replaceAll(".", "-") === ticker.toUpperCase().replaceAll(".", "-"));
     if (!match) throw new Error(`Ticker ${ticker} not found in SEC company map`);
 
     const cik = String(match.cik_str).padStart(10, "0");
@@ -122,13 +122,18 @@ export class SecProvider implements FundamentalsProvider {
     const quarterAnchor = newest(quarterCandidatesForAnchor);
     const latest10Q = submissions ? latestFiling(submissions, "10-Q", match.cik_str) : undefined;
 
-    const operatingCashFlow = cashFact?.val;
-    const capitalExpenditures = capexFact?.val != null ? Math.abs(capexFact.val) : undefined;
+    // Every metric must share the anchor period. Never combine an obsolete tag
+    // with a current-period metric simply because both are the latest for that tag.
+    const annualValue = (fact?: FactUnit) => fact?.end === annualAnchor?.end && fact?.start === annualAnchor?.start ? fact?.val : undefined;
+    const quarterValue = (fact?: FactUnit) => fact?.end === quarterAnchor?.end && fact?.start === quarterAnchor?.start ? fact?.val : undefined;
+    const operatingCashFlow = annualValue(cashFact);
+    const capexValue = annualValue(capexFact);
+    const capitalExpenditures = capexValue != null ? Math.abs(capexValue) : undefined;
     const freeCashFlow = operatingCashFlow != null && capitalExpenditures != null
       ? operatingCashFlow - capitalExpenditures
       : undefined;
-    const latestQuarterRevenue = quarterRevenue?.val;
-    const latestQuarterGrossProfit = quarterGrossProfit?.val;
+    const latestQuarterRevenue = quarterValue(quarterRevenue);
+    const latestQuarterGrossProfit = quarterValue(quarterGrossProfit);
     const latestQuarterGrossMargin =
       latestQuarterRevenue && latestQuarterGrossProfit
         ? latestQuarterGrossProfit / latestQuarterRevenue
@@ -150,8 +155,8 @@ export class SecProvider implements FundamentalsProvider {
 
     return {
       companyName: data?.entityName ?? match.title,
-      revenue: revenueFact?.val,
-      netIncome: incomeFact?.val,
+      revenue: annualValue(revenueFact),
+      netIncome: annualValue(incomeFact),
       operatingCashFlow,
       capitalExpenditures,
       freeCashFlow,
@@ -160,10 +165,10 @@ export class SecProvider implements FundamentalsProvider {
       latestQuarterPeriodEnd: quarterAnchor?.end ?? latest10Q?.periodEnd,
       latestQuarterFiledAt: quarterAnchor?.filed ?? latest10Q?.filedAt,
       latestQuarterRevenue,
-      latestQuarterNetIncome: quarterIncome?.val,
+      latestQuarterNetIncome: quarterValue(quarterIncome),
       latestQuarterGrossProfit,
       latestQuarterGrossMargin,
-      latestQuarterFormUrl: latest10Q?.url,
+      latestQuarterFormUrl: latest10Q?.periodEnd === quarterAnchor?.end ? latest10Q?.url : undefined,
       citations,
     };
   }

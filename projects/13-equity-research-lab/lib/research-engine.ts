@@ -1,7 +1,8 @@
+import { ageDays, deterministicConfidence } from "./confidence";
 import { demoResearch } from "./mock-data";
 import { providers } from "./providers";
 import { evidenceAdjustScores, verdictFor, weightedCoverage, weightedScore } from "./scoring";
-import { addYearsIso, reverseDcfFromMarketCap, selectHorizonEstimate } from "./valuation";
+import { addYearsIso, calibratedScenarios, reverseDcfFromMarketCap, selectHorizonEstimate } from "./valuation";
 import type { AnalystCall, Citation, DimensionCoverage, ResearchRun, ResearchScores } from "./types";
 
 const EMPTY_SCORES: ResearchScores = {
@@ -13,7 +14,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: `${ticker}-${Date.now()}`, ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.4.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.5.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -49,9 +50,6 @@ function dimensionCoverage(args: {
   };
 }
 
-function pctReturn(price: number, fairValue: number) {
-  return ((fairValue / price) - 1) * 100;
-}
 
 export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
   const ticker = tickerRaw.trim().toUpperCase();
@@ -97,7 +95,7 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
 
   run.citations = citations;
   run.dataMode = liveComponents >= 3 ? "live" : "hybrid";
-  if (!market?.price) {
+  if (!market?.price || !Number.isFinite(market.price) || market.price <= 0) {
     run.notes = ["Live research stopped before AI synthesis because no verified current price was available.", ...errors.map((x) => `Provider note: ${x}`)];
     return run;
   }
@@ -116,23 +114,29 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
   const reverseDcf = reverseDcfFromMarketCap(market.marketCap, fundamentals?.freeCashFlow);
   run.reverseDcf = reverseDcf;
 
-  const hasAnnual = Boolean(fundamentals?.latestAnnualPeriodEnd && fundamentals?.revenue);
-  const hasQuarter = Boolean(fundamentals?.latestQuarterPeriodEnd && fundamentals?.latestQuarterRevenue);
+  const hasAnnual = Boolean(fundamentals?.revenue != null && ageDays(run.analyzedAt, fundamentals?.latestAnnualPeriodEnd) <= 460);
+  const hasQuarter = Boolean(fundamentals?.latestQuarterRevenue != null && ageDays(run.analyzedAt, fundamentals?.latestQuarterPeriodEnd) <= 190);
   const coverage = dimensionCoverage({
     hasAnnual,
     hasQuarter,
-    hasFcf: Boolean(fundamentals?.freeCashFlow),
+    hasFcf: Boolean(hasAnnual && fundamentals?.freeCashFlow != null),
     hasEstimates: forwardEstimates.length > 0,
     hasMultipleEstimates: forwardEstimates.length >= 2,
     hasTargets: Boolean(analystData?.consensusTarget),
     hasTechnicals: Boolean(market.priceAvg50 && market.priceAvg200),
-    hasLatest10Q: Boolean(fundamentals?.latestQuarterFormUrl),
+    hasLatest10Q: Boolean(hasQuarter && fundamentals?.latestQuarterFormUrl),
     hasHorizonEps: Boolean(horizonEstimate?.epsAvg),
   });
   run.dimensionCoverage = coverage;
   const evidenceCoverage = weightedCoverage(coverage);
 
+  const confidence = deterministicConfidence({ coverage, asOf: run.analyzedAt, marketAsOf: market.timestamp,
+    annualEnd: hasAnnual ? fundamentals?.latestAnnualPeriodEnd : undefined,
+    quarterEnd: hasQuarter ? fundamentals?.latestQuarterPeriodEnd : undefined, estimate: horizonEstimate, citations });
+  const scenarios = calibratedScenarios(market.price, horizonEstimate, targetDate12m);
   const evidence = {
+    calibratedScenarios: scenarios,
+    scenarioPolicy: "Price-anchored sensitivity only. Base is neutral by construction, not intrinsic value or expected appreciation. Multiples and weights are policy stresses; never describe them as justified fair value or empirical probabilities.",
     ticker,
     companyName: run.companyName,
     analysisTimestampUtc: run.analyzedAt,
@@ -176,8 +180,9 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     const adjustedScores = evidenceAdjustScores(ai.scores, coverage);
     run.scores = adjustedScores;
     run.score = weightedScore(adjustedScores);
-    run.confidence = Math.round(evidenceCoverage * 0.85 + ai.analysisConfidence * 0.15);
+    run.confidence = confidence.score;
     run.verdict = verdictFor(run.score, run.confidence);
+    if (run.verdict === "Buy candidate") run.verdict = "Watch"; // No independent fair-value evidence yet.
     run.highlights = ai.highlights;
     run.risks = ai.risks;
     run.catalysts = ai.catalysts;
@@ -186,27 +191,14 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     run.valuationSummary = ai.valuationSummary;
     run.analystSummary = ai.analystSummary;
     run.thesisKillers = ai.thesisKillers;
-    run.optionIdeas = ai.optionIdeas;
+    run.optionIdeas = []; // No live options chain; do not assign unsupported strategy fit.
     run.benchmark = ai.benchmark || "SPY";
     run.analysts = (analystData?.calls ?? []) as AnalystCall[];
 
-    const horizonEps = horizonEstimate?.epsAvg;
-    run.scenarios = horizonEps ? ai.scenarios.map((s) => ({
-      label: s.label,
-      probability: s.probability,
-      fairValue: Number((horizonEps * s.epsFactor * s.peMultiple).toFixed(2)),
-      thesis: s.thesis,
-      valuationMethod: "12-month-horizon fiscal EPS × scenario EPS factor × scenario P/E",
-      assumptions: [
-        `12-month target date: ${targetDate12m}`,
-        `Valuation EPS: $${horizonEps.toFixed(2)} for fiscal period ending ${horizonEstimate?.date}`,
-        `EPS factor: ${s.epsFactor.toFixed(2)}×`,
-        `P/E multiple: ${s.peMultiple.toFixed(1)}×`,
-      ],
-    })) : [];
+    run.scenarios = scenarios;
 
     if (run.scenarios.length) {
-      const returns = run.scenarios.map((s) => pctReturn(run.asOfPrice, s.fairValue));
+      const returns = run.scenarios.map((s) => (s.fairValue / run.asOfPrice - 1) * 100);
       run.expectedReturn12m = {
         low: Number(Math.min(...returns).toFixed(1)),
         high: Number(Math.max(...returns).toFixed(1)),
@@ -216,7 +208,8 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     }
 
     run.notes = [
-      `Weighted evidence coverage: ${evidenceCoverage}/100. Overall confidence is 85% deterministic evidence coverage and 15% model interpretation confidence.`,
+      confidence.note,
+      "Scenario values are sensitivities, not independent fair values; Buy candidate is withheld until independent valuation evidence exists.",
       "Low-coverage dimensions are score-capped: model score cannot exceed dimension evidence coverage + 20 points.",
       latestActualPeriod ? `Latest annual period: ${latestActualPeriod}; latest quarter: ${fundamentals?.latestQuarterPeriodEnd ?? "unavailable"}.` : "Latest annual period unavailable.",
       `12-month valuation target date: ${targetDate12m}; selected fiscal EPS period: ${horizonEstimate?.date ?? "unavailable"}.`,

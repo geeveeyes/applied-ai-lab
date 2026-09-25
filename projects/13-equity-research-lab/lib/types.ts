@@ -40,6 +40,7 @@ export type Scenario = {
   label: "Bull" | "Base" | "Bear";
   probability: number;
   fairValue: number;
+  returnPct?: number;
   thesis: string[];
   valuationMethod?: string;
   assumptions?: string[];

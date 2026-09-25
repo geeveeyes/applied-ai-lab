@@ -26,7 +26,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
       </div>
       <div className="verdict">
         <span>Research verdict</span><strong>{run.verdict}</strong>
-        <small>{hasScores ? `Score ${run.score}/100 · confidence ${run.confidence}%` : "Awaiting sufficient verified evidence"}</small>
+        <small>{hasScores ? `Score ${run.score}/100 · evidence confidence ${run.confidence}%` : "Awaiting sufficient verified evidence"}</small>
       </div>
     </section>
 
@@ -52,7 +52,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
       </> : <p className="muted">{run.reverseDcf.note}</p>}
     </section>}
 
-    {run.scenarios.length > 0 && <section><h2>12-month bull / base / bear</h2><div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}%</p><h3>${s.fairValue.toFixed(2)}</h3><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
+    {run.scenarios.length > 0 && <section><h2>12-month bull / base / bear sensitivity</h2><p className="muted">Price-anchored stress tests, not independent fair-value forecasts. Base is neutral by construction. Weights are illustrative; returns exclude dividends.</p><div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}% weight</p><h3>${s.fairValue.toFixed(2)}</h3><p><strong>{s.returnPct != null ? `${s.returnPct > 0 ? "+" : ""}${s.returnPct.toFixed(1)}% price return` : ""}</strong></p><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
 
     {run.thesisKillers.length > 0 && <section className="panel"><h2>What would make us change our mind?</h2><ul>{run.thesisKillers.map(x => <li key={x}>{x}</li>)}</ul></section>}
 

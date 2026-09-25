@@ -1,6 +1,6 @@
 # Equity Research Skill
 
-Version: `equity-research-v0.4.0`
+Version: `equity-research-v0.5.0`
 
 ## Purpose
 Analyze a public company without conflating business quality, valuation, market expectations and trade timing. Preserve every conclusion as a timestamped prediction so later retrospectives can improve the process.
@@ -63,3 +63,6 @@ Score each dimension from 0–100, multiply by its weight, and retain the compon
 
 ## Output contract
 Return: ticker, company, analysis date, market-data timestamp, data freshness, verdict, confidence, total score, component scores, component evidence coverage, business thesis, latest-quarter evidence, expectation gap, horizon-correct valuation, reverse-DCF expectations test, analyst intelligence, sentiment, catalysts, risks, management credibility, scenarios, thesis killers, options decision frame, deterministic expected-return range, benchmark, citations and caveats.
+
+## v0.5 deterministic policy
+Confidence is an evidence quality index calculated only by code, not model interpretation or investment-success probability. Scenarios use price / horizon EPS as their same-period multiple anchor, analyst EPS range (minimum ±10%, fallback ±20%) and explicit ±20% multiple stress. Base is neutral by construction. Weights 25/50/25 are illustrative, not calibrated probabilities. Withhold Buy candidate until independent valuation evidence exists. Missing horizon EPS withholds scenarios; never substitute an expired forecast.
