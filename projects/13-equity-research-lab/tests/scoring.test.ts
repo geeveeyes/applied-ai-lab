@@ -13,11 +13,11 @@ describe("weightedScore", () => {
 });
 
 describe("evidence adjustment", () => {
-  it("caps poorly evidenced dimensions", () => {
+  it("shrinks weakly evidenced ratings toward neutral", () => {
     const coverage = { ...all80, industryMoat: 20, leadershipGovernance: 15 };
     const adjusted = evidenceAdjustScores({ ...all80, industryMoat: 95, leadershipGovernance: 90 }, coverage);
-    expect(adjusted.industryMoat).toBe(40);
-    expect(adjusted.leadershipGovernance).toBe(35);
+    expect(adjusted.industryMoat).toBe(59);
+    expect(adjusted.leadershipGovernance).toBe(56);
     expect(weightedCoverage(coverage)).toBeLessThan(80);
   });
 });

@@ -37,10 +37,10 @@ export function evidenceAdjustScores(
 ): ResearchScores {
   return Object.fromEntries(
     (Object.keys(raw) as ScoreKey[]).map((key) => {
-      // The model may reason from supplied evidence, but weakly-covered dimensions
-      // cannot receive near-certain scores simply from pretrained knowledge.
-      const cap = Math.min(100, coverage[key] + 20);
-      return [key, Math.round(Math.min(raw[key], cap))];
+      // Absence of evidence is not a negative business observation. Shrink
+      // both optimistic and pessimistic ratings toward neutral symmetrically.
+      const strength = Math.max(0, Math.min(100, coverage[key])) / 100;
+      return [key, Math.round(50 + (Math.max(0, Math.min(100, raw[key])) - 50) * strength)];
     }),
   ) as ResearchScores;
 }

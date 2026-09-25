@@ -14,7 +14,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: `${ticker}-${Date.now()}`, ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.5.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.5.1",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -179,6 +179,7 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     const ai = await providers.ai.synthesize(evidence);
     const adjustedScores = evidenceAdjustScores(ai.scores, coverage);
     run.scores = adjustedScores;
+    run.scoreReasons = ai.scoreReasons;
     run.score = weightedScore(adjustedScores);
     run.confidence = confidence.score;
     run.verdict = verdictFor(run.score, run.confidence);
@@ -192,7 +193,7 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     run.analystSummary = ai.analystSummary;
     run.thesisKillers = ai.thesisKillers;
     run.optionIdeas = []; // No live options chain; do not assign unsupported strategy fit.
-    run.benchmark = ai.benchmark || "SPY";
+    run.benchmark = "SPY";
     run.analysts = (analystData?.calls ?? []) as AnalystCall[];
 
     run.scenarios = scenarios;
@@ -210,8 +211,8 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     run.notes = [
       confidence.note,
       "Scenario values are sensitivities, not independent fair values; Buy candidate is withheld until independent valuation evidence exists.",
-      "Low-coverage dimensions are score-capped: model score cannot exceed dimension evidence coverage + 20 points.",
-      latestActualPeriod ? `Latest annual period: ${latestActualPeriod}; latest quarter: ${fundamentals?.latestQuarterPeriodEnd ?? "unavailable"}.` : "Latest annual period unavailable.",
+      "Ratings map to 10/30/50/70/90; insufficient evidence maps to neutral 50. Evidence adjustment: 50 + (raw score − 50) × coverage / 100. Missing evidence lowers confidence instead of implying a bad company.",
+      latestActualPeriod ? `Latest annual period: ${latestActualPeriod}; latest reported interim quarter (10-Q): ${fundamentals?.latestQuarterPeriodEnd ?? "unavailable"}.` : "Latest annual period unavailable.",
       `12-month valuation target date: ${targetDate12m}; selected fiscal EPS period: ${horizonEstimate?.date ?? "unavailable"}.`,
       "Sell-side price targets remain sentiment evidence only.",
       ...run.notes,

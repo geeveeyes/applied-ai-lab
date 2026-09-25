@@ -79,6 +79,7 @@ export type ResearchRun = {
   confidence: number;
   verdict: "Buy candidate" | "Watch" | "Avoid for now" | "Insufficient data";
   scores: ResearchScores;
+  scoreReasons?: Partial<Record<ScoreKey, string>>;
   dimensionCoverage?: DimensionCoverage;
   highlights: string[];
   risks: string[];

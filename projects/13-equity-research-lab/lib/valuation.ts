@@ -69,7 +69,7 @@ export function reverseDcfFromMarketCap(
     terminalGrowth,
     explicitYears: years,
     impliedFcfGrowth: implied,
-    note: "Simplified expectations test: constant annual FCF growth for 10 years, then 3% terminal growth, discounted at 10%. It ignores net cash/debt and changing margins, so use it as an expectations gauge rather than intrinsic value.",
+    note: "Simplified expectations test: constant annual FCF growth for 10 years, then 3% terminal growth, discounted at 10%. The base is annual operating cash flow minus cash capex, not normalized free cash flow to equity. Heavy investment can depress this base and inflate implied growth. It omits net cash/debt, financing flows, stock-based compensation dilution and changing margins; use it only as a sensitivity gauge.",
   };
 }
 

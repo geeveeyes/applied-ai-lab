@@ -1,6 +1,6 @@
 # Equity Research Skill
 
-Version: `equity-research-v0.5.0`
+Version: `equity-research-v0.5.1`
 
 ## Purpose
 Analyze a public company without conflating business quality, valuation, market expectations and trade timing. Preserve every conclusion as a timestamped prediction so later retrospectives can improve the process.
@@ -14,7 +14,7 @@ Analyze a public company without conflating business quality, valuation, market 
 6. A high score is not an instruction to trade. State assumptions, uncertainty, downside and thesis invalidation conditions.
 7. Options are a separate decision layer. Compare shares, defined-risk option structures and no-trade; never infer “bullish stock = buy calls.”
 8. **Evidence gates scores.** Do not use model prior knowledge to award high moat, leadership, catalyst, governance, risk or other qualitative scores when the evidence packet does not support them.
-9. Track **evidence coverage per score dimension**. Low-coverage dimensions must be visibly capped or discounted rather than contributing with false precision.
+9. Track **evidence coverage per score dimension**. Low-coverage dimensions must be visibly adjusted toward neutral rather than contributing with false precision.
 10. **Match valuation to horizon.** A 12-month fair value must use earnings/cash-flow evidence appropriate to the 12-month target date, not simply the nearest fiscal-year estimate.
 11. Reverse DCF is an **expectations test**, not an intrinsic-value oracle. Expose discount rate, terminal growth, cash-flow base, horizon and important omitted items.
 
@@ -32,7 +32,7 @@ Analyze a public company without conflating business quality, valuation, market 
 - Risk / resilience — 5
 - Portfolio fit — 5
 
-Score each dimension from 0–100, multiply by its weight, and retain the component scores **and evidence coverage**. Do not hide a weak valuation score inside a strong business score. When evidence coverage is weak, cap the score rather than allowing the model to fill gaps from general knowledge.
+Score each dimension from 0–100, multiply by its weight, and retain the component scores **and evidence coverage**. Do not hide a weak valuation score inside a strong business score. When evidence coverage is weak, shrink ratings toward neutral and lower confidence. Missing evidence is not negative business evidence.
 
 ## Workflow
 1. Resolve ticker, company, exchange, market timestamp and analysis timestamp.
@@ -46,13 +46,13 @@ Score each dimension from 0–100, multiply by its weight, and retain the compon
 9. Identify consensus expectations and estimate-revision direction.
 10. Build valuation with explicit horizon alignment:
    - choose the fiscal estimate relevant to the 12-month target date;
-   - make bull/base/bear P/E or other multiple assumptions explicit;
+   - make bull/base/bear P/E sensitivity assumptions explicit;
    - never use analyst price targets as intrinsic value.
 11. Run reverse DCF / expectations analysis. State what FCF growth/margins are required for today's market value to make sense, with assumptions and caveats.
 12. Rank analyst evidence by track record when analyst-level data is available; otherwise clearly label consensus-only evidence.
 13. Analyze professional, institutional, insider, short, options, news and retail sentiment separately when data exists.
 14. Identify time-bounded catalysts with evidence; otherwise keep catalyst coverage low.
-15. Build bull/base/bear scenarios with probabilities and horizon-correct fair-value estimates.
+15. Build bull/base/bear sensitivities with explicit illustrative weights and horizon-correct EPS; do not present these as independent fair value.
 16. Red-team: assume the investment loses 40%; identify the 3 most plausible causal paths and investigate them.
 17. State thesis killers: measurable conditions that would change the verdict.
 18. Evaluate portfolio fit separately from stock attractiveness. Without portfolio data, coverage must remain low.
@@ -66,3 +66,5 @@ Return: ticker, company, analysis date, market-data timestamp, data freshness, v
 
 ## v0.5 deterministic policy
 Confidence is an evidence quality index calculated only by code, not model interpretation or investment-success probability. Scenarios use price / horizon EPS as their same-period multiple anchor, analyst EPS range (minimum ±10%, fallback ±20%) and explicit ±20% multiple stress. Base is neutral by construction. Weights 25/50/25 are illustrative, not calibrated probabilities. Withhold Buy candidate until independent valuation evidence exists. Missing horizon EPS withholds scenarios; never substitute an expired forecast.
+
+Categorical model ratings avoid numeric scale ambiguity. Insufficient evidence is neutral 50. Evidence-adjust every rating symmetrically with 50 + (raw − 50) × coverage / 100; missing evidence must not produce a negative business verdict. Show a reason for every dimension. This supersedes earlier one-sided score-cap language.

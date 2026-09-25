@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ResearchScores, OptionIdea } from "../types";
+import type { ResearchScores } from "../types";
 
 const scoreKeys = [
   "businessQuality", "financialPerformance", "growthRunway", "industryMoat",
@@ -7,12 +7,15 @@ const scoreKeys = [
   "technicalLiquidity", "catalysts", "riskResilience", "portfolioFit",
 ] as const;
 
-const scoreShape = Object.fromEntries(scoreKeys.map((key) => [key, z.number().min(0).max(100)])) as {
-  [K in typeof scoreKeys[number]]: z.ZodNumber
-};
+const ratingValues = ["Very weak", "Weak", "Neutral", "Strong", "Very strong", "Insufficient evidence"] as const;
+const ratingScore = { "Very weak": 10, "Weak": 30, "Neutral": 50, "Strong": 70, "Very strong": 90, "Insufficient evidence": 50 };
+const ratingSchema = z.enum(ratingValues);
+const scoreShape = Object.fromEntries(scoreKeys.map(key => [key, ratingSchema])) as Record<typeof scoreKeys[number], typeof ratingSchema>;
+const reasonShape = Object.fromEntries(scoreKeys.map(key => [key, z.string()])) as Record<typeof scoreKeys[number], z.ZodString>;
 
 const schema = z.object({
   scores: z.object(scoreShape),
+  scoreReasons: z.object(reasonShape),
   highlights: z.array(z.string()).max(6),
   risks: z.array(z.string()).max(6),
   catalysts: z.array(z.string()).max(6),
@@ -21,20 +24,12 @@ const schema = z.object({
   valuationSummary: z.string(),
   analystSummary: z.string(),
   thesisKillers: z.array(z.string()).min(2).max(6),
-  optionIdeas: z.array(z.object({
-    strategy: z.string(),
-    fit: z.enum(["Strong", "Moderate", "Weak"]),
-    rationale: z.string(),
-    maxLoss: z.string(),
-    capitalProfile: z.string(),
-    volatilityView: z.string(),
-  })).min(1).max(4),
-  expectedReturn12m: z.object({ low: z.number(), high: z.number() }),
-  benchmark: z.string(),
+
 });
 
 export type AIResearch = {
   scores: ResearchScores;
+  scoreReasons: Record<keyof ResearchScores, string>;
   highlights: string[];
   risks: string[];
   catalysts: string[];
@@ -43,23 +38,21 @@ export type AIResearch = {
   valuationSummary: string;
   analystSummary: string;
   thesisKillers: string[];
-  optionIdeas: OptionIdea[];
-  expectedReturn12m: { low: number; high: number };
-  benchmark: string;
+
 };
 
 function jsonSchema() {
-  const scoreProperties = Object.fromEntries(scoreKeys.map((key) => [key, { type: "number", minimum: 0, maximum: 100 }]));
+  const scoreProperties = Object.fromEntries(scoreKeys.map((key) => [key, { type: "string", enum: [...ratingValues] }]));
   return {
     type: "object",
     additionalProperties: false,
     required: [
-      "scores","highlights","risks","catalysts","managementCredibility",
+      "scores","scoreReasons","highlights","risks","catalysts","managementCredibility",
       "expectationGap","valuationSummary","analystSummary","thesisKillers",
-      "optionIdeas","expectedReturn12m","benchmark"
     ],
     properties: {
       scores: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: scoreProperties },
+      scoreReasons: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: Object.fromEntries(scoreKeys.map(key => [key, { type: "string" }])) },
       highlights: { type: "array", maxItems: 6, items: { type: "string" } },
       risks: { type: "array", maxItems: 6, items: { type: "string" } },
       catalysts: { type: "array", maxItems: 6, items: { type: "string" } },
@@ -68,26 +61,7 @@ function jsonSchema() {
       valuationSummary: { type: "string" },
       analystSummary: { type: "string" },
       thesisKillers: { type: "array", minItems: 2, maxItems: 6, items: { type: "string" } },
-      optionIdeas: {
-        type: "array", minItems: 1, maxItems: 4,
-        items: {
-          type: "object", additionalProperties: false,
-          required: ["strategy","fit","rationale","maxLoss","capitalProfile","volatilityView"],
-          properties: {
-            strategy: { type: "string" },
-            fit: { type: "string", enum: ["Strong","Moderate","Weak"] },
-            rationale: { type: "string" },
-            maxLoss: { type: "string" },
-            capitalProfile: { type: "string" },
-            volatilityView: { type: "string" },
-          },
-        },
-      },
-      expectedReturn12m: {
-        type: "object", additionalProperties: false, required: ["low","high"],
-        properties: { low: { type: "number" }, high: { type: "number" } },
-      },
-      benchmark: { type: "string" },
+
     },
   };
 }
@@ -113,7 +87,7 @@ export class OpenAIResearchProvider {
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
         store: false,
         reasoning: { effort: "medium" },
-        prompt_cache_key: "applied-ai-lab:equity-research:v5",
+        prompt_cache_key: "applied-ai-lab:equity-research:v5.1",
         input: [
           {
             role: "system",
@@ -123,11 +97,11 @@ export class OpenAIResearchProvider {
 Never invent a price, financial metric, analyst call, catalyst, valuation input, historical fact, management claim, competitive claim, or estimate timestamp.
 Analyst-estimate dates are FISCAL PERIOD END DATES, not publication dates.
 Price-target consensus is sentiment evidence only, never a valuation anchor.
-The packet includes per-dimension evidence coverage. Score ONLY what the evidence supports. Do not use general pretrained knowledge to fill missing moat, leadership, governance, customer, regulatory, product-roadmap, or competitive evidence.
+For each score choose exactly one rating: Very weak, Weak, Neutral, Strong, Very strong, or Insufficient evidence. Never return numeric scores. Use Insufficient evidence for dimensions without direct evidence, especially moat, leadership and portfolio fit. Supply a short scoreReasons explanation for every rating, naming the supplied metric/period or the specific missing evidence. Missing evidence is not evidence of poor business quality. Code converts ratings to 10/30/50/70/90; insufficient evidence is neutral 50 and evidence coverage shrinks supported ratings toward neutral. The packet includes per-dimension evidence coverage. Rate ONLY what the evidence supports. Do not use general pretrained knowledge to fill missing moat, leadership, governance, customer, regulatory, product-roadmap, or competitive evidence.
 Scenario arithmetic is already supplied in calibratedScenarios. Discuss these exact sensitivities only; never invent prices, multiples, probabilities, or different EPS periods. The base is price-neutral by construction, not evidence that the stock is fairly valued. No independent valuation multiple is established, so do not infer cheapness from a low horizon P/E alone.
 The reverse DCF is a deterministic expectations test supplied by code. Discuss its implication and limitations; do not recompute it or present it as intrinsic value.
 Evidence confidence is fully deterministic and is not a probability of investment success.
-Do not recommend a specific option contract because no live options chain/Greeks are supplied.
+Do not recommend options because no live options chain/Greeks are supplied. Catalysts must be operating events supported by the packet; a stock reaching an analyst target or moving above an average is not a fundamental catalyst. Do not treat a mechanical reverse-DCF growth rate as a required annual company forecast: annual CFO minus cash capex may be temporarily depressed by investment, and no normalized cash-flow base has been established.
 Scenario weights are illustrative, not empirical probabilities.
 Business quality is not the same thing as stock attractiveness.
 This is research support, not a guarantee of returns.`
@@ -153,6 +127,7 @@ This is research support, not a guarantee of returns.`
     const payload = await response.json();
     const text = extractText(payload);
     if (!text) throw new Error("OpenAI returned no structured research output");
-    return schema.parse(JSON.parse(text));
+    const parsed = schema.parse(JSON.parse(text));
+    return { ...parsed, scores: Object.fromEntries(scoreKeys.map(key => [key, ratingScore[parsed.scores[key]]])) as ResearchScores };
   }
 }

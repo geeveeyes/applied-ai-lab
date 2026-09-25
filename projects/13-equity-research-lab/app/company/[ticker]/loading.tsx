@@ -1,0 +1,1 @@
+export default function Loading() { return <section role="status"><h1>Research in progress</h1><p>Gathering filings, market data and estimates, then checking the evidence. This can take a minute.</p></section>; }
