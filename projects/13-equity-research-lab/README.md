@@ -119,3 +119,34 @@ This project lives at `projects/13-equity-research-lab/` inside `applied-ai-lab`
 - `Analyze NVDA as of today. Separate business quality from valuation and tell me what expectations are embedded in the price.`
 - `Analyze AMZN and focus on earnings revisions, FCF quality, AWS expectations, valuation, and the strongest bear case.`
 - `Compare buying MSFT shares with no-trade and defined-risk options structures, but only if live options data is available.`
+
+
+## v0.6 backend setup
+
+Production uses `SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`) and the server-only
+`SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`. Never place secret/service-role
+keys in `NEXT_PUBLIC_` variables. Apply `supabase/migrations/002_private_archive.sql`
+in the linked Supabase project's SQL editor before deploying this release; it is
+additive and independent of the legacy prototype schema in migration 001.
+
+`ALPHA_VANTAGE_API_KEY` enables an end-of-day quote fallback after FMP fails.
+`ALPHAVANTAGE_API_KEY` and the existing deployment spelling `ALPHA_VENTAGE_API_KEY`
+are accepted aliases. FMP remains the estimate source. A quote does not supply EPS
+forecasts or analyst targets. Supabase caches quotes for six hours and atomically
+caps this application's Alpha Vantage calls at 24 per UTC day. Calls made outside
+this application also count toward the provider allowance; upstream quota errors
+are handled without fabricating data. No fallback requests are sent if persistent
+quota accounting is unavailable.
+
+Research is generated and inserted server-side; archive endpoints accept no client
+report writes. Tables have RLS enabled and no anonymous/authenticated access.
+Reads require the owner hash derived from a 256-bit HttpOnly SameSite cookie.
+The raw workspace token is never stored in the database. Report inserts are immutable
+through the application (no update/delete endpoint). Reopening a report does not
+call market-data or AI providers. Reports retain their original quote dates and
+research versions. The browser keeps a backup when local storage permits.
+
+This is a private browser workspace, not account authentication. Cloud records survive
+local-storage clearing, but clearing cookies or using another browser loses access.
+Cross-device access and account recovery require a future authenticated account flow.
+Old browser-only snapshots remain readable and are not uploaded automatically.

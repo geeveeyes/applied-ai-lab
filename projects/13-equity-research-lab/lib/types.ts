@@ -67,6 +67,9 @@ export type OptionIdea = {
 };
 
 export type ResearchRun = {
+  storage?: "cloud" | "browser" | "unavailable";
+  priceTiming?: "end-of-day";
+  priceSource?: string;
   id: string;
   ticker: string;
   companyName: string;

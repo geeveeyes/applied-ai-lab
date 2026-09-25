@@ -21,6 +21,9 @@ export type FundamentalsSnapshot = {
 };
 
 export type MarketSnapshot = {
+  priceTiming?: "end-of-day";
+  source?: string;
+  notes?: string[];
   companyName?: string;
   price?: number;
   marketCap?: number;

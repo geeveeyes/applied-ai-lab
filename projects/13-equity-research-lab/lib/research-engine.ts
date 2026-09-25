@@ -13,8 +13,8 @@ const EMPTY_SCORES: ResearchScores = {
 
 function liveShell(ticker: string): ResearchRun {
   return {
-    id: `${ticker}-${Date.now()}`, ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.5.2",
+    id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.6.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -82,6 +82,9 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     run.companyName = market.companyName ?? run.companyName;
     run.asOfPrice = market.price ?? 0;
     run.marketAsOf = market.timestamp;
+    run.priceTiming = market.priceTiming;
+    run.priceSource = market.source;
+    errors.push(...(market.notes ?? []));
     citations.push(...market.citations);
     liveComponents += 1;
   } else errors.push(marketResult.reason instanceof Error ? marketResult.reason.message : "FMP market provider failed");

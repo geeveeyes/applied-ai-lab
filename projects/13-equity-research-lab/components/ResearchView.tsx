@@ -12,7 +12,7 @@ function moneyBillions(value?: number) {
 }
 
 export function ResearchView({ run }: { run: ResearchRun }) {
-  const calibrated = run.skillVersion.startsWith("equity-research-v0.5.");
+  const calibrated = run.scenarios.some(s => s.valuationMethod?.includes("Price-anchored")) || /^equity-research-v0\.[56]\./.test(run.skillVersion);
   const hasScores = run.score > 0 && run.confidence > 0;
   return <>
     <SnapshotRecorder run={run} />
@@ -21,7 +21,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
         <p className="eyebrow">{run.ticker} · {run.dataMode.toUpperCase()} DATA · {run.skillVersion}</p>
         <h1>{run.companyName}</h1>
         <p>
-          {run.asOfPrice > 0 ? <>Market price <strong>${run.asOfPrice.toFixed(2)}</strong>{run.marketAsOf ? <> · market timestamp {utcLabel(run.marketAsOf)}</> : null}<br /></> : null}
+          {run.asOfPrice > 0 ? <>Market price <strong>${run.asOfPrice.toFixed(2)}</strong>{run.marketAsOf ? <> · {run.priceTiming === "end-of-day" ? "end-of-day price dated" : "market timestamp"} {run.priceTiming === "end-of-day" ? run.marketAsOf : utcLabel(run.marketAsOf)}{run.priceSource ? ` · ${run.priceSource}` : ""}</> : null}<br /></> : null}
           Research generated {utcLabel(run.analyzedAt)}
         </p>
       </div>
