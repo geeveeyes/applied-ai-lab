@@ -66,7 +66,10 @@ export type OptionIdea = {
   volatilityView: string;
 };
 
+export type ExecutiveSummary = { overview: string; strength: string; concern: string; watchFor: string };
+
 export type ResearchRun = {
+  executiveSummary?: ExecutiveSummary;
   storage?: "cloud" | "browser" | "unavailable";
   priceTiming?: "end-of-day";
   priceSource?: string;

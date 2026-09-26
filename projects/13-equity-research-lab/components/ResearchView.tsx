@@ -1,5 +1,8 @@
 import type { ResearchRun } from "@/lib/types";
 import { ScoreGrid } from "./ScoreGrid";
+import { ExecutiveSummary } from "./ExecutiveSummary";
+import { InvestmentChoices } from "./InvestmentChoices";
+import { GroundingPanel } from "./GroundingPanel";
 import { SnapshotRecorder } from "./SnapshotRecorder";
 
 function utcLabel(iso?: string) {
@@ -33,6 +36,10 @@ export function ResearchView({ run }: { run: ResearchRun }) {
 
     {run.dataMode === "demo" && <div className="warning"><strong>Demo mode.</strong> Placeholder scores are for product development only, not an investment decision.</div>}
     {run.dataMode !== "demo" && !hasScores && <div className="warning"><strong>Live-data mode, incomplete analysis.</strong> The app did not substitute demo scores when a provider or AI synthesis failed. Check Research notes below.</div>}
+
+    <ExecutiveSummary run={run} />
+    <GroundingPanel run={run} />
+    <InvestmentChoices run={run} />
 
     {run.annualFinancials && <section className="panel">
       <h2>Verified annual financials</h2>

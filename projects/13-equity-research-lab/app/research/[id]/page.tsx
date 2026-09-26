@@ -12,7 +12,7 @@ export default function SavedResearch({ params }: { params: Promise<{ id: string
     setRun(undefined);
     const local = loadRuns().find(r => r.id === id) ?? null;
     fetch(`/api/research/${encodeURIComponent(id)}`, { cache: "no-store", signal: AbortSignal.timeout(10000) })
-      .then(async response => response.ok ? await response.json() as ResearchRun : local)
+      .then(async response => response.ok ? await response.json() as ResearchRun : response.status === 404 && local?.storage === "cloud" ? null : local)
       .then(saved => { if (active) setRun(saved); })
       .catch(() => { if (active) setRun(local); });
     return () => { active = false; };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ResearchScores } from "../types";
+import type { ExecutiveSummary, ResearchScores } from "../types";
 
 const scoreKeys = [
   "businessQuality", "financialPerformance", "growthRunway", "industryMoat",
@@ -14,6 +14,7 @@ const scoreShape = Object.fromEntries(scoreKeys.map(key => [key, ratingSchema]))
 const reasonShape = Object.fromEntries(scoreKeys.map(key => [key, z.string()])) as Record<typeof scoreKeys[number], z.ZodString>;
 
 const schema = z.object({
+  executiveSummary: z.object({ overview: z.string(), strength: z.string(), concern: z.string(), watchFor: z.string() }),
   scores: z.object(scoreShape),
   scoreReasons: z.object(reasonShape),
   highlights: z.array(z.string()).max(6),
@@ -28,6 +29,7 @@ const schema = z.object({
 });
 
 export type AIResearch = {
+  executiveSummary: ExecutiveSummary;
   scores: ResearchScores;
   scoreReasons: Record<keyof ResearchScores, string>;
   highlights: string[];
@@ -47,10 +49,11 @@ function jsonSchema() {
     type: "object",
     additionalProperties: false,
     required: [
-      "scores","scoreReasons","highlights","risks","catalysts","managementCredibility",
+      "executiveSummary","scores","scoreReasons","highlights","risks","catalysts","managementCredibility",
       "expectationGap","valuationSummary","analystSummary","thesisKillers",
     ],
     properties: {
+      executiveSummary: { type: "object", additionalProperties: false, required: ["overview", "strength", "concern", "watchFor"], properties: Object.fromEntries(["overview", "strength", "concern", "watchFor"].map(key => [key, { type: "string" }])) },
       scores: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: scoreProperties },
       scoreReasons: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: Object.fromEntries(scoreKeys.map(key => [key, { type: "string" }])) },
       highlights: { type: "array", maxItems: 6, items: { type: "string" } },
@@ -87,13 +90,14 @@ export class OpenAIResearchProvider {
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
         store: false,
         reasoning: { effort: "medium" },
-        prompt_cache_key: "applied-ai-lab:equity-research:v5.1",
+        prompt_cache_key: "applied-ai-lab:equity-research:v7.0",
         input: [
           {
             role: "system",
             content: [{
               type: "input_text",
               text: `You are the Equity Research Lab research engine. Use ONLY the supplied evidence packet.
+Start with executiveSummary: explain how the company is doing in simple English for a non-financial reader. overview: 2-3 short sentences about operations, profit and cash with relevant dates; strength and concern: one short sentence each; watchFor: one observable development that would change the case. Avoid unexplained terms such as EPS, DCF, multiples, moat, and liquidity. Explain cash spending in ordinary words. Do not imply historical figures are current, invent growth comparisons, or tell the reader to buy.
 Never invent a price, financial metric, analyst call, catalyst, valuation input, historical fact, management claim, competitive claim, or estimate timestamp.
 Analyst-estimate dates are FISCAL PERIOD END DATES, not publication dates.
 Price-target consensus is sentiment evidence only, never a valuation anchor.

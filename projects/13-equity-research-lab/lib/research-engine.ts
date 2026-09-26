@@ -14,7 +14,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.6.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.7.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -200,6 +200,7 @@ export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
     run.confidence = confidence.score;
     run.verdict = verdictFor(run.score, run.confidence);
     if (run.verdict === "Buy candidate") run.verdict = "Watch"; // No independent fair-value evidence yet.
+    run.executiveSummary = ai.executiveSummary;
     run.highlights = ai.highlights;
     run.risks = ai.risks;
     run.catalysts = ai.catalysts;

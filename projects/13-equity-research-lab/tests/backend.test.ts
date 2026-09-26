@@ -54,7 +54,7 @@ describe("private immutable archive", () => {
   });
   it("scopes individual reads by owner as well as report id", async () => {
     mocks.cookies.mockResolvedValue({ get: () => ({ value: "a".repeat(64) }) });
-    const query: any = { select: vi.fn(() => query), eq: vi.fn(() => query), order: vi.fn(() => query), limit: vi.fn().mockResolvedValue({ data: [] }) };
+    const query: any = { select: vi.fn(() => query), eq: vi.fn(() => query), is: vi.fn(() => query), not: vi.fn(() => query), order: vi.fn(() => query), limit: vi.fn().mockResolvedValue({ data: [] }) };
     mocks.database.mockReturnValue({ from: () => query });
     expect(await readSnapshots("private-id")).toEqual([]);
     expect(query.eq).toHaveBeenCalledWith("owner_hash", ownerHash("a".repeat(64)));
