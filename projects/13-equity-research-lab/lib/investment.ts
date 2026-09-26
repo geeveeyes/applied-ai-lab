@@ -6,12 +6,16 @@ export const factorRatings = ["Very weak", "Weak", "Mixed", "Strong", "Very stro
 const factorSchema = z.object({ rating: z.enum(factorRatings), reason: z.string(), sources: z.array(z.string()).max(5), evidenceDate: z.string() });
 export const investmentCaseSchema = z.object({
   factors: z.object(Object.fromEntries(factorKeys.map(k => [k, factorSchema])) as Record<typeof factorKeys[number], typeof factorSchema>),
+  valuationBasis: z.enum(["Peer comparison", "Independent cash-flow valuation", "Unavailable"]),
+  valuationBenchmark: z.string(),
   growthOutlook: z.string(), strongestCounterargument: z.string(), timing: z.string(), changeMind: z.string(),
 });
 export type InvestmentCase = z.infer<typeof investmentCaseSchema>;
 export const investmentCaseJsonSchema = {
-  type: "object", additionalProperties: false, required: ["factors", "growthOutlook", "strongestCounterargument", "timing", "changeMind"],
+  type: "object", additionalProperties: false, required: ["valuationBasis", "valuationBenchmark", "factors", "growthOutlook", "strongestCounterargument", "timing", "changeMind"],
   properties: {
+    valuationBasis: { type: "string", enum: ["Peer comparison", "Independent cash-flow valuation", "Unavailable"] },
+    valuationBenchmark: { type: "string" },
     factors: { type: "object", additionalProperties: false, required: [...factorKeys], properties: Object.fromEntries(factorKeys.map(k => [k, {
       type: "object", additionalProperties: false, required: ["rating", "reason", "sources", "evidenceDate"], properties: {
         rating: { type: "string", enum: [...factorRatings] }, reason: { type: "string" }, sources: { type: "array", maxItems: 5, items: { type: "string" } }, evidenceDate: { type: "string" },
@@ -31,10 +35,13 @@ export function validateInvestmentCase(value: InvestmentCase, urls: string[], as
     factor.sources = factor.sources.filter(url => allowed.has(url));
     const age = (Date.parse(asOf) - Date.parse(factor.evidenceDate)) / 86400000;
     // A valid citation establishes provenance, not factual correctness. The cited reasoning remains reviewable.
-    if (!factor.sources.length || !/^\d{4}-\d{2}-\d{2}$/.test(factor.evidenceDate) || !Number.isFinite(age) || age < 0 || age > (key === "market" || key === "valuation" ? 120 : 460)) {
+    if (!factor.sources.length || !/^\d{4}-\d{2}-\d{2}$/.test(factor.evidenceDate) || !Number.isFinite(age) || (Number.isFinite(age) && new Date(factor.evidenceDate).toISOString().slice(0,10) !== factor.evidenceDate) || age < 0 || age > (key === "market" || key === "valuation" ? 120 : 460)) {
+      if (factor.rating !== "Unknown") factor.reason += " Evidence is missing, undated, stale or not linked to a retrieved source.";
       factor.rating = "Unknown";
-      factor.reason += " Evidence is missing, undated, stale or not linked to a retrieved source.";
     }
+  }
+  if (result.valuationBasis === "Unavailable" || !result.valuationBenchmark.trim()) {
+    result.factors.valuation.rating = "Unknown";
   }
   return result;
 }
@@ -46,10 +53,10 @@ export function singleInvestmentDecision(run: ResearchRun) {
   const available = run.dataMode !== "demo" && !!thesis && known.length >= 4 && known.includes("growth") && known.includes("cash") && run.asOfPrice > 0 && Number.isFinite(priceAge) && priceAge >= 0 && priceAge <= 7;
   if (!Number.isFinite(priceAge) || priceAge < 0 || priceAge > 7 || !(run.asOfPrice > 0)) missing.push("a recent verified share price");
   let score: number | null = available ? Math.round(factorKeys.reduce((sum,k) => sum + weights[k] * points[thesis!.factors[k].rating], 0)) : null;
-  // Unknown valuation cannot produce a buy; uncertainty also cannot produce a sell.
-  if (score !== null && !known.includes("valuation")) score = Math.max(40, Math.min(59, score));
-  const action = score === null ? "Research incomplete" : score >= 70 ? "Buy candidate" : score >= 60 ? "Watch for a better entry" : score >= 40 ? "Hold / wait" : "Avoid / review selling";
+  // Unknown valuation blocks a buy. A sell still requires negative evidence in other factors.
+  if (score !== null && !known.includes("valuation")) score = Math.min(59, score);
+  const action = score === null ? thesis ? "Research incomplete" : "Older report · rerun" : score >= 70 ? "Buy candidate" : score >= 60 ? "Watch for a better entry" : score >= 40 ? "Hold / wait" : "Avoid / review selling";
   const ownedAction = score === null ? "Review the missing evidence before changing your position" : score >= 70 ? "Hold; consider adding within your risk limit" : score >= 40 ? "Hold only while the thesis remains intact; review your exposure" : "Review trimming or selling: the recorded risks outweigh the strengths";
-  const reason = score === null ? "The evidence does not yet support a directional investment rating. This is not a sell signal." : !known.includes("valuation") ? "The business may have potential, but the evidence does not establish whether today's price offers value. Wait before adding." : thesis!.timing;
+  const reason = score === null ? "The evidence does not yet support a directional investment rating. This is not a sell signal." : score < 40 ? thesis!.timing : !known.includes("valuation") ? "The business may have potential, but the evidence does not establish whether today's price offers value. Wait before adding." : thesis!.timing;
   return { available, score, action, ownedAction, reason, missing, instrument: "Shares avoid an expiration deadline. Options require a separate check of timing, premium, volatility and maximum loss; the stock score alone cannot select a contract." };
 }

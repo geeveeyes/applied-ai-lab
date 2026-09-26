@@ -1,1 +1,1 @@
-export default function Loading() { return <section role="status"><h1>Research in progress</h1><p>Gathering filings, market data and estimates, then checking the evidence. This can take a minute.</p></section>; }
+export default function Loading() { return <section role="status"><h1>Building your investment view</h1><p>Checking company filings and market data, researching current developments and counterarguments, then forming one evidence-backed decision. A new report can take up to four minutes. Please keep this page open.</p></section>; }

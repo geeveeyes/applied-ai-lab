@@ -5,7 +5,7 @@ import { SCORE_WEIGHTS, evidenceAdjustScores } from "../lib/scoring";
 import type { ResearchScores } from "../lib/types";
 const keys = Object.keys(SCORE_WEIGHTS);
 function response(rating: unknown) {
-  return { investmentCase: { factors: Object.fromEntries(factorKeys.map(k => [k, { rating: "Unknown", reason: "Missing", sources: [], evidenceDate: "" }])), growthOutlook: "Unknown", strongestCounterargument: "Missing evidence", timing: "Wait", changeMind: "Get evidence" }, executiveSummary: { overview: "Summary", strength: "Strength", concern: "Concern", watchFor: "Next results" }, scores: Object.fromEntries(keys.map(k => [k, rating])),
+  return { investmentCase: { valuationBasis: "Unavailable", valuationBenchmark: "Missing", factors: Object.fromEntries(factorKeys.map(k => [k, { rating: "Unknown", reason: "Missing", sources: [], evidenceDate: "" }])), growthOutlook: "Unknown", strongestCounterargument: "Missing evidence", timing: "Wait", changeMind: "Get evidence" }, executiveSummary: { overview: "Summary", strength: "Strength", concern: "Concern", watchFor: "Next results" }, scores: Object.fromEntries(keys.map(k => [k, rating])),
     scoreReasons: Object.fromEntries(keys.map(k => [k, "Evidence missing."])),
     highlights: [], risks: [], catalysts: [], managementCredibility: [], expectationGap: "Gap", valuationSummary: "Sensitivity only",
     analystSummary: "Missing", thesisKillers: ["EPS shortfall", "Cash flow shortfall"] };
