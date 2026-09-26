@@ -16,12 +16,12 @@ function CitedText({ grounding }: { grounding: WebGrounding }) {
   return <div className="grounding-text">{parts}</div>;
 }
 export function GroundingPanel({ run }: { run: ResearchRun }) {
-  const [grounding,setGrounding] = useState<WebGrounding | null>(null), [busy,setBusy] = useState(false), [message,setMessage] = useState("");
+  const [grounding,setGrounding] = useState<WebGrounding | null>(run.integratedResearch ?? null), [busy,setBusy] = useState(false), [message,setMessage] = useState("");
   const endpoint = `/api/research/${encodeURIComponent(run.id)}/grounding`;
   useEffect(() => { let active = true;
-    if (run.storage === "cloud") fetch(endpoint, {cache:"no-store",signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).then(data=>{if(active && data?.grounding)setGrounding(data.grounding);}).catch(()=>{});
+    if (!run.integratedResearch && run.storage === "cloud") fetch(endpoint, {cache:"no-store",signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).then(data=>{if(active && data?.grounding)setGrounding(data.grounding);}).catch(()=>{});
     return ()=>{active=false;};
-  },[endpoint,run.storage]);
+  },[endpoint,run.storage,run.integratedResearch]);
   async function search() {
     setBusy(true);setMessage("Searching current sources and checking the gaps. This can take up to two minutes…");
     try {
@@ -31,10 +31,10 @@ export function GroundingPanel({ run }: { run: ResearchRun }) {
     } catch(error) { setMessage(error instanceof Error && error.name!=="TimeoutError" ? error.message : "Research took too long. Reopen this report shortly to check whether the result was saved."); }
     finally {setBusy(false);}
   }
-  return <section className="panel" style={{marginTop:20}}><h2>Fill the gaps with web research</h2>
-    <p>Look for recent company results, guidance, financing and business developments when provider data is missing. Source links and dates are included. The web review is saved separately and does not change the original scores or substitute search results for live prices or options quotes.</p>
+  return <details className="panel" style={{marginTop:20}}><summary>{run.integratedResearch ? "Research sources and full evidence brief" : "Additional web research"}</summary>
+    <p>{run.integratedResearch ? "This web evidence was included before the investment decision was calculated. Public company research may be reused for up to one hour. Sources are interpreted by the model; open the links to review them." : <>Look for recent company results, guidance, financing and business developments when provider data is missing. Source links and dates are included. The web review is saved separately and does not change the original scores or substitute search results for live prices or options quotes.</>}</p>
     {!grounding && <><button className="action" disabled={busy || run.storage!=="cloud" || run.dataMode==="demo"} onClick={search}>{busy ? "Researching…" : "Research missing evidence"}</button><p className="muted">On request only: uses your configured AI API. Up to 3 searches and 3,500 output tokens per review; 3 reviews per workspace and 20 across the portal per UTC day. Saved reviews reopen without another AI request.</p>{run.storage!=="cloud" && <p>Run and save a live report to enable web research.</p>}</>}
     {message && <p role="status">{message}</p>}
     {grounding && <><p className="eyebrow">WEB REVIEW · {grounding.generatedAt.replace("T"," ").replace("Z"," UTC")}</p><CitedText grounding={grounding}/><details><summary>Sources and research usage</summary><ol>{grounding.citations.map((source,index)=><li key={index}><a href={safeSourceUrl(source.url) ?? "#"} target="_blank" rel="noreferrer">{source.title}</a></li>)}</ol><p>{grounding.searchCalls} search tool call(s) · {grounding.inputTokens.toLocaleString()} input tokens · {grounding.outputTokens.toLocaleString()} output tokens. Retrieved {grounding.generatedAt.slice(0,10)}; source publication dates may differ.</p></details></>}
-  </section>;
+  </details>;
 }

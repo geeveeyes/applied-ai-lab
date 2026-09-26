@@ -2,6 +2,7 @@ import { ResearchView } from "@/components/ResearchView";
 import { runResearch } from "@/lib/research-engine";
 
 import { saveSnapshot } from "@/lib/server/archive";
+export const maxDuration = 300;
 
 export default async function CompanyPage({ params }: { params: Promise<{ ticker: string }> }) {
   const { ticker } = await params;

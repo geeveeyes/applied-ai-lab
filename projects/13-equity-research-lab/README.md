@@ -185,3 +185,10 @@ contract is currently available. Official references:
 - https://robinhood.com/us/en/support/articles/360001227566/
 - https://robinhood.com/us/en/support/articles/advanced-options-strategies/
 - https://developers.openai.com/api/docs/guides/tools-web-search
+
+
+### v0.8: one investment decision
+
+New reports combine provider evidence with a cached, cited web brief before synthesis. The brief covers growth, cash/funding, valuation, competition, execution/governance and market risks. Each factor has a rating, dated source links and reasoning. Source presence/date checks establish provenance, not verified truth. The single directional investment score uses fixed weights (20/20/25/15/10/10) and a disclosed categorical mapping; it is not a calibrated probability. Missing core evidence withholds the score. Unknown valuation prevents both buy and sell calls. Old snapshots remain unchanged and show “Not rated” under the new method.
+
+Automatic public company research is cached for one hour (UTC day in cache key), with up to six web tool calls, 5,500 output tokens and a 110-second timeout per uncached brief. Synthesis has a separate 110-second timeout. Routes allow 300 seconds. This uses the configured OpenAI account and adds cost to new reports; cache is best-effort across the deployment. Existing on-demand addenda retain their separate quota and do not retroactively rewrite frozen reports. No broker connection or live options chain is implied. Position/objective controls compare conditional strategies only; quotes and suitability still need review.

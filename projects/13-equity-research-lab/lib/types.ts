@@ -69,6 +69,8 @@ export type OptionIdea = {
 export type ExecutiveSummary = { overview: string; strength: string; concern: string; watchFor: string };
 
 export type ResearchRun = {
+  investmentCase?: import("./investment").InvestmentCase;
+  integratedResearch?: import("./grounding").WebGrounding;
   executiveSummary?: ExecutiveSummary;
   storage?: "cloud" | "browser" | "unavailable";
   priceTiming?: "end-of-day";

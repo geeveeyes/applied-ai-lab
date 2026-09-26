@@ -1,23 +1,6 @@
 import type { ResearchRun } from "./types";
 
-// A disclosed decision-support heuristic, never a forecast probability.
-export function investmentDecision(run: ResearchRun) {
-  const available = run.score > 0 && run.confidence > 0 && run.dataMode !== "demo";
-  const confidence = available ? Math.round(Math.min(100, Math.max(0, run.score)) * Math.min(100, Math.max(0, run.confidence)) / 100) : 0;
-  const missing: string[] = [];
-  if (!(run.asOfPrice > 0)) missing.push("a verified share price");
-  if (!run.annualFinancials) missing.push("verified annual financial statements");
-  if (!run.scenarios.length) missing.push("usable forward earnings estimates");
-  if ((run.dimensionCoverage?.industryMoat ?? 0) < 50) missing.push("evidence about competitors and the company's advantages");
-  const action = !available || run.confidence < 50 ? "Wait for better evidence" : run.score < 55 ? "Wait for business improvements" : "Watch; verify the price before buying";
-  const reason = !available || run.confidence < 50
-    ? "There is not enough verified information to support an investment decision today. A rising share price alone does not fill those gaps."
-    : run.score < 55 ? "The recorded strengths do not yet outweigh the concerns. Look for improvement in the weak areas before committing new money."
-    : "The report has encouraging evidence, but its price scenarios do not establish what the company is worth. Confirm the investment case and an acceptable price before buying.";
-  return { available, confidence, action, reason, missing,
-    instrument: "Shares are the starting point for a long-term growth thesis: they do not expire. Consider options only when both the thesis and its timing are strong enough to risk losing the entire premium.",
-  };
-}
+export { singleInvestmentDecision as investmentDecision } from "./investment";
 
 function money(n: number) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(n); }
 export function plainSummary(run: ResearchRun) {

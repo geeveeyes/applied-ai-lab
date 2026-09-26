@@ -16,7 +16,7 @@ describe("options payoff",()=>{
  it("flags excessive risk budgets and rejects fractional contracts",()=>{expect(callPayoff({...base,budget:400},"2026-09-25").budgetExceeded).toBe(true);expect(()=>callPayoff({...base,contracts:1.5},"2026-09-25")).toThrow();});
 });
 describe("plain-English decision",()=>{
- it("reduces investment conviction when evidence is weak",()=>{const run={...demoResearch("NBIS"),dataMode:"hybrid" as const,score:80,confidence:25};expect(investmentDecision(run)).toMatchObject({confidence:20,action:"Wait for better evidence"});});
+ it("does not convert legacy scores into a conflicting investment number",()=>{const run={...demoResearch("NBIS"),dataMode:"hybrid" as const,score:80,confidence:25};expect(investmentDecision(run)).toMatchObject({score:null,action:"Research incomplete"});});
  it("does not label demo data investment-ready",()=>{expect(investmentDecision(demoResearch("NVDA")).available).toBe(false);});
  it("supports archived reports without new model calls",()=>{const run=demoResearch("NBIS");run.annualFinancials={periodEnd:"2025-12-31",revenue:500e6,netIncome:10e6,freeCashFlow:-100e6};expect(plainSummary(run).overview).toContain("2025-12-31");expect(plainSummary(run).overview).toContain("exceeded operating cash");});
 });

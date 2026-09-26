@@ -1,5 +1,5 @@
 import type { ResearchRun } from "@/lib/types";
-import { ScoreGrid } from "./ScoreGrid";
+
 import { ExecutiveSummary } from "./ExecutiveSummary";
 import { InvestmentChoices } from "./InvestmentChoices";
 import { GroundingPanel } from "./GroundingPanel";
@@ -28,10 +28,6 @@ export function ResearchView({ run }: { run: ResearchRun }) {
           Research generated {utcLabel(run.analyzedAt)}
         </p>
       </div>
-      <div className="verdict">
-        <span>Research verdict</span><strong>{run.verdict}</strong>
-        <small>{hasScores ? `Score ${run.score}/100 · evidence confidence ${run.confidence}%` : "Awaiting sufficient verified evidence"}</small>
-      </div>
     </section>
 
     {run.dataMode === "demo" && <div className="warning"><strong>Demo mode.</strong> Placeholder scores are for product development only, not an investment decision.</div>}
@@ -40,6 +36,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
     <ExecutiveSummary run={run} />
     <GroundingPanel run={run} />
     <InvestmentChoices run={run} />
+    <details className="panel"><summary>Financial details, scenarios and provider notes</summary>
 
     {run.annualFinancials && <section className="panel">
       <h2>Verified annual financials</h2>
@@ -50,12 +47,6 @@ export function ResearchView({ run }: { run: ResearchRun }) {
         ["Operating cash flow minus cash capex", run.annualFinancials.freeCashFlow],
       ] as const).map(([label, value]) => <tr key={label}><td>{label}</td><td>{value == null ? "Unavailable" : `${value < 0 ? "−" : ""}$${(Math.abs(value) / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 })}M`}</td></tr>)}</tbody></table></div>
       <p className="muted">Source: SEC company facts below. Annual figures can differ substantially from current operating conditions. Quarterly evidence may be unavailable for foreign filers.</p>
-    </section>}
-
-    {hasScores && <section>
-      <h2>Research scorecard</h2>
-      <p className="muted">{run.scoreReasons ? "Ratings are evidence-adjusted toward neutral (50) when coverage is weak. Missing evidence lowers confidence; it does not establish that a business is poor." : "This report uses its recorded score methodology; see Research notes for the version and evidence policy."}</p>
-      <ScoreGrid scores={run.scores} coverage={run.dimensionCoverage} reasons={run.scoreReasons} />
     </section>}
 
     <div className="two-col">
@@ -83,6 +74,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
     {run.optionIdeas.length > 0 && <section><h2>Options decision frame</h2><p className="muted">No specific option contract is recommended without a live chain, Greeks, IV and liquidity data.</p><div className="scenario-grid">{run.optionIdeas.map(o => <article className="panel" key={o.strategy}><p className="eyebrow">FIT: {o.fit}</p><h3>{o.strategy}</h3><p>{o.rationale}</p><small>Max loss: {o.maxLoss} · Capital: {o.capitalProfile} · IV: {o.volatilityView}</small></article>)}</div></section>}
 
     <section className="panel"><h2>Sources</h2>{run.citations.length ? <ol>{run.citations.map((c, i) => <li key={`${c.url}-${i}`}><a href={c.url} target="_blank" rel="noreferrer">{c.title}</a> <span className="muted">— {c.source}, tier {c.tier}, retrieved {new Date(c.retrievedAt).toISOString().slice(0, 10)}</span></li>)}</ol> : <p className="muted">No verified sources loaded.</p>}</section>
-    {run.notes.length > 0 && <section className="panel"><h2>Research notes</h2><ul>{run.notes.map((x, i) => <li key={`${x}-${i}`}>{x}</li>)}</ul></section>}
+    {run.notes.length > 0 && <details className="panel"><summary>Technical research notes</summary><ul>{run.notes.map((x, i) => <li key={`${x}-${i}`}>{x}</li>)}</ul></details>}
+    </details>
   </>;
 }
