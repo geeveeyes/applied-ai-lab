@@ -2,14 +2,17 @@
 import { Fragment, useEffect, useState } from "react";
 import type { ResearchRun } from "@/lib/types";
 import { safeSourceUrl, type WebGrounding } from "@/lib/grounding";
+function formattedText(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part,index) => part.startsWith("**") && part.endsWith("**") ? <strong key={index}>{part.slice(2,-2)}</strong> : part);
+}
 function CitedText({ grounding }: { grounding: WebGrounding }) {
   let position = 0; const parts = [];
   for (const [index, source] of grounding.citations.entries()) {
     if (source.start < position || !safeSourceUrl(source.url)) continue;
-    parts.push(<Fragment key={index}>{grounding.text.slice(position,source.start)}<a href={source.url} target="_blank" rel="noreferrer" title={source.title}>[{index+1}: {new URL(source.url).hostname}]</a></Fragment>);
+    parts.push(<Fragment key={index}>{formattedText(grounding.text.slice(position,source.start))}<a href={source.url} target="_blank" rel="noreferrer" title={source.title}>[{index+1}: {new URL(source.url).hostname}]</a></Fragment>);
     position = source.end;
   }
-  parts.push(<Fragment key="last">{grounding.text.slice(position)}</Fragment>);
+  parts.push(<Fragment key="last">{formattedText(grounding.text.slice(position))}</Fragment>);
   return <div className="grounding-text">{parts}</div>;
 }
 export function GroundingPanel({ run }: { run: ResearchRun }) {

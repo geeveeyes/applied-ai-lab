@@ -1,5 +1,15 @@
 # Project Status
 
+## v0.7.0 — readable decisions, web evidence and archive cleanup
+
+Plain-English executive summary and deterministic investment-confidence heuristic;
+conditional share/options comparison and manual quote payoff calculator; on-demand
+cited web reviews with persistent usage limits; reversible private archive Trash.
+42 tests passed. Production checks verified archive removal, hidden reads, identical
+restoration and cross-site mutation rejection. A new NVDA executive summary and an
+NBIS web review both completed and saved successfully. Robinhood quote access remains
+unconnected: no actual contract recommendation or order execution is claimed.
+
 ## v0.6.0 — private durable research and end-of-day fallback
 
 Supabase stores immutable server-generated reports in private browser workspaces.

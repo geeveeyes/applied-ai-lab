@@ -150,3 +150,38 @@ This is a private browser workspace, not account authentication. Cloud records s
 local-storage clearing, but clearing cookies or using another browser loses access.
 Cross-device access and account recovery require a future authenticated account flow.
 Old browser-only snapshots remain readable and are not uploaded automatically.
+
+
+## v0.7 reader tools
+
+Apply additive migration `003_reader_tools.sql` before deployment. It adds reversible
+`deleted_at` archive state and private web-review storage. The application can update
+only archive visibility, not the original snapshot payload. Bulk remove and restore
+are owner-scoped and require a same-origin request; browser-only reports use local Trash.
+
+New reports include a plain-English executive summary in the existing synthesis call.
+Archived reports get a deterministic summary from saved data. Investment confidence
+is the disclosed heuristic `round(research score * evidence confidence / 100)`, not a
+profit probability. It does not override evidence gates or establish intrinsic value.
+
+On-request web grounding uses the existing OpenAI key with `web_search`, up to three
+tool calls and 3,500 output tokens (including reasoning). `OPENAI_WEB_MODEL` optionally
+overrides the synthesis model. Requests have a persistent global limit of 20 and a
+workspace limit of 3 per UTC day. Each saved report gets one immutable completed web
+review; reopen to reuse it, or generate a new report for a new review. Failed attempts
+count toward the daily budget. Inline API citation annotations are required, rendered
+as clickable source links, and stored with retrieval time and actual token usage.
+Web content supplements the report; it does not silently rewrite frozen ratings,
+EPS estimates, option quotes, or original research.
+
+Robinhood's official agent tools document options chains and quotes, but no brokerage
+connection or credentials are configured in this portal. The options section provides
+conditional shares/long-call/call-debit-spread comparisons and a deterministic manual
+quote calculator. It assumes standard 100-share US contracts, displays maximum option
+premium loss, break-even, expiry payoff and loss-budget checks, and discloses exercise,
+assignment, liquidity and volatility risks. It never submits trades or claims that a
+contract is currently available. Official references:
+- https://robinhood.com/us/en/support/articles/trading-with-your-agent/
+- https://robinhood.com/us/en/support/articles/360001227566/
+- https://robinhood.com/us/en/support/articles/advanced-options-strategies/
+- https://developers.openai.com/api/docs/guides/tools-web-search

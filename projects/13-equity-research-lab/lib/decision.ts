@@ -46,6 +46,7 @@ export function callPayoff(input: CallInputs, today = new Date().toISOString().s
   if (spread && (!Number.isFinite(shortStrike) || shortStrike! <= strike || debit >= shortStrike! - strike)) throw new Error("For a call debit spread, the short strike must exceed the long strike and the net debit must be less than the strike difference.");
   const multiplier = 100 * contracts;
   const maxLoss = debit * multiplier;
+  if (![maxLoss, strike + debit, targetPrice * multiplier].every(Number.isFinite)) throw new Error("The entered values are too large to calculate safely.");
   const intrinsic = Math.max(targetPrice - strike, 0) - (spread ? Math.max(targetPrice - shortStrike!, 0) : 0);
   return { maxLoss, breakEven: strike + debit, maxGain: spread ? (shortStrike! - strike - debit) * multiplier : null,
     profitAtTarget: (intrinsic - debit) * multiplier, budgetExceeded: maxLoss > budget,
