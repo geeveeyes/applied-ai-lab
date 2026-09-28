@@ -9,3 +9,10 @@ it("rejects mismatched ticker, raw close only, and invalid dates",()=>{expect(()
 it("excludes current partial month and reads adjusted rather than raw close",()=>{const h=parseAlphaHistory({"Meta Data":{"2. Symbol":"A"},"Monthly Adjusted Time Series":{"2026-08-31":{"4. close":"200","5. adjusted close":"100"},"2026-09-25":{"5. adjusted close":"110"}}},"A",new Date("2026-09-27"));expect(h.prices).toEqual([{date:"2026-08-31",close:100}]);});
 it("requires acknowledged assumptions and bounds public API work",()=>{expect(requestSchema.safeParse({input:{paths:100000},assumptions:{acknowledged:false}}).success).toBe(false);});
 it("produces persisted summaries without all raw paths",()=>{const r=runPortfolio({input:{assets:[{symbol:"CASH",expectedReturn:0,volatility:0}],correlation:[[1]],strategies:[{name:"A",weights:[1],rebalance:"none"},{name:"B",weights:[1],rebalance:"none"}],initialValue:1000,years:5,paths:10000,seed:1},assumptions:{returnSource:"User assumption",riskSource:"Deterministic cash",acknowledged:true}});expect(r.results[0]).not.toHaveProperty("endingValues");expect(r.results[0].histogram.reduce((a,b)=>a+b.count,0)).toBe(10000);expect(r.results[0].years[5].percentiles[3]).toBe(1000);});
+
+it("classifies provider restrictions without leaking raw notices or credentials",()=>{
+ expect(()=>parseAlphaHistory({Information:"This is a premium endpoint. apikey=secret"},"A")).toThrow("different plan");
+ expect(()=>parseAlphaHistory({Information:"Our standard API rate limit is 25 requests per day. secret"},"A")).toThrow("request limit reached");
+ expect(()=>parseAlphaHistory({"Error Message":"Invalid API key secret"},"A")).toThrow("configured API key");
+ try{parseAlphaHistory({Note:"Unknown provider notice secret"},"A");}catch(e){expect(String(e)).not.toContain("secret");}
+});

@@ -3,7 +3,15 @@ export type Estimate = { symbol:string; cagr:number; arithmeticAnnual:number; vo
 export type HistoryEstimate = { start:string; end:string; observations:number; years:number; assets:Estimate[]; correlation:number[][]; sources:{symbol:string;source:string;retrievedAt:string}[]; warning:string };
 export function parseAlphaHistory(body:unknown,symbol:string,now=new Date()):History {
  const root=body as Record<string,any>;
- if(root?.Information||root?.Note||root?.["Error Message"])throw new Error("Historical data unavailable: provider allowance, access restriction or unsupported symbol.");
+ const notice=String(root?.Information||root?.Note||root?.["Error Message"]||"");
+ // Classify provider notices without exposing raw text, which can contain the API key.
+ if(notice){
+  if(/premium|subscription|entitlement/i.test(notice))throw new Error("Alpha Vantage requires a different plan for adjusted monthly history. Manual assumptions remain available.");
+  if(/rate limit|call frequency|requests per|calls per|higher.*limit/i.test(notice))throw new Error("Alpha Vantage request limit reached. Try after the provider limit resets; manual assumptions remain available.");
+  if(/apikey|api key/i.test(notice))throw new Error("Alpha Vantage rejected the configured API key. Check the deployment's provider configuration.");
+  if(root?.["Error Message"])throw new Error("Alpha Vantage could not supply adjusted history for this symbol.");
+  throw new Error("Alpha Vantage did not return adjusted monthly history. Check the provider's access and request allowance; manual assumptions remain available.");
+ }
  const meta=root?.["Meta Data"];
  if(meta?.["2. Symbol"]?.toUpperCase()!==symbol)throw new Error("Historical response symbol did not match.");
  const series=root?.["Monthly Adjusted Time Series"];
