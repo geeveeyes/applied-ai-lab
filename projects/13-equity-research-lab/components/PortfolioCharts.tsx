@@ -8,7 +8,7 @@ export function FanChart({result,maxValue}:{result:SummaryResult;maxValue?:numbe
  {[0,.25,.5,.75,1].map(t=><g key={t}><line x1={left} x2={w-right} y1={y(max*t)} y2={y(max*t)} stroke="#35515d"/><text x={left-7} y={y(max*t)+4} textAnchor="end" fill="#bdd1d9" fontSize="12">{wealth(max*t)}</text></g>)}
  <polygon points={band(0,6)} fill="#32536d"/><polygon points={band(1,5)} fill="#337b88"/><polygon points={band(2,4)} fill="#449c8a"/>
  <polyline points={rows.map(r=>`${x(r.year)},${y(r.percentiles[3])}`).join(" ")} fill="none" stroke="#d8ffe9" strokeWidth="3"/>
- {[0,Math.floor((rows.length-1)/2),rows.length-1].map(year=><text key={year} x={x(year)} y={h-18} textAnchor="middle" fill="#bdd1d9" fontSize="12">Year {year}</text>)}
+ {[0,Math.floor((rows.length-1)/2),rows.length-1].map(year=><text key={year} x={x(year)} y={h-18} textAnchor={year===rows.length-1?"end":year===0?"start":"middle"} fill="#bdd1d9" fontSize="12">Year {year}</text>)}
  </svg><p className="muted">Outer to inner bands: 5–95%, 10–90%, 25–75%. Light line: median. Pointwise ranges, not paths that stay within each band.</p></figure>;
 }
 export function Histogram({result}:{result:SummaryResult}){
