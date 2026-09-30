@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { runResearch } from "@/lib/research-engine";
-
 import { saveSnapshot } from "@/lib/server/archive";
+import { sameOrigin } from "@/lib/server/request-security";
+import { researchBudget, sameDayReport } from "@/lib/server/research-budget";
 export const maxDuration = 300;
 
-export async function GET(request: NextRequest) {
-  const ticker = request.nextUrl.searchParams.get("ticker");
-  if (!ticker) return NextResponse.json({ error: "ticker is required" }, { status: 400 });
-  try { return NextResponse.json(await saveSnapshot(await runResearch(ticker)), { headers: { "Cache-Control": "private, no-store" } }); }
-  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "analysis failed" }, { status: 400 }); }
+const headers = { "Cache-Control": "private, no-store" };
+const schema = z.object({ ticker: z.string().trim().toUpperCase().regex(/^[A-Z.\-]{1,10}$/), force: z.boolean().optional() });
+
+// Paid research never runs on GET: crawlers, link unfurlers and page refreshes must not spend credits.
+export function GET() {
+  return NextResponse.json({ error: "Use POST to request research." }, { status: 405, headers: { ...headers, Allow: "POST" } });
+}
+
+export async function POST(request: NextRequest) {
+  if (!sameOrigin(request)) return NextResponse.json({ error: "Request origin not allowed" }, { status: 403, headers });
+  let input: z.infer<typeof schema>;
+  try { input = schema.parse(await request.json()); }
+  catch { return NextResponse.json({ error: "Enter a valid ticker, such as NVDA or BRK-B." }, { status: 400, headers }); }
+
+  if (!input.force) {
+    const existing = await sameDayReport(input.ticker);
+    if (existing) return NextResponse.json({ ...existing, reused: true }, { headers });
+  }
+  const budget = await researchBudget();
+  if (budget.reason) return NextResponse.json({ error: budget.reason, budget }, { status: 429, headers });
+  try { return NextResponse.json(await saveSnapshot(await runResearch(input.ticker)), { headers }); }
+  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "analysis failed" }, { status: 400, headers }); }
 }
