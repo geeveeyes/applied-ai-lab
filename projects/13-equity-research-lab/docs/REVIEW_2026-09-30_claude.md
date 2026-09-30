@@ -62,3 +62,17 @@ start a job and redirect to `/research/[id]` instead of rendering a 200+ second 
 | 3 | Consolidate to one scoring model; sync SKILL.md; drop `expectedReturn12m` | 1 day | Either |
 | 4 | Deterministic valuation module + LLM critique | 2–3 days | Claude |
 | 5 | Point-in-time eval fixtures + retrospective loop (historical prices + Vercel Cron) | 2–3 days | Codex |
+
+## Status update — 2026-09-30 (session 2)
+
+| Finding | Status |
+|---|---|
+| P0 public cost exposure | **Fixed**: Vercel protection on all deployments; POST-only research, daily cap, same-day reuse, robots/noindex (branch `claude/p0-lockdown-and-valuation`) |
+| P1.1 Learn loop missing | **Partly fixed**: zero-cost track record from later snapshots; benchmark/dividends/cron still open |
+| P1.2 Tautological scenarios | **Fixed**: replaced by deterministic DCF bear/base/bull |
+| P1.3 Can't say Buy | **Fixed**: valuation factor set in code from the DCF |
+| P1.4 Two scoring systems | Open |
+| P1.5 Model-supplied evidence dates | Open (valuation factor now dated from the market quote in code) |
+| P1.6 No LLM evals | Open |
+| P2 CI | **Fixed**: GitHub Action |
+| P2 formatting, next/postcss advisory, version drift | Open; env vars documented |

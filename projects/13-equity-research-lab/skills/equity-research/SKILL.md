@@ -2,6 +2,8 @@
 
 Version: `equity-research-v0.5.2`
 
+> **Out of date (2026-09-30).** The app engine is v0.10.0: a six-factor investment score, with the valuation factor set in code from a deterministic DCF (`lib/intrinsic-valuation.ts`, `lib/valuation-factor.ts`). The 12-dimension model below is legacy and scheduled for removal; see `HANDOFF.md`.
+
 ## Purpose
 Analyze a public company without conflating business quality, valuation, market expectations and trade timing. Preserve every conclusion as a timestamped prediction so later retrospectives can improve the process.
 
