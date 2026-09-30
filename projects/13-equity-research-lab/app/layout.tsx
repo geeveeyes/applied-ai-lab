@@ -5,7 +5,7 @@ export const metadata = { title: "Equity Research Lab", description: "Evidence-f
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en"><body>
-    <header className="nav"><Link href="/" className="brand">Equity Research Lab</Link><nav><Link href="/opportunities">Find stocks</Link><Link href="/amzn">Diversify AMZN</Link><Link href="/holdings">My holdings</Link><Link href="/portfolio">Portfolio Lab</Link><Link href="/research">Archive</Link><Link href="/performance">Performance</Link><Link href="/analysts">Analysts</Link></nav></header>
+    <header className="nav"><Link href="/" className="brand">Equity Research Lab</Link><nav><Link href="/watchlist">Watchlist</Link><Link href="/opportunities">Find stocks</Link><Link href="/amzn">Diversify AMZN</Link><Link href="/holdings">My holdings</Link><Link href="/portfolio">Portfolio Lab</Link><Link href="/research">Archive</Link><Link href="/performance">Performance</Link></nav></header>
     <main>{children}</main>
     <footer>Evidence first. Predictions frozen. Learn from every call.</footer>
   </body></html>;
