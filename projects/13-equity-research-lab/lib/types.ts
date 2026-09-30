@@ -69,6 +69,8 @@ export type OptionIdea = {
 export type ExecutiveSummary = { overview: string; strength: string; concern: string; watchFor: string };
 
 export type ResearchRun = {
+  peerValuation?: import("./peer-valuation").PeerValuation;
+  evidenceAssessment?: {score:number;label:string;explanation:string;gaps:string[]};
   cost?: import("./cost-types").ReportCost;
   investmentCase?: import("./investment").InvestmentCase;
   integratedResearch?: import("./grounding").WebGrounding;

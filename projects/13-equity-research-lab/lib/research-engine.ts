@@ -1,3 +1,5 @@
+import { peerResearch } from "./server/peer-research";
+import { assessDecisionEvidence } from "./decision-evidence";
 import { withCosts } from "./server/research-cost";
 import { integratedResearch } from "./server/integrated-research";
 import { validateInvestmentCase, singleInvestmentDecision } from "./investment";
@@ -17,7 +19,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.8.1",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.9.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -123,6 +125,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     return run;
   }
 
+  const peerWork=peerResearch(ticker,fundamentals,market,run.analyzedAt).catch(()=>undefined);
   try {
     run.integratedResearch = await integratedResearch(run);
     for (const source of run.integratedResearch.citations) {
@@ -130,6 +133,8 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     }
   } catch { errors.push("Automatic web research did not complete. Unsupported investment factors remain unknown; retry a new report to deepen the evidence."); }
 
+  run.peerValuation=await peerWork;
+  for(const row of run.peerValuation?.rows??[])for(const c of row.sources)if(!citations.some(x=>x.url===c.url))citations.push(c);
   const latestActualPeriod = fundamentals?.latestAnnualPeriodEnd;
   const analysisDate = run.analyzedAt.slice(0, 10);
   const targetDate12m = addYearsIso(analysisDate, 1);
@@ -165,6 +170,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     quarterEnd: hasQuarter ? fundamentals?.latestQuarterPeriodEnd : undefined, estimate: horizonEstimate, citations });
   const scenarios = calibratedScenarios(market.price, horizonEstimate, targetDate12m);
   const evidence = {
+    peerValuation: run.peerValuation ?? {status:"incomplete",note:"No supported peer group is configured. Do not invent a benchmark."},
     integratedWebResearch: run.integratedResearch ?? null,
     sourceCatalog: citations,
     calibratedScenarios: scenarios,
@@ -216,6 +222,8 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     run.confidence = confidence.score;
     run.verdict = verdictFor(run.score, run.confidence);
     run.investmentCase = validateInvestmentCase(ai.investmentCase, citations.map(c => c.url), run.analyzedAt);
+    run.evidenceAssessment=assessDecisionEvidence(run);
+    run.confidence=run.evidenceAssessment.score;
     const decision = singleInvestmentDecision(run);
     run.verdict = !decision.available ? "Insufficient data" : decision.action === "Buy candidate" ? "Buy candidate" : decision.action === "Avoid / review selling" ? "Avoid for now" : "Watch";
     run.executiveSummary = ai.executiveSummary;
@@ -244,7 +252,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     }
 
     run.notes = [
-      confidence.note,
+      run.evidenceAssessment.explanation,
       "The investment score uses six sourced factors. Price-anchored scenarios are sensitivity tests and are not used as independent valuation evidence.",
       "Ratings map to 10/30/50/70/90; insufficient evidence maps to neutral 50. Evidence adjustment: 50 + (raw score − 50) × coverage / 100. Missing evidence lowers confidence instead of implying a bad company.",
       latestActualPeriod ? `Latest annual period: ${latestActualPeriod}; latest reported interim quarter (10-Q): ${fundamentals?.latestQuarterPeriodEnd ?? "unavailable"}.` : "Latest annual period unavailable.",

@@ -11,6 +11,7 @@ export function ExecutiveSummary({ run }: { run: ResearchRun }) {
     <p className="muted">These are research thresholds, not a probability of profit. Missing evidence can leave a company unrated.</p>
     {run.dataMode!=="demo"&&run.scenarios.length>0&&<div className="scenario-grid">{run.scenarios.map(s=><div key={s.label}><strong>{s.label}: ${s.fairValue.toFixed(2)}</strong><p>{s.returnPct!=null?`${s.returnPct.toFixed(1)}% price sensitivity over 12 months`:"12-month scenario"}</p></div>)}</div>}
     {run.dataMode!=="demo"&&run.scenarios.some(s=>s.valuationMethod?.includes("price-anchored"))&&<p className="muted">Price-anchored stress tests; base is neutral by construction. These are not independent fair-value forecasts.</p>}
+    {run.evidenceAssessment&&<details><summary>{run.evidenceAssessment.label} · {run.evidenceAssessment.score}/100</summary><p>{run.evidenceAssessment.explanation}</p>{run.evidenceAssessment.gaps.length>0&&<ul>{run.evidenceAssessment.gaps.map(g=><li key={g}>{g}</li>)}</ul>}</details>}
     {run.investmentCase && <><p><strong>Growth potential:</strong> {run.investmentCase.growthOutlook}</p><p><strong>The strongest counterargument:</strong> {run.investmentCase.strongestCounterargument}</p><p><strong>What would change the decision:</strong> {run.investmentCase.changeMind}</p></>}
     <p><strong>What to watch next:</strong> {summary.watchFor}</p>
     {decision.missing.length > 0 && <p><strong>Still unresolved:</strong> {decision.missing.join("; ")}.</p>}

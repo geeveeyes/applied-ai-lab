@@ -1,6 +1,9 @@
 import type { AnalystCall, Citation } from "../types";
 
 export type FundamentalsSnapshot = {
+  annualDilutedEps?: number;
+  stockholdersEquity?: number;
+  balanceSheetDate?: string;
   companyName?: string;
   revenue?: number;
   netIncome?: number;

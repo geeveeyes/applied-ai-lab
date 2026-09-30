@@ -28,7 +28,7 @@ async function fmp(path: string) {
   const key = process.env.FMP_API_KEY;
   if (!key) throw new Error("FMP_API_KEY is not configured");
   const joiner = path.includes("?") ? "&" : "?";
-  const res = await fetch(`${BASE}/${path}${joiner}apikey=${encodeURIComponent(key)}`, { next: { revalidate: 900 } });
+  const res = await fetch(`${BASE}/${path}${joiner}apikey=${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(12000), next: { revalidate: 900 } });
   if (!res.ok) {
     const detail = providerErrorDetail(res.status, await res.text(), key);
     throw new Error(`FMP ${path.split("?")[0]} failed: ${detail}`);

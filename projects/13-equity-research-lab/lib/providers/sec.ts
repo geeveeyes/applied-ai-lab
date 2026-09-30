@@ -73,7 +73,7 @@ function latestFiling(submissions: any, form: string, cikNumber: number) {
 export class SecProvider implements FundamentalsProvider {
   async getFundamentals(ticker: string): Promise<FundamentalsSnapshot> {
     const retrievedAt = new Date().toISOString();
-    const tickersRes = await fetch("https://www.sec.gov/files/company_tickers.json", { headers: SEC_HEADERS, next: { revalidate: 86400 } });
+    const tickersRes = await fetch("https://www.sec.gov/files/company_tickers.json", { headers: SEC_HEADERS, signal: AbortSignal.timeout(12000), next: { revalidate: 86400 } });
     if (!tickersRes.ok) throw new Error(`SEC ticker lookup failed: ${tickersRes.status}`);
     const tickerMap = (await tickersRes.json()) as TickerMap;
     const match = Object.values(tickerMap).find((x) => x.ticker.toUpperCase().replaceAll(".", "-") === ticker.toUpperCase().replaceAll(".", "-"));
@@ -84,8 +84,8 @@ export class SecProvider implements FundamentalsProvider {
     const submissionsUrl = `https://data.sec.gov/submissions/CIK${cik}.json`;
 
     const [factsRes, submissionsRes] = await Promise.all([
-      fetch(factsUrl, { headers: SEC_HEADERS, next: { revalidate: 21600 } }),
-      fetch(submissionsUrl, { headers: SEC_HEADERS, next: { revalidate: 21600 } }),
+      fetch(factsUrl, { headers: SEC_HEADERS, signal: AbortSignal.timeout(12000), next: { revalidate: 21600 } }),
+      fetch(submissionsUrl, { headers: SEC_HEADERS, signal: AbortSignal.timeout(12000), next: { revalidate: 21600 } }),
     ]);
     if (!factsRes.ok) throw new Error(`SEC companyfacts failed: ${factsRes.status}`);
 
@@ -93,11 +93,14 @@ export class SecProvider implements FundamentalsProvider {
     const submissions = submissionsRes.ok ? await submissionsRes.json() : null;
     const gaap = data?.facts?.["us-gaap"] ?? {};
 
+    const equity = newest((gaap.StockholdersEquity?.units?.USD ?? []).filter((x:FactUnit)=>["10-K","10-Q"].includes(x.form??"") && !x.start && x.end && x.filed && typeof x.val==="number"));
     const revenueFact = latestAnnualAcross(
       gaap.RevenueFromContractWithCustomerExcludingAssessedTax,
       gaap.Revenues,
       gaap.SalesRevenueNet,
     );
+    const epsUnits=gaap.EarningsPerShareDiluted?.units?.["USD/shares"] ?? gaap.EarningsPerShareBasicAndDiluted?.units?.["USD/shares"];
+    const epsFact=latestAnnualAcross({units:{USD:epsUnits}});
     const incomeFact = latestAnnualAcross(gaap.NetIncomeLoss, gaap.ProfitLoss);
     const cashFact = latestAnnualAcross(
       gaap.NetCashProvidedByUsedInOperatingActivities,
@@ -154,6 +157,9 @@ export class SecProvider implements FundamentalsProvider {
     }
 
     return {
+      annualDilutedEps: annualValue(epsFact),
+      stockholdersEquity: equity?.val,
+      balanceSheetDate: equity?.end,
       companyName: data?.entityName ?? match.title,
       revenue: annualValue(revenueFact),
       netIncome: annualValue(incomeFact),
