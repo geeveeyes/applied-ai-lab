@@ -8,7 +8,7 @@ import type { Citation } from "./types";
 // + the code DCF). It uses no OpenAI credits, so it can cover a whole watchlist.
 // It is NOT a full research report: no web evidence, no qualitative factors.
 
-export const QUICK_CHECK_VERSION = "quick-check-v1";
+export const QUICK_CHECK_VERSION = "quick-check-v2";
 export const MARGIN_OF_SAFETY = 0.15;
 
 export type Zone = "Buy zone" | "Fair value range" | "Expensive" | "Not valued";
@@ -41,9 +41,9 @@ export type QuickCheck = {
 };
 
 export function zoneFor(v: IntrinsicValuation, price: number): Zone {
-  if (!v.available || !(price > 0)) return "Not valued";
+  if (!v.available || !v.decisionEligible || !(price > 0)) return "Not valued";
   const upside = v.perShare.base / price - 1;
-  return upside >= MARGIN_OF_SAFETY ? "Buy zone" : upside > -0.10 ? "Fair value range" : "Expensive";
+  return price <= v.perShare.base * (1 - MARGIN_OF_SAFETY) ? "Buy zone" : upside > -0.10 ? "Fair value range" : "Expensive";
 }
 
 const ratio = (a?: number, b?: number) => (a != null && b != null && Number.isFinite(a) && Number.isFinite(b) && b !== 0 ? a / b : undefined);
@@ -52,7 +52,7 @@ const round = (x?: number, d = 1) => (x == null || !Number.isFinite(x) ? undefin
 export function buildQuickCheck(ticker: string, f: FundamentalsSnapshot | null, m: MarketSnapshot, a: AnalystSnapshot | null, now = new Date()): QuickCheck {
   if (!m.price || !(m.price > 0)) throw new Error(`No verified price for ${ticker}`);
   const valuation = intrinsicValuation({
-    price: m.price, marketCap: m.marketCap, revenue: f?.revenue, operatingCashFlow: f?.operatingCashFlow,
+    asOf: now.toISOString(), price: m.price, marketCap: m.marketCap, revenue: f?.revenue, operatingCashFlow: f?.operatingCashFlow,
     capitalExpenditures: f?.capitalExpenditures, freeCashFlow: f?.freeCashFlow, netIncome: f?.netIncome,
     cash: f?.cash, debt: f?.debt, annualPeriodEnd: f?.latestAnnualPeriodEnd, estimates: a?.estimates ?? [],
     financialInstitution: f?.financialInstitution || peerGroup(ticker)?.metric === "book",
@@ -66,11 +66,14 @@ export function buildQuickCheck(ticker: string, f: FundamentalsSnapshot | null, 
   if (f?.latestAnnualPeriodEnd && (now.getTime() - Date.parse(f.latestAnnualPeriodEnd)) / 86400000 > 460) flags.push("Latest annual filing is more than 15 months old.");
   if (!a?.estimates?.length) flags.push("No consensus estimates available.");
   if (valuation.available) flags.push(...valuation.warnings);
-  const buyBelow = valuation.available ? Number((valuation.perShare.base / (1 + MARGIN_OF_SAFETY)).toFixed(2)) : undefined;
+  const priceAge=(now.getTime()-Date.parse(m.timestamp??''))/86400000;
+  const fresh=Number.isFinite(priceAge)&&priceAge>=0&&priceAge<=7;
+  if(!fresh)flags.push('A verified quote from the last seven days is required before assigning a valuation zone.');
+  const buyBelow = fresh && valuation.available && valuation.decisionEligible ? Number((valuation.perShare.base * (1 - MARGIN_OF_SAFETY)).toFixed(2)) : undefined;
   return {
     version: QUICK_CHECK_VERSION, ticker, companyName: f?.companyName ?? m.companyName ?? ticker, checkedAt: now.toISOString(),
     price: m.price, priceDate: m.timestamp, marketCap: m.marketCap, sector: sectorFor(ticker), valuation, buyBelow,
-    zone: zoneFor(valuation, m.price),
+    zone: fresh ? zoneFor(valuation, m.price) : 'Not valued',
     metrics: {
       revenue: f?.revenue,
       consensusRevenueGrowth: valuation.available ? round(valuation.growth * 100) : undefined,

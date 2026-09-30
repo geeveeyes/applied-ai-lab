@@ -14,7 +14,7 @@ describe("quick check", () => {
   it("values, zones and derives a buy-below price with the margin of safety", () => {
     const q = buildQuickCheck("ACME", f, m(100), a, now);
     if (!q.valuation.available) throw new Error(q.valuation.note);
-    expect(q.buyBelow).toBeCloseTo(q.valuation.perShare.base / (1 + MARGIN_OF_SAFETY), 2);
+    expect(q.buyBelow).toBeCloseTo(q.valuation.perShare.base * (1 - MARGIN_OF_SAFETY), 2);
     expect(q.zone).toBe(zoneFor(q.valuation, 100));
     expect(q.metrics.trailingPe).toBeCloseTo(14.3, 1);
     expect(q.metrics.fcfMargin).toBeCloseTo(16);

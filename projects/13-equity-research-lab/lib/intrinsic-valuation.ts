@@ -6,7 +6,7 @@ import type { Scenario } from "./types";
 // the market/consensus provider. Nothing is invented: when an input is missing the
 // module says so and returns `available: false` or a flagged, capped result.
 
-export const VALUATION_VERSION = "intrinsic-dcf-v1";
+export const VALUATION_VERSION = "intrinsic-equity-cashflow-v2";
 export const POLICY = {
   explicitYears: 10,
   highGrowthYears: 5,
@@ -19,6 +19,7 @@ export const POLICY = {
 };
 
 export type ValuationInputs = {
+  asOf?: string;
   price?: number;
   marketCap?: number;
   revenue?: number;
@@ -41,6 +42,7 @@ export type IntrinsicValuation =
   | { available: false; version: string; note: string }
   | {
       available: true; version: string;
+      decisionEligible: boolean;
       basis: "Free cash flow" | "Net income (free cash flow depressed by heavy investment)";
       baseCashEarnings: number; growth: number; growthSource: string;
       shares: number; netCash?: number;
@@ -90,6 +92,8 @@ export function intrinsicValuation(i: ValuationInputs): IntrinsicValuation {
   if (i.financialInstitution) return off("Banks and insurers are not valued on corporate cash flow (deposits and lending flow through operating cash). Use the price/book peer comparison instead.");
   if (!finite(i.price) || i.price <= 0 || !finite(i.marketCap) || i.marketCap <= 0) return off("A verified price and market capitalization are required.");
   if (!finite(i.revenue) || i.revenue <= 0) return off("Latest annual revenue from SEC filings is missing.");
+  const age=(Date.parse(i.asOf ?? new Date().toISOString())-Date.parse(i.annualPeriodEnd ?? ''))/86400000;
+  if(!Number.isFinite(age)||age<0||age>460)return off('A dated annual financial period within 15 months is required.');
   const shares = i.marketCap / i.price;
   const warnings: string[] = [];
 
@@ -99,7 +103,7 @@ export function intrinsicValuation(i: ValuationInputs): IntrinsicValuation {
   if (finite(i.freeCashFlow) && i.freeCashFlow > 0 && !heavy) { basis = "Free cash flow"; base = i.freeCashFlow; }
   else if (finite(i.netIncome) && i.netIncome > 0) {
     basis = "Net income (free cash flow depressed by heavy investment)"; base = i.netIncome;
-    warnings.push(heavy ? "Capital spending exceeds 60% of operating cash flow, so reported free cash flow understates steady-state cash earnings. Net income is used as a proxy; this assumes today's investment eventually earns its cost of capital."
+    warnings.push(heavy ? "Capital spending exceeds 60% of operating cash flow, so reported free cash flow may differ from steady-state cash earnings. Net income is only an illustration; maintenance investment and working-capital needs have not been established."
       : "Free cash flow is negative or unavailable; net income is used as a proxy for cash earnings.");
   } else return off("Positive free cash flow or net income is required; a loss-making company cannot be valued on current cash earnings.");
 
@@ -113,11 +117,13 @@ export function intrinsicValuation(i: ValuationInputs): IntrinsicValuation {
 
   let netCash: number | undefined;
   if (finite(i.cash) || finite(i.debt)) netCash = (finite(i.cash) ? i.cash : 0) - (finite(i.debt) ? i.debt : 0);
-  if (!finite(i.cash) || !finite(i.debt)) warnings.push(`Balance sheet ${!finite(i.cash) && !finite(i.debt) ? "cash and debt are" : !finite(i.cash) ? "cash is" : "debt is"} unavailable from SEC facts; ${netCash === undefined ? "net cash is treated as zero" : "only the reported side is included"}.`);
+  if (!finite(i.cash) || !finite(i.debt)) warnings.push(`Balance sheet ${!finite(i.cash) && !finite(i.debt) ? "cash and debt are" : !finite(i.cash) ? "cash is" : "debt is"} unavailable from SEC facts; ${netCash === undefined ? "net cash is unavailable and shown only as context" : "only the reported side is shown for context"}.`);
 
   const perShare = (k: "bear" | "base" | "bull") => {
     const g = clamp(growth + POLICY.growthShift[k], lo, hi + 0.05);
-    const equity = presentValue(base, g, POLICY.discountRate[k]) + (netCash ?? 0);
+    // CFO less capex is after interest. Use an equity cash-flow approximation with
+    // zero net borrowing; do not subtract debt again or add cash already earning income.
+    const equity = presentValue(base, g, POLICY.discountRate[k]);
     return Number(Math.max(0, equity / shares).toFixed(2));
   };
   const values = { bear: perShare("bear"), base: perShare("base"), bull: perShare("bull") };
@@ -127,14 +133,17 @@ export function intrinsicValuation(i: ValuationInputs): IntrinsicValuation {
   const ratingCapped = (!forecast || !!i.cyclical) && (rating === "Very strong" || rating === "Very weak");
   if (ratingCapped) rating = rating === "Very strong" ? "Strong" : "Weak";
 
+  const decisionEligible=basis==='Free cash flow'&&!!forecast&&!i.cyclical&&finite(i.cash)&&finite(i.debt);
+  if(!decisionEligible)warnings.push('Illustrative valuation only: a cash-flow base, growth forecast, complete balance sheet and non-cyclical inputs are required before this model can supply a valuation signal.');
   return {
-    available: true, version: VALUATION_VERSION, basis, baseCashEarnings: base, growth, growthSource, shares, netCash,
+    available: true, version: VALUATION_VERSION, decisionEligible, basis, baseCashEarnings: base, growth, growthSource, shares, netCash,
     perShare: values, upsidePct, rating, ratingCapped, warnings,
     assumptions: [
       `Cash-earnings base: ${basis.toLowerCase()} of $${(base / 1e9).toFixed(2)}B for the fiscal year ending ${i.annualPeriodEnd ?? "unknown"} (SEC).`,
       `${growthSource}. Years 1–5 grow at this rate, years 6–10 fade linearly to ${(POLICY.terminalGrowth * 100).toFixed(1)}% terminal growth.`,
       `Discount rates: bear ${POLICY.discountRate.bear * 100}%, base ${POLICY.discountRate.base * 100}%, bull ${POLICY.discountRate.bull * 100}%. Bear/bull growth shifts: ${POLICY.growthShift.bear * 100} / +${POLICY.growthShift.bull * 100} points.`,
-      `Shares: market cap ÷ price = ${(shares / 1e6).toFixed(0)}M. Net cash: ${netCash === undefined ? "unavailable (treated as 0)" : `$${(netCash / 1e9).toFixed(1)}B`}.`,
+      `Shares: market cap ÷ price = ${(shares / 1e6).toFixed(0)}M. Net cash (context only, not added to equity value): ${netCash === undefined ? "unavailable (treated as 0)" : `$${(netCash / 1e9).toFixed(1)}B`}.`,
+      "Equity cash-flow approximation: operating cash flow less capital expenditure is after interest; net borrowing is assumed zero. Discount rates represent required equity returns. Cash and debt are not added or subtracted again. Revenue growth is a proxy for cash-flow growth, not a verified cash-flow forecast.",
       "Excludes stock-based-compensation dilution, buybacks and dividends. Intrinsic value estimates are not 12-month price targets; markets can stay mispriced for years.",
     ],
   };
@@ -161,6 +170,6 @@ export function sensitivity(v: IntrinsicValuation, rates = [0.08, 0.09, 0.10], s
   const [lo, hi] = POLICY.growthBounds;
   return {
     rates, shifts,
-    grid: shifts.map(sh => rates.map(r => Number(Math.max(0, (presentValue(v.baseCashEarnings, Math.min(hi + 0.05, Math.max(lo, v.growth + sh)), r) + (v.netCash ?? 0)) / v.shares).toFixed(2)))),
+    grid: shifts.map(sh => rates.map(r => Number(Math.max(0, (presentValue(v.baseCashEarnings, Math.min(hi + 0.05, Math.max(lo, v.growth + sh)), r) + (v.version === VALUATION_VERSION ? 0 : (v.netCash ?? 0))) / v.shares).toFixed(2)))),
   };
 }

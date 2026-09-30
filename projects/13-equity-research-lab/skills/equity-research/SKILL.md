@@ -1,6 +1,6 @@
 # Equity Research Skill
 
-Version: `equity-research-v0.11.0` (matches `lib/research-engine.ts` `skillVersion`)
+Version: `equity-research-v0.12.0` (matches `lib/research-engine.ts` `skillVersion`)
 
 ## Purpose
 Help the owner decide what to do with a stock (buy, hold, trim or wait) without mixing up business quality, valuation, market expectations and timing. Every conclusion is saved as a timestamped snapshot, so later reports and the decision journal can grade it.
@@ -32,15 +32,15 @@ Bands: ≥70 buy candidate · 60–69 watch for a better entry · 40–59 hold/w
 Evidence coverage (0–100) is reported separately and measures completeness, not accuracy.
 
 ## Valuation (code)
-- Cash-earnings base: free cash flow, or net income when capex > 60% of operating cash flow.
+- Equity cash-flow approximation: operating cash flow less capex, after interest, with zero net borrowing. Net income proxies are illustrative only and cannot supply a valuation signal.
 - Growth: consensus revenue CAGR (clamped to −5%..25%) for 5 years, fading to 2.5% terminal by year 10.
-- Discount rates: bear 10% / base 9% / bull 8%; growth shifts −4 / 0 / +3 points. Adds net cash from SEC balance-sheet facts.
-- Excluded: banks and insurers (use price/book peers). Capped at Strong/Weak: commodity cyclicals, and names without a consensus forecast.
-- Zones: Buy zone ≥15% below base value ("buy below" = base ÷ 1.15); Fair −10%..+15%; Expensive < −10%.
+- Discount rates: bear 10% / base 9% / bull 8%; growth shifts −4 / 0 / +3 points. These are required equity returns. Cash and debt are context only and are not added/subtracted again.
+- Excluded: banks and insurers (use price/book peers). Cyclicals without normalization, missing forecasts, incomplete balance sheets and net-income proxies cannot supply valuation signals. Annual data must be dated and no more than 460 days old.
+- Zones: Buy zone requires price ≤85% of base value (15% margin of safety), eligible inputs and a verified quote no more than seven days old. Missing, stale or future quotes are Not valued. Quick-check zones cannot override a recent full report holding/waiting.
 
 ## Tiers
 - **Quick check** (no LLM): SEC + quote + consensus + DCF → zone and buy-below. Metered by `QUICK_CHECK_DAILY_CAP`, cached per ticker per day.
-- **Full report** (LLM): adds a cited web-evidence brief and the six-factor synthesis. POST only, capped by `RESEARCH_DAILY_CAP`, reused same day.
+- **Full report** (LLM): adds a cited web-evidence brief and the six-factor synthesis. POST only, capped by `RESEARCH_DAILY_CAP`, reused same day. Reserve attempts atomically before provider calls; failed attempts count.
 
 ## Portfolio layer
 Position decisions (`lib/position-advice.ts`) apply, in order: concentration vs the single-stock limit, then a full report from the last 30 days, then the quick-check zone. The decision journal records what was actually done and grades it against later prices.

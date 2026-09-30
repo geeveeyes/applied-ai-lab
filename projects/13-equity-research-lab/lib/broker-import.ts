@@ -139,7 +139,7 @@ export function importBrokerCsv(text: string, today = new Date().toISOString().s
   if (positions.length > 500) warnings.push("Only the first 500 positions are kept.");
   if (asOf !== today) warnings.push(`Prices are as of ${asOf} from the export; use "Update prices from today's quick checks" to refresh.`);
   const holdings: Holdings = {
-    version: 1, scope: `${broker} import`, asOf: asOf > today ? today : asOf, coverage: "complete",
+    version: 1, scope: `${broker} import`, asOf: asOf > today ? today : asOf, coverage: skipped.length || positions.length > 500 ? "partial" : "complete",
     totalValue: Number((invested + cash).toFixed(2)), cashAvailable: Number(cash.toFixed(2)), positions: positions.slice(0, 500),
   };
   return { holdings, broker, skipped, guessedFunds, merged, warnings };

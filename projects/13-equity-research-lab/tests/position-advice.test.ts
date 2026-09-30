@@ -8,7 +8,7 @@ const now = new Date("2026-09-30T12:00:00Z");
 const holdings = (positions: Holdings["positions"], cash = 0): Holdings =>
   ({ version: 1, scope: "t", asOf: "2026-09-30", coverage: "complete", totalValue: positions.reduce((a, p) => a + p.shares * p.price, 0) + cash, cashAvailable: cash, positions });
 const check = (ticker: string, zone: QuickCheck["zone"], buyBelow = 90): QuickCheck =>
-  ({ ticker, zone, buyBelow, checkedAt: now.toISOString(), valuation: zone === "Not valued" ? { available: false, version: "x", note: "Banks are not valued" } : { available: true } } as unknown as QuickCheck);
+  ({ ticker, zone, buyBelow, priceDate:'2026-09-30', checkedAt: now.toISOString(), valuation: zone === "Not valued" ? { available: false, version: "x", note: "Banks are not valued" } : { available: true } } as unknown as QuickCheck);
 
 describe("position advice", () => {
   const h = holdings([

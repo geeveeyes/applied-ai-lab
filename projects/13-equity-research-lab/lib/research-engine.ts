@@ -22,7 +22,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.11.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.12.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -168,7 +168,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
   run.dimensionCoverage = coverage;
   const evidenceCoverage = weightedCoverage(coverage);
 
-  const intrinsic = intrinsicValuation({
+  const intrinsic = intrinsicValuation({ asOf: run.analyzedAt,
     price: market.price, marketCap: market.marketCap, revenue: fundamentals?.revenue,
     operatingCashFlow: fundamentals?.operatingCashFlow, capitalExpenditures: fundamentals?.capitalExpenditures,
     freeCashFlow: fundamentals?.freeCashFlow, netIncome: fundamentals?.netIncome,

@@ -81,7 +81,7 @@ export function backtestTicker(ticker: string, facts: Facts, h: History, spy: Hi
     if (!f.revenue || !f.shares || !f.periodEnd) { skipped.push(`${ticker} ${date}: no filed annual revenue/shares yet`); continue; }
     const growth = f.revenue3yAgo && f.revenue3yAgo > 0 ? Math.pow(f.revenue / f.revenue3yAgo, 1 / 3) - 1 : undefined;
     const v = intrinsicValuation({
-      price: actual, marketCap: actual * f.shares, revenue: f.revenue, operatingCashFlow: f.operatingCashFlow, capitalExpenditures: f.capex,
+      asOf: date, price: actual, marketCap: actual * f.shares, revenue: f.revenue, operatingCashFlow: f.operatingCashFlow, capitalExpenditures: f.capex,
       freeCashFlow: f.operatingCashFlow != null && f.capex != null ? f.operatingCashFlow - f.capex : undefined, netIncome: f.netIncome,
       cash: f.cash, debt: f.debt, annualPeriodEnd: f.periodEnd, financialInstitution: f.financialInstitution,
       estimates: growth != null ? [{ date: addMonths(f.periodEnd, 36), revenueAvg: f.revenue * Math.pow(1 + growth, 3) }] : [],
