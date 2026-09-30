@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { addToWatchlist, gapIdeas, loadChecks, loadWatchlist, parseTickers, saveCheck, saveWatchlist } from '@/lib/watchlist';
+import { addToWatchlist, gapIdeas, loadChecks, loadWatchlist, parseTickers, runChecks, saveWatchlist } from '@/lib/watchlist';
 import { rankChecks, MARGIN_OF_SAFETY, type QuickCheck } from '@/lib/quick-check';
 import { readHoldings, type Holdings } from '@/lib/holdings';
 
@@ -20,24 +20,9 @@ export function Watchlist() {
 
   function update(next: string[]) { saveWatchlist(next); setList(loadWatchlist()); }
   async function check(tickers: string[]) {
-    setBusy(true); stop.current = false; let done = 0;
-    const queue = [...tickers];
-    const worker = async () => {
-      while (queue.length && !stop.current) {
-        const ticker = queue.shift()!;
-        try {
-          const r = await fetch('/api/quick-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker }) });
-          const body = await r.json();
-          if (r.status === 429) { stop.current = true; setMessage(body.error); break; }
-          if (!r.ok) throw new Error(body.error);
-          saveCheck(body); setChecks(loadChecks());
-        } catch (e) { setMessage(`${ticker}: ${e instanceof Error ? e.message : 'check failed'}`); }
-        finally { done++; if (!stop.current) setMessage(`Checked ${done} of ${tickers.length}…`); }
-      }
-    };
-    await Promise.all([worker(), worker()]);
-    if (!stop.current) setMessage(`Done. Quick checks use no AI credits; results are cached per company per day.`);
-    setBusy(false);
+    setBusy(true); stop.current = false;
+    await runChecks(tickers, msg => { setMessage(msg); setChecks(loadChecks()); }, stop);
+    setChecks(loadChecks()); setBusy(false);
   }
   const stale = list.filter(t => !checks[t] || !checks[t].checkedAt.startsWith(today()));
   const rows = useMemo(() => rankChecks(list.map(t => checks[t]).filter(Boolean)), [list, checks]);
