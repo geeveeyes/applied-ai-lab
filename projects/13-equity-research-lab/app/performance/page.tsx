@@ -22,6 +22,6 @@ export default function Performance() {
       ? <div className="panel"><h2>No outcomes yet</h2><p>An outcome appears once the same company has two saved live reports roughly 30+ days apart. Re-run research on companies you follow each month to build the record.</p></div>
       : <div className="table-wrap"><table><thead><tr><th>Report</th><th>Call</th><th>Horizon</th><th>Price return</th><th>Verdict</th></tr></thead>
         <tbody>{rows.slice(0, 100).map(o => <tr key={`${o.reportId}-${o.horizon}`}><td><a href={`/research/${encodeURIComponent(o.reportId)}`}>{o.ticker} · {o.analyzedAt.slice(0, 10)}</a></td><td>{o.action}{o.score !== null ? ` (${o.score})` : ""}</td><td>{o.days}d</td><td>{o.priceReturnPct > 0 ? "+" : ""}{o.priceReturnPct.toFixed(1)}%</td><td>{o.verdictCorrect === null ? "Not directional" : o.verdictCorrect ? "Correct direction" : "Wrong direction"}</td></tr>)}</tbody></table></div>}
-    <p className="muted">Limits: price return only (dividends and a market benchmark are excluded), measured only where you happened to re-run research, and small samples are noise. Treat this as an audit trail, not proof of skill.</p>
+    <p className="muted">Limits: price return only (dividends and a market benchmark are excluded), measured only where you happened to re-run research, and small samples are noise. Treat this as an audit trail, not proof of skill. For a longer history, <a href="/backtest">backtest the valuation zones</a>.</p>
   </section>;
 }

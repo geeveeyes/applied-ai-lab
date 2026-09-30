@@ -1,4 +1,4 @@
-export type History = { symbol: string; prices: {date:string; close:number}[]; source:string; retrievedAt:string; adjusted:true };
+export type History = { symbol: string; /** close = split/dividend-adjusted; raw = actual close that month (for point-in-time valuation). */ prices: {date:string; close:number; raw?:number}[]; source:string; retrievedAt:string; adjusted:true };
 export type Estimate = { symbol:string; cagr:number; arithmeticAnnual:number; volatility:number };
 export type HistoryEstimate = { start:string; end:string; observations:number; years:number; assets:Estimate[]; correlation:number[][]; sources:{symbol:string;source:string;retrievedAt:string}[]; warning:string };
 export function parseAlphaHistory(body:unknown,symbol:string,now=new Date()):History {
@@ -16,7 +16,7 @@ export function parseAlphaHistory(body:unknown,symbol:string,now=new Date()):His
  if(meta?.["2. Symbol"]?.toUpperCase()!==symbol)throw new Error("Historical response symbol did not match.");
  const series=root?.["Monthly Adjusted Time Series"];
  if(!series||typeof series!=="object")throw new Error("No adjusted monthly history returned.");
- const prices=Object.entries(series).map(([date,row])=>({date,close:Number((row as Record<string,string>)["5. adjusted close"])}));
+ const prices=Object.entries(series).map(([date,row])=>{const r=row as Record<string,string>,raw=Number(r["4. close"]);return {date,close:Number(r["5. adjusted close"]),...(Number.isFinite(raw)&&raw>0?{raw}:{})};});
  if(prices.some(p=>!/^\d{4}-\d{2}-\d{2}$/.test(p.date)||!Number.isFinite(Date.parse(p.date))||new Date(p.date).toISOString().slice(0,10)!==p.date||!Number.isFinite(p.close)||p.close<=0))throw new Error("Invalid historical price or date.");
  return {symbol,prices:prices.filter(p=>p.date.slice(0,7)<now.toISOString().slice(0,7)).sort((a,b)=>a.date.localeCompare(b.date)),source:"https://www.alphavantage.co/documentation/#monthlyadj",retrievedAt:now.toISOString(),adjusted:true};
 }
