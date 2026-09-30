@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { adviseHoldings } from '@/lib/position-advice';
 import { loadChecks, runChecks } from '@/lib/watchlist';
-import { loadRuns } from '@/lib/archive';
+import { loadArchive } from '@/lib/archive';
 import { dollars, percent, type Holdings } from '@/lib/holdings';
 import type { QuickCheck } from '@/lib/quick-check';
 import type { ResearchRun } from '@/lib/types';
@@ -13,7 +13,7 @@ export function PositionDecisions({ holdings, limit }: { holdings: Holdings; lim
   const [runs, setRuns] = useState<ResearchRun[]>([]);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState('');
   const stop = useRef(false);
-  useEffect(() => { setChecks(loadChecks()); setRuns(loadRuns()); }, []);
+  useEffect(() => { setChecks(loadChecks()); void loadArchive().then(r => setRuns(r.runs)); }, []);
   if (!(holdings.totalValue > 0) || !holdings.positions.length) return null;
   const today = new Date().toISOString().slice(0, 10);
   const stocks = holdings.positions.filter(p => p.kind === 'stock' && p.shares > 0).map(p => p.symbol);
