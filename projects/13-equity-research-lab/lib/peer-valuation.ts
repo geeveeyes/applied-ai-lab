@@ -16,6 +16,8 @@ const groups:PeerGroup[]=[
  {sector:'Packaged foods',symbols:['MDLZ','PEP','GIS','HSY'],metric:'earnings',caveat:'Cocoa exposure, beverages, pricing and volume trends differ. Normalize commodity costs and one-time gains.'},
  {sector:'Industrial gases',symbols:['LIN','APD'],metric:'earnings',caveat:'Major-project risk and capital spending differ.'},
 ];
+/** Configured sectors and their example companies (used for diversification ideas). */
+export function sectorGroups():readonly PeerGroup[]{return groups;}
 export function peerGroup(ticker:string){return groups.find(g=>g.symbols.includes(ticker));}
 export type ValuationRow={symbol:string;price?:number;priceDate?:string;marketCap?:number;periodEnd?:string;filedAt?:string;netIncome?:number;annualDilutedEps?:number;calculation?:string;freeCashFlow?:number;bookValue?:number;bookDate?:string;multiple?:number;metric:string;eligible:boolean;exclusions:string[];sources:Citation[]};
 export type PeerValuation={sector:string;metric:string;caveat:string;rows:ValuationRow[];peerMedian?:number;relativeDiscount?:number;status:'comparison available'|'incomplete';note:string};
