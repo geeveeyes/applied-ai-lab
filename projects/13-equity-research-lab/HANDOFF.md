@@ -7,7 +7,7 @@
 **Last updated:** 2026-09-30 by Codex
 **Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
 **Latest code commit:** `855b8de` (atomic provider usage reservations), following `a4fa055` (decision/valuation correctness).
-**Validation:** 144 tests passed; type check and production build passed. Full final checks repeated before publishing.
+**Validation:** 146 tests passed; type check and production build passed. Full final checks repeated before publishing.
 
 ## State
 
@@ -38,7 +38,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-1. Merge the shared review PR only after type check, 144 tests and build pass; verify protected deployment. No subscription upgrades or trades.
+1. Merge the shared review PR only after type check, 146 tests and build pass; verify protected deployment. No subscription upgrades or trades.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
 3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
 4. Fund look-through/AMZN overlap and portfolio completeness, then tax-lot-aware adjustments.
@@ -55,7 +55,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Log
 
-- **2026-09-30 · Codex shared review.** Reviewed `50439a1` and Notion; recovered four missing Claude commits (134 baseline tests). Corrected decision/valuation regressions and added atomic usage reservations. Final suite 144 tests; reviewed math against CFA/Damodaran cash-flow conventions. Branch `codex/shared-tool-review`; code at `855b8de`. No claims of proven investment returns. See Codex review for remaining gaps.
+- **2026-09-30 · Codex shared review.** Reviewed `50439a1` and Notion; recovered four missing Claude commits (134 baseline tests). Corrected decision/valuation regressions and added atomic usage reservations. Final suite 146 tests; reviewed math against CFA/Damodaran cash-flow conventions. Branch `codex/shared-tool-review`; code at `855b8de`. No claims of proven investment returns. See Codex review for remaining gaps.
 
 - **2026-09-30 · Claude (session 3b).** Broker CSV import, one scoring model, zone backtest. 134 tests. Branch not pushed (session lacks push access).
 - **2026-09-30 · Claude (session 3).** Branch `claude/quick-check-watchlist`: AI-free quick checks, watchlist, per-holding decisions, decision journal, quick-screen, sensitivity grid, portfolio-first home, product strategy doc. 123 tests. Not pushed; delivered as patch series.

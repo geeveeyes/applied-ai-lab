@@ -17,7 +17,9 @@ The next milestone should be trustworthy decisions on the owner's real holdings,
 5. **Restored decision priority.** A full hold/wait report is not overridden by a quick-check Buy zone. Expired quick checks cannot drive adds; old buy reports need refreshed price/valuation. Importing a CSV with skipped securities marks coverage partial.
 6. **Made spending reservations atomic.** Full-report and quick-check calls reserve usage before work. Conditional updates prevent two workers claiming the same remaining slot; failed attempts retain reservations. Uses the existing private usage table, without a new database migration. Fails closed when the ledger cannot be read/written.
 
-Six decision-regression tests failed before their fixes; a seventh verifies the cash-flow convention. Concurrent-reservation tests verify that 20 requests can claim only five slots at a cap of five. Final suite: 144 tests.
+Six decision-regression tests failed before their fixes; a seventh verifies the cash-flow convention. Concurrent-reservation tests verify that 20 requests can claim only five slots at a cap of five. Final suite: 146 tests.
+
+7. **Corrected concentration reporting.** One stock plus 90% cash previously appeared as 100 effective stocks. Effective count now normalizes direct-stock weights; fund look-through is explicitly incomplete. Two additional regression tests reproduce the prior errors.
 
 ## Important remaining work, in order
 
