@@ -3,15 +3,15 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Codex review completed on `codex/shared-tool-review`; PR delivery pending final CI/merge.
+**Current holder:** none. Codex review merged in [PR #4](https://github.com/geeveeyes/applied-ai-lab/pull/4).
 **Last updated:** 2026-09-30 by Codex
 **Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
-**Latest code commit:** `855b8de` (atomic provider usage reservations), following `a4fa055` (decision/valuation correctness).
-**Validation:** 146 tests passed; type check and production build passed. Full final checks repeated before publishing.
+**Latest code commit:** `e191172` (concentration correction); merged as `f9ed0fd`. Earlier fixes: `855b8de` (atomic usage), `a4fa055` (valuation/decisions).
+**Validation:** 146 tests, type check, production build and GitHub CI passed on the exact PR head. Both Vercel preview deployments passed. Browser verified one stock plus 90% cash reports one effective direct stock and incomplete exposure. Production deployment status is recorded in Notion after merge.
 
 ## State
 
-**Current delivery (Codex):** recovered Claude's missing four commits from `equity-part2-import-scoring-backtest.mbox`, preserving authorship. Branch includes broker CSV import, one scoring model and the exploratory backtest. Engine v0.12.0 fixes the 15% margin, stale/unsupported quick-check signals, full-report priority, partial CSV coverage and cash-flow convention. Provider calls now reserve attempts atomically before work; failures count. No database migration required. Review: `docs/REVIEW_2026-09-30_codex.md`. Older dated entries below describe prior states.
+**Current delivery (Codex):** recovered Claude's missing four commits from `equity-part2-import-scoring-backtest.mbox`, preserving authorship. Branch includes broker CSV import, one scoring model and the exploratory backtest. Engine v0.12.0 fixes the 15% margin, stale/unsupported quick-check signals, full-report priority, partial CSV coverage and cash-flow convention. Direct-stock concentration now excludes cash from the effective-count calculation and flags incomplete fund exposure. Provider calls now reserve attempts atomically before work; failures count. No database migration required. Review: `docs/REVIEW_2026-09-30_codex.md`. Older dated entries below describe prior states.
 
 
 v0.9 engine is deployed at https://13-equity-research-lab.vercel.app (live mode, FMP + SEC + Alpha Vantage + OpenAI, Supabase archive).
@@ -38,7 +38,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-1. Merge the shared review PR only after type check, 146 tests and build pass; verify protected deployment. No subscription upgrades or trades.
+1. PR #4 is merged and the missing-commits Notion task is closed. Check the Notion handoff for production status. No subscription upgrades or trades.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
 3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
 4. Fund look-through/AMZN overlap and portfolio completeness, then tax-lot-aware adjustments.
@@ -54,6 +54,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+- **2026-09-30 · Codex delivery complete.** PR #4 merged as `f9ed0fd`, code head `e191172`; 146 tests, type check, build and CI passed. Recovered all four Claude commits; corrected concentration, valuation, decision priority and usage reservation. Browser verification uses illustrative data only. Shared review and next priorities are in Notion; no owner push/merge action remains.
 
 - **2026-09-30 · Codex shared review.** Reviewed `50439a1` and Notion; recovered four missing Claude commits (134 baseline tests). Corrected decision/valuation regressions and added atomic usage reservations. Final suite 146 tests; reviewed math against CFA/Damodaran cash-flow conventions. Branch `codex/shared-tool-review`; code at `855b8de`. No claims of proven investment returns. See Codex review for remaining gaps.
 
