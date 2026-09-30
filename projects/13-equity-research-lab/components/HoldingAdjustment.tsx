@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {adjustHolding,readHoldings,dollars,percent,type Holdings} from '@/lib/holdings';
 export function HoldingAdjustment({ticker}:{ticker:string}){
- const [s,S]=useState<Holdings|null>(null),[loadError,E]=useState(''),[mode,M]=useState('hold'),[amount,A]=useState(10000),[funding,F]=useState<'cash'|'external'>('cash'),[limit,L]=useState(20);
+ const [s,S]=useState<Holdings|null>(null),[loadError,E]=useState(''),[mode,M]=useState('hold'),[amount,A]=useState(10000),[funding,F]=useState<'cash'|'external'>('cash'),[limit,L]=useState(10);
  useEffect(()=>{try{S(readHoldings());}catch{E('Your saved holdings could not be read. Reimport the snapshot.');}},[]);
  const p=s?.positions.find(p=>p.symbol===ticker);
  let result:ReturnType<typeof adjustHolding>|undefined,error='';

@@ -27,3 +27,10 @@ export function adjustHolding(snapshot:Holdings,symbol:string,amount:number,fund
 }
 export const dollars=(n:number)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
 export const percent=(n:number)=>(100*n).toFixed(1)+'%';
+
+/** Reprice positions from dated quotes; the total moves by the change in position value. */
+export function repriceHoldings(h:Holdings,prices:Record<string,{price:number;date?:string}>,today=new Date().toISOString().slice(0,10)){
+  let delta=0;const updated:string[]=[];
+  const positions=h.positions.map(p=>{const q=prices[p.symbol];if(!q||!(q.price>0)||q.price===p.price)return p;delta+=p.shares*(q.price-p.price);updated.push(p.symbol);return {...p,price:q.price};});
+  return {holdings:{...h,positions,totalValue:Math.max(h.totalValue+delta,0),asOf:updated.length?today:h.asOf},updated};
+}

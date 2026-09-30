@@ -35,3 +35,15 @@ describe("diversification", () => {
     expect(fit.exceeds).toBe(true);
   });
 });
+
+import { repriceHoldings } from "../lib/holdings";
+describe("repricing", () => {
+  it("moves the total by the change in position value and dates the snapshot", () => {
+    const h = { version: 1 as const, scope: "t", asOf: "2026-09-01", coverage: "complete" as const, totalValue: 2000, cashAvailable: 1000, positions: [{ symbol: "MSFT", shares: 2, price: 500, kind: "stock" as const }] };
+    const r = repriceHoldings(h, { MSFT: { price: 550 }, AAPL: { price: 1 } }, "2026-09-30");
+    expect(r.holdings.totalValue).toBe(2100);
+    expect(r.holdings.asOf).toBe("2026-09-30");
+    expect(r.updated).toEqual(["MSFT"]);
+    expect(repriceHoldings(h, {}, "2026-09-30").holdings.asOf).toBe("2026-09-01");
+  });
+});
