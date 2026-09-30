@@ -19,7 +19,7 @@ describe("diversification", () => {
     const syms = ["NVDA", "MSFT", "V", "JPM", "ABBV", "XOM", "UNP", "PG", "MDLZ", "LIN", "GD", "COP"];
     const d = diversification(h(syms.map(symbol => ({ symbol, shares: 1, price: 100, kind: "stock" as const })), 0), { singleStock: 0.10, sector: 0.30 });
     expect(d.effectiveHoldings).toBeCloseTo(12);
-    expect(d.verdict).toBe("Diversified");
+    expect(d.verdict).toBe("Direct stock limits met");
     expect(d.flags).toEqual([]);
   });
   it("counts funds as diversified and notes partial coverage and unknown sectors", () => {
@@ -46,4 +46,15 @@ describe("repricing", () => {
     expect(r.updated).toEqual(["MSFT"]);
     expect(repriceHoldings(h, {}, "2026-09-30").holdings.asOf).toBe("2026-09-01");
   });
+});
+
+describe('cash and fund concentration regressions',()=>{
+ it('cash does not turn one stock into one hundred effective holdings',()=>{
+  const d=diversification(h([{symbol:'MSFT',shares:100,price:100,kind:'stock'}],90000));
+  expect(d.effectiveHoldings).toBe(1);expect(d.verdict).not.toBe('Highly concentrated');
+ });
+ it('unexamined fund exposure cannot establish diversification',()=>{
+  const d=diversification(h([{symbol:'TQQQ',shares:100,price:100,kind:'fund'}],90000,'partial'));
+  expect(d.verdict).toBe('Exposure incomplete');expect(d.flags.join(' ')).toMatch(/underlying/);
+ });
 });

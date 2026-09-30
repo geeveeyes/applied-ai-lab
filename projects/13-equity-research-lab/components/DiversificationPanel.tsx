@@ -10,11 +10,11 @@ export function DiversificationPanel({ holdings }: { holdings: Holdings }) {
   return <section className="panel">
     <p className="eyebrow">DIVERSIFICATION CHECK</p>
     <h2>{d.verdict}</h2>
-    <p>Individual stocks {percent(d.stockWeight)} · funds/ETFs {percent(d.fundWeight)} · cash {percent(d.cashWeight)}.{d.largest && <> Largest stock: <strong>{d.largest.symbol} {percent(d.largest.weight)}</strong>.</>} Top five stocks {percent(d.top5Weight)}.{d.effectiveHoldings !== null && <> Effective number of stocks: <strong>{d.effectiveHoldings}</strong> (1 ÷ sum of squared weights; 20+ is broadly diversified).</>}</p>
+    <p>Individual stocks {percent(d.stockWeight)} · funds/ETFs {percent(d.fundWeight)} · cash {percent(d.cashWeight)}.{d.largest && <> Largest stock: <strong>{d.largest.symbol} {percent(d.largest.weight)}</strong>.</>} Top five stocks {percent(d.top5Weight)}.{d.effectiveHoldings !== null && <> Effective number of direct stocks: <strong>{d.effectiveHoldings}</strong> (weights normalized within direct stocks; cash and funds excluded).</>}</p>
     <div className="input-grid"><label>Single-stock limit (%)<input type="number" min="1" max="100" value={single} onChange={e => setSingle(Number(e.target.value) || 10)} /></label><label>Sector limit (%)<input type="number" min="5" max="100" value={sector} onChange={e => setSector(Number(e.target.value) || 30)} /></label></div>
     {d.flags.length ? <ul>{d.flags.map(f => <li key={f}>{f}</li>)}</ul> : <p>No position or known sector exceeds your limits.</p>}
     {d.sectors.length > 0 && <div className="table-wrap"><table><thead><tr><th>Sector (known names)</th><th>Weight</th></tr></thead><tbody>{d.sectors.map(s => <tr key={s.sector}><td>{s.sector}{s.overLimit ? ' ⚠' : ''}</td><td>{percent(s.weight)}</td></tr>)}</tbody></table></div>}
     {d.positions.some(p => p.overLimit) && <p>Over-limit positions: {d.positions.filter(p => p.overLimit).map(p => `${p.symbol} (trim ≈ ${dollars(p.trimToLimit)})`).join(', ')}. Compare staged selling and taxes in the <a href="/portfolio">Portfolio Lab</a> or the <a href="/amzn">AMZN workspace</a>.</p>}
-    <p className="muted">Deterministic arithmetic on your saved snapshot. Funds are treated as internally diversified; sector labels cover only names with a configured sector. Not tax or investment advice.</p>
+    <p className="muted">Deterministic arithmetic on your saved snapshot. Fund underlying holdings and overlap are not included; sector labels cover only names with a configured sector. Not tax or investment advice.</p>
   </section>;
 }

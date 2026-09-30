@@ -1,5 +1,5 @@
 "use client";
-import type { QuickCheck } from "./quick-check";
+import { QUICK_CHECK_VERSION, type QuickCheck } from "./quick-check";
 import { sectorGroups } from "./peer-valuation";
 import type { Holdings } from "./holdings";
 
@@ -20,7 +20,7 @@ export function parseTickers(text: string): string[] {
 export function loadWatchlist(): string[] { return read<string[]>(LIST, []).filter(valid); }
 export function saveWatchlist(list: string[]) { write(LIST, [...new Set(list.filter(valid))].slice(0, 100)); }
 export function addToWatchlist(tickers: string[]) { saveWatchlist([...loadWatchlist(), ...tickers]); }
-export function loadChecks(): Record<string, QuickCheck> { return read<Record<string, QuickCheck>>(CHECKS, {}); }
+export function loadChecks(): Record<string, QuickCheck> { return Object.fromEntries(Object.entries(read<Record<string, QuickCheck>>(CHECKS, {})).filter(([,c])=>c?.version===QUICK_CHECK_VERSION)); }
 export function saveCheck(c: QuickCheck) { write(CHECKS, { ...loadChecks(), [c.ticker]: c }); }
 
 /** Example companies in configured sectors where the holdings have no stock exposure. */

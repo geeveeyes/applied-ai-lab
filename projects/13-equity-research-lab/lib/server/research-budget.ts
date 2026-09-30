@@ -1,12 +1,12 @@
+import { reserveUsage, usageStore } from './usage-budget';
 import { archiveContext } from "./archive";
 import { database } from "./supabase";
 import type { ResearchRun } from "../types";
 
 // Paid-research guard. Every live report calls OpenAI (web brief + synthesis) and
 // market-data providers, so report generation is metered globally per UTC day.
-// The count uses saved live snapshots, which already exist for every live run, so no
-// extra migration is needed. It is a soft cap (count-then-run is not atomic); with a
-// single owner behind Vercel Authentication that is sufficient.
+// Reservations include failed attempts and are atomic across workers. Existing
+// snapshots establish a usage floor when upgrading from the older counter.
 
 export const DEFAULT_DAILY_CAP = 15;
 
@@ -47,12 +47,18 @@ async function liveReportsToday(): Promise<number | null> {
 export async function researchBudget(): Promise<BudgetStatus> {
   const cap = dailyCap();
   if (!isLiveMode()) return { metered: false, used: 0, cap, remaining: cap };
-  return evaluateBudget(await liveReportsToday(), cap, process.env.RESEARCH_ALLOW_UNMETERED === "true");
+  try {
+    const historical=await liveReportsToday();
+    if(historical===null)return evaluateBudget(null,cap,false);
+    const reserved=await usageStore().read('research',new Date().toISOString().slice(0,10));
+    return evaluateBudget(Math.max(historical,reserved??0),cap,false);
+  } catch { return evaluateBudget(null,cap,false); }
 }
 
 export function reusable(run: ResearchRun | undefined, now = new Date()): run is ResearchRun {
-  // Reuse a same-day report only if it completed (has a score) — failed runs may be retried.
-  return !!run && run.dataMode !== "demo" && run.analyzedAt >= utcDayStart(now) && run.score > 0;
+  // Reuse a same-day report only if the AI synthesis completed (investment case present, or a
+  // legacy score). Failed runs may be retried; "research incomplete" results are still reused.
+  return !!run && run.dataMode !== "demo" && run.analyzedAt >= utcDayStart(now) && (!!run.investmentCase || run.score > 0);
 }
 
 /** Latest completed report for this ticker from today (UTC), owner-scoped. */
@@ -64,4 +70,11 @@ export async function sameDayReport(ticker: string): Promise<ResearchRun | undef
     .gte("analyzed_at", utcDayStart()).order("analyzed_at", { ascending: false }).limit(5);
   if (error) return undefined;
   return (data ?? []).map(row => row.payload as ResearchRun).find(run => reusable(run));
+}
+
+export async function claimResearchSlot() {
+  if(!isLiveMode())return;
+  const floor=await liveReportsToday();
+  if(floor===null)throw new Error('Research paused: usage could not be verified.');
+  await reserveUsage(usageStore(),'research',new Date().toISOString().slice(0,10),dailyCap(),floor);
 }

@@ -71,6 +71,17 @@ function latestFiling(submissions: any, form: string, cikNumber: number) {
 }
 
 export class SecProvider implements FundamentalsProvider {
+  /** Raw companyfacts (all historical facts with filing dates) for point-in-time backtests. */
+  async getCompanyFacts(ticker: string): Promise<unknown> {
+    const tickersRes = await fetch("https://www.sec.gov/files/company_tickers.json", { headers: SEC_HEADERS, signal: AbortSignal.timeout(12000), next: { revalidate: 86400 } });
+    if (!tickersRes.ok) throw new Error(`SEC ticker lookup failed: ${tickersRes.status}`);
+    const map = (await tickersRes.json()) as TickerMap;
+    const match = Object.values(map).find((x) => x.ticker.toUpperCase().replaceAll(".", "-") === ticker.toUpperCase().replaceAll(".", "-"));
+    if (!match) throw new Error(`Ticker ${ticker} not found in SEC company map`);
+    const res = await fetch(`https://data.sec.gov/api/xbrl/companyfacts/CIK${String(match.cik_str).padStart(10, "0")}.json`, { headers: SEC_HEADERS, signal: AbortSignal.timeout(20000), cache: "no-store" });
+    if (!res.ok) throw new Error(`SEC companyfacts failed: ${res.status}`);
+    return res.json();
+  }
   async getFundamentals(ticker: string): Promise<FundamentalsSnapshot> {
     const retrievedAt = new Date().toISOString();
     const tickersRes = await fetch("https://www.sec.gov/files/company_tickers.json", { headers: SEC_HEADERS, signal: AbortSignal.timeout(12000), next: { revalidate: 86400 } });

@@ -20,7 +20,7 @@ function moneyBillions(value?: number) {
 
 export function ResearchView({ run }: { run: ResearchRun }) {
   const calibrated = run.scenarios.some(s => s.valuationMethod?.includes("price-anchored")) || /^equity-research-v0\.[56]\./.test(run.skillVersion);
-  const hasScores = run.score > 0 && run.confidence > 0;
+  const hasScores = !!run.investmentCase || (run.score > 0 && run.confidence > 0);
   const intrinsic = run.scenarios.some(s => s.valuationMethod?.includes("intrinsic value"));
   return <>
     <SnapshotRecorder run={run} />

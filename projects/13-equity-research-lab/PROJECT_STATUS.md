@@ -1,5 +1,9 @@
 # Project Status
 
+## v0.12.0 — combined review delivery
+
+Claude’s broker CSV import, single scoring model and exploratory backtest are recovered on the review branch. Codex adds valuation/data-quality guards, correct margin-of-safety arithmetic, full-report priority over quick checks, and atomic pre-call usage reservations. 146 tests, type checks and build pass. See `HANDOFF.md` and `docs/REVIEW_2026-09-30_codex.md` for delivery status and limits. Older sections below are historical.
+
 ## v0.7.0 — readable decisions, web evidence and archive cleanup
 
 Plain-English executive summary and deterministic investment-confidence heuristic;

@@ -53,7 +53,7 @@ export function Watchlist() {
         <td>{money(c.buyBelow)}</td><td>{pct(c.upsidePct)}</td><td>{pct(c.metrics.consensusRevenueGrowth)}</td><td>{pct(c.metrics.fcfMargin)}</td><td>{pct(c.metrics.netCashToMarketCap)}</td><td>{pct(c.metrics.offYearHighPct)}</td>
         <td><a href={`/company/${encodeURIComponent(c.ticker)}`}>Full report</a>{' '}<button aria-label={`Remove ${c.ticker}`} onClick={() => update(list.filter(t => t !== c.ticker))}>✕</button>{c.flags.length > 0 && <details><summary>{c.flags.length} caveat{c.flags.length > 1 ? 's' : ''}</summary><ul>{c.flags.map(f => <li key={f}><small>{f}</small></li>)}</ul></details>}</td>
       </tr>)}</tbody></table></div>
-      <p className="muted">Buy zone = price at least {MARGIN_OF_SAFETY * 100}% below the base intrinsic value (&quot;buy below&quot; = base ÷ {1 + MARGIN_OF_SAFETY}). Fair value range = within −10% to +{MARGIN_OF_SAFETY * 100}%. Intrinsic values use one transparent model and are not price targets; banks and insurers are not valued this way.</p>
+      <p className="muted">Buy zone = price at least {MARGIN_OF_SAFETY * 100}% below the base intrinsic value (&quot;buy below&quot; = base × {1 - MARGIN_OF_SAFETY}). Fair value range covers prices above the buy threshold while modeled upside remains above −10%. Intrinsic values use one transparent model and are not price targets; banks and insurers are not valued this way.</p>
     </section>}
     {list.filter(t => !checks[t]).length > 0 && <p className="muted">Not yet checked: {list.filter(t => !checks[t]).join(', ')}</p>}
     {ideas.length > 0 && <section className="panel"><h2>Ideas to diversify</h2>

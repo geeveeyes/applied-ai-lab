@@ -25,13 +25,15 @@ export function adviseHoldings(h: Holdings, checks: Record<string, QuickCheck>, 
     const value = p.shares * p.price, weight = h.totalValue > 0 ? value / h.totalValue : 0;
     const gain = p.averageCost && p.averageCost > 0 ? p.price / p.averageCost - 1 : undefined;
     const taxNote = gain != null && gain > 0 ? ` Selling realizes part of a ${pct(gain)} gain; check taxes and consider staged sales.` : "";
-    if (p.kind === "fund") return { symbol: p.symbol, value, weight, action: "Hold (fund)" as const, reasons: ["Funds are internally diversified; review them against your overall allocation, not stock limits."] };
+    if (p.kind === "fund") return { symbol: p.symbol, value, weight, action: "Hold (fund)" as const, reasons: ["Fund holdings and leverage have not been assessed. Sector, thematic and single-stock funds can be concentrated; review their underlying exposure."] };
 
-    const check = checks[p.symbol];
-    const report = runs.filter(r => r.ticker === p.symbol && r.dataMode !== "demo" && (now.getTime() - Date.parse(r.analyzedAt)) / DAY <= 30)
+    const savedCheck=checks[p.symbol];
+    const fresh=(date:string|undefined,limit:number)=>{const age=(now.getTime()-Date.parse(date??''))/DAY;return Number.isFinite(age)&&age>=0&&age<=limit;};
+    const check=savedCheck&&fresh(savedCheck.checkedAt,7)&&fresh(savedCheck.priceDate,7)?savedCheck:undefined;
+    const report = runs.filter(r => r.ticker === p.symbol && r.dataMode !== "demo" && fresh(r.analyzedAt,30))
       .sort((a, b) => b.analyzedAt.localeCompare(a.analyzedAt))[0];
     const decision = report ? singleInvestmentDecision(report) : undefined;
-    const reportAction = decision?.available ? decision.action : undefined;
+    const reportAction = decision?.available ? decision.action === 'Buy candidate' && !fresh(report?.marketAsOf,7) ? 'Older buy view — refresh price and valuation' : decision.action : undefined;
     const zone = check?.zone;
     const reasons: string[] = [];
     const base = { symbol: p.symbol, value, weight, zone, reportAction, unrealizedGainPct: gain != null ? Number((gain * 100).toFixed(1)) : undefined };
@@ -50,7 +52,7 @@ export function adviseHoldings(h: Holdings, checks: Record<string, QuickCheck>, 
       return { ...base, action: "Hold, don't add" as const, reasons };
     }
     const room = Math.max(0, cap - value);
-    if (reportAction === "Buy candidate" || zone === "Buy zone") {
+    if (reportAction === "Buy candidate" || (!reportAction && zone === "Buy zone")) {
       reasons.push(reportAction === "Buy candidate" ? `Full report (${report!.analyzedAt.slice(0, 10)}) rated it a buy candidate.` : `Quick check: at least 15% below base intrinsic value (buy below ${check?.buyBelow != null ? `$${check.buyBelow.toFixed(2)}` : "n/a"}).`);
       if (!report) reasons.push("Run a full research report before adding — the quick check has no qualitative evidence.");
       reasons.push(`Room under your limit: about ${usd(room)}.`);

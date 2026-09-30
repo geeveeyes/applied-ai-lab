@@ -14,6 +14,10 @@ export function applyDeterministicValuation(
   ctx: { secUrl?: string; asOf: string; peerComparable: boolean },
 ): InvestmentCase {
   if (!v.available || !ctx.secUrl) return thesis;
+  if(!v.decisionEligible){
+    if(thesis.valuationBasis==='Peer comparison'&&ctx.peerComparable)return thesis;
+    return {...thesis,valuationBasis:'Unavailable',valuationBenchmark:'Illustrative model lacks decision-grade inputs.',factors:{...thesis.factors,valuation:{...thesis.factors.valuation,rating:'Unknown',reason:`${v.warnings.join(' ')} Model critique: ${thesis.factors.valuation.reason}`}}};
+  }
   const factor = thesis.factors.valuation;
   const peerRating = ctx.peerComparable && thesis.valuationBasis === "Peer comparison" && factor.rating !== "Unknown" ? factor.rating : undefined;
   const final = peerRating && points[peerRating] < points[v.rating] ? peerRating : v.rating;

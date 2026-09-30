@@ -1,25 +1,11 @@
 import { startUsage, recordUsage } from "../server/research-cost";
 import { z } from "zod";
 import { investmentCaseSchema, investmentCaseJsonSchema, type InvestmentCase } from "../investment";
-import type { ExecutiveSummary, ResearchScores } from "../types";
-
-const scoreKeys = [
-  "businessQuality", "financialPerformance", "growthRunway", "industryMoat",
-  "leadershipGovernance", "valuation", "analystExpectations", "sentimentPositioning",
-  "technicalLiquidity", "catalysts", "riskResilience", "portfolioFit",
-] as const;
-
-const ratingValues = ["Very weak", "Weak", "Neutral", "Strong", "Very strong", "Insufficient evidence"] as const;
-const ratingScore = { "Very weak": 10, "Weak": 30, "Neutral": 50, "Strong": 70, "Very strong": 90, "Insufficient evidence": 50 };
-const ratingSchema = z.enum(ratingValues);
-const scoreShape = Object.fromEntries(scoreKeys.map(key => [key, ratingSchema])) as Record<typeof scoreKeys[number], typeof ratingSchema>;
-const reasonShape = Object.fromEntries(scoreKeys.map(key => [key, z.string()])) as Record<typeof scoreKeys[number], z.ZodString>;
+import type { ExecutiveSummary } from "../types";
 
 const schema = z.object({
   investmentCase: investmentCaseSchema,
   executiveSummary: z.object({ overview: z.string(), strength: z.string(), concern: z.string(), watchFor: z.string() }),
-  scores: z.object(scoreShape),
-  scoreReasons: z.object(reasonShape),
   highlights: z.array(z.string()).max(6),
   risks: z.array(z.string()).max(6),
   catalysts: z.array(z.string()).max(6),
@@ -34,8 +20,6 @@ const schema = z.object({
 export type AIResearch = {
   investmentCase: InvestmentCase;
   executiveSummary: ExecutiveSummary;
-  scores: ResearchScores;
-  scoreReasons: Record<keyof ResearchScores, string>;
   highlights: string[];
   risks: string[];
   catalysts: string[];
@@ -48,19 +32,16 @@ export type AIResearch = {
 };
 
 function jsonSchema() {
-  const scoreProperties = Object.fromEntries(scoreKeys.map((key) => [key, { type: "string", enum: [...ratingValues] }]));
   return {
     type: "object",
     additionalProperties: false,
     required: [
-      "investmentCase","executiveSummary","scores","scoreReasons","highlights","risks","catalysts","managementCredibility",
+      "investmentCase","executiveSummary","highlights","risks","catalysts","managementCredibility",
       "expectationGap","valuationSummary","analystSummary","thesisKillers",
     ],
     properties: {
       investmentCase: investmentCaseJsonSchema,
       executiveSummary: { type: "object", additionalProperties: false, required: ["overview", "strength", "concern", "watchFor"], properties: Object.fromEntries(["overview", "strength", "concern", "watchFor"].map(key => [key, { type: "string" }])) },
-      scores: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: scoreProperties },
-      scoreReasons: { type: "object", additionalProperties: false, required: [...scoreKeys], properties: Object.fromEntries(scoreKeys.map(key => [key, { type: "string" }])) },
       highlights: { type: "array", maxItems: 6, items: { type: "string" } },
       risks: { type: "array", maxItems: 6, items: { type: "string" } },
       catalysts: { type: "array", maxItems: 6, items: { type: "string" } },
@@ -97,7 +78,7 @@ export class OpenAIResearchProvider {
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
         store: false,
         reasoning: { effort: "medium" },
-        prompt_cache_key: "applied-ai-lab:equity-research:v8.0",
+        prompt_cache_key: "applied-ai-lab:equity-research:v9.0",
         input: [
           {
             role: "system",
@@ -113,7 +94,6 @@ Start with executiveSummary: explain how the company is doing in simple English 
 Never invent a price, financial metric, analyst call, catalyst, valuation input, historical fact, management claim, competitive claim, or estimate timestamp.
 Analyst-estimate dates are FISCAL PERIOD END DATES, not publication dates.
 Price-target consensus is sentiment evidence only, never a valuation anchor.
-For each score choose exactly one rating: Very weak, Weak, Neutral, Strong, Very strong, or Insufficient evidence. Never return numeric scores. Use Insufficient evidence for dimensions without direct evidence, especially moat, leadership and portfolio fit. Supply a short scoreReasons explanation for every rating, naming the supplied metric/period or the specific missing evidence. Missing evidence is not evidence of poor business quality. Code converts ratings to 10/30/50/70/90; insufficient evidence is neutral 50 and evidence coverage shrinks supported ratings toward neutral. The packet includes per-dimension evidence coverage. Rate ONLY what the evidence supports. Do not use general pretrained knowledge to fill missing moat, leadership, governance, customer, regulatory, product-roadmap, or competitive evidence.
 The deterministicValuation packet is a DCF computed in code (cash-earnings base, consensus-implied growth, bear/base/bull discount rates, net cash). Treat it as the primary valuation evidence: explain what the price implies relative to it and critique its weakest assumption (heavy investment, cyclicality, dilution, balance sheet). Never produce a different intrinsic value or price target. The application sets the final valuation rating in code; your valuation factor reason is shown as critique.
 The reverse DCF is a deterministic expectations test supplied by code. Discuss its implication and limitations; do not recompute it or present it as intrinsic value.
 Evidence confidence is fully deterministic and is not a probability of investment success.
@@ -145,6 +125,6 @@ This is research support, not a guarantee of returns.`
     const text = extractText(payload);
     if (!text) throw new Error("OpenAI returned no structured research output");
     const parsed = schema.parse(JSON.parse(text));
-    return { ...parsed, scores: Object.fromEntries(scoreKeys.map(key => [key, ratingScore[parsed.scores[key]]])) as ResearchScores };
+    return parsed;
   }
 }
