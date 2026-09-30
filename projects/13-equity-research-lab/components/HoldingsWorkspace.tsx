@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
+import {DiversificationPanel} from './DiversificationPanel';
 import {HOLDINGS_KEY,holdingsSchema,readHoldings,dollars,type Holdings} from '@/lib/holdings';
 const empty:Holdings={version:1,scope:'My selected account',asOf:new Date().toISOString().slice(0,10),coverage:'partial',totalValue:0,cashAvailable:0,positions:[]};
 export function HoldingsWorkspace(){
@@ -17,5 +18,5 @@ export function HoldingsWorkspace(){
  <div className="table-wrap"><table><thead><tr><th>Holding</th><th>Shares</th><th>Value</th><th>Review</th></tr></thead><tbody>{s.positions.map(p=><tr key={p.symbol}><td>{p.symbol} · {p.kind}</td><td>{p.shares.toLocaleString('en-US',{maximumFractionDigits:6})}</td><td>{dollars(p.shares*p.price)}</td><td><a href={`/company/${p.symbol}`}>Research</a>{' '}<button aria-label={`Remove ${p.symbol}`} onClick={()=>set({...s,positions:s.positions.filter(q=>q.symbol!==p.symbol)})}>Remove</button></td></tr>)}</tbody></table></div>
  <div className="button-row"><button onClick={save}>Save private snapshot</button><button onClick={download}>Download private JSON</button><button onClick={()=>{localStorage.removeItem(HOLDINGS_KEY);set(empty);msg('Saved holdings cleared from this browser.');}}>Clear saved holdings</button></div><p role="status">{message}</p>
  <label>Import private snapshot (JSON)<input type="file" accept=".json,application/json" onChange={e=>void importFile(e.target.files?.[0])}/></label>
- <details><summary>Import format</summary><p>Manual entry works without a file. To import, use this format with your own values. Dates and prices must match the total. This is an example only.</p><pre>{JSON.stringify({...empty,totalValue:10000,cashAvailable:5000,positions:[{symbol:'MSFT',shares:10,price:400,kind:'stock'}]},null,2)}</pre></details></section></>;
+ <details><summary>Import format</summary><p>Manual entry works without a file. To import, use this format with your own values. Dates and prices must match the total. This is an example only.</p><pre>{JSON.stringify({...empty,totalValue:10000,cashAvailable:5000,positions:[{symbol:'MSFT',shares:10,price:400,kind:'stock'}]},null,2)}</pre></details></section><DiversificationPanel holdings={s}/></>;
 }
