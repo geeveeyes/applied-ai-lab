@@ -1,3 +1,5 @@
+import { HoldingAdjustment } from "./HoldingAdjustment";
+import { ReportTools } from "./ReportTools";
 import type { ResearchRun } from "@/lib/types";
 
 import { ExecutiveSummary } from "./ExecutiveSummary";
@@ -34,6 +36,8 @@ export function ResearchView({ run }: { run: ResearchRun }) {
     {run.dataMode !== "demo" && !hasScores && <div className="warning"><strong>Live-data mode, incomplete analysis.</strong> The app did not substitute demo scores when a provider or AI synthesis failed. Check Research notes below.</div>}
 
     <ExecutiveSummary run={run} />
+    <HoldingAdjustment ticker={run.ticker} />
+    <ReportTools run={run} />
     <GroundingPanel run={run} />
     <InvestmentChoices run={run} />
     <details className="panel"><summary>Financial details, scenarios and provider notes</summary>

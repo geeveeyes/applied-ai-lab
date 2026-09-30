@@ -1,3 +1,4 @@
+import { withCosts } from "./server/research-cost";
 import { integratedResearch } from "./server/integrated-research";
 import { validateInvestmentCase, singleInvestmentDecision } from "./investment";
 import { ageDays, deterministicConfidence } from "./confidence";
@@ -54,6 +55,10 @@ function dimensionCoverage(args: {
 
 
 export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
+  const {value,cost}=await withCosts(()=>research(tickerRaw));
+  return {...value,cost};
+}
+async function research(tickerRaw: string): Promise<ResearchRun> {
   const ticker = tickerRaw.trim().toUpperCase();
   if (!/^[A-Z.\-]{1,10}$/.test(ticker)) throw new Error("Invalid ticker symbol");
   if (process.env.NEXT_PUBLIC_APP_MODE !== "live") return demoResearch(ticker);

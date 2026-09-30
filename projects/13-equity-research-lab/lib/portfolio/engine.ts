@@ -3,10 +3,11 @@
  * Fixed correlations and normally distributed log returns omit crisis regimes.
  */
 export type Asset = { symbol: string; expectedReturn: number; volatility: number };
-export type Strategy = { name: string; weights: number[]; rebalance: "monthly" | "annual" | "none" };
+export type Transfer = { month: number; from: number; to: number; initialAmount: number; basis: number; taxRate: number };
+export type Strategy = { transfers?: Transfer[]; name: string; weights: number[]; rebalance: "monthly" | "annual" | "none" };
 export type SimulationInput = { assets: Asset[]; correlation: number[][]; strategies: Strategy[]; initialValue: number; years: number; paths: number; seed: number; monthlyContribution?: number; goal?: number };
 export type YearOutcome = { year: number; percentiles: number[] };
-export type StrategyResult = { name: string; years: YearOutcome[]; lossProbability: number; goalProbability: number | null; expectedMaxDrawdown: number; drawdownProbabilities: number[]; worstFivePercentMean: number; endingValues: number[]; unfundedWithdrawalProbability: number };
+export type StrategyResult = { name: string; years: YearOutcome[]; lossProbability: number; goalProbability: number | null; expectedMaxDrawdown: number; drawdownProbabilities: number[]; worstFivePercentMean: number; endingValues: number[]; unfundedWithdrawalProbability: number; meanSaleTax: number };
 export const PERCENTILES = [.05,.10,.25,.50,.75,.90,.95];
 export function cholesky(matrix: number[][]): number[][] {
  const n=matrix.length;
@@ -34,19 +35,39 @@ export function simulate(input:SimulationInput):StrategyResult[]{
  if(input.correlation.length!==n)throw new Error("Correlation dimensions do not match assets.");
  const lower=cholesky(input.correlation);
  for(const s of strategies)if(!s.name||!["monthly","annual","none"].includes(s.rebalance)||s.weights.length!==n||s.weights.some(w=>!Number.isFinite(w)||w<0)||Math.abs(s.weights.reduce((a,b)=>a+b,0)-1)>1e-8)throw new Error("Long-only strategy weights must sum to 100%.");
+ for(const s of strategies){
+  if(s.transfers?.length){
+   if(s.rebalance!=="none"||flow!==0||s.transfers.length>60)throw new Error("Scheduled sales require no automatic rebalancing or cash flows, and at most 60 sales.");
+   const allocated=Array(n).fill(0);
+   for(const t of s.transfers){
+    if(!Number.isInteger(t.month)||t.month<0||t.month>years*12||!Number.isInteger(t.from)||!Number.isInteger(t.to)||t.from<0||t.to<0||t.from>=n||t.to>=n||t.from===t.to||![t.initialAmount,t.basis,t.taxRate].every(Number.isFinite)||t.initialAmount<0||t.basis<0||t.taxRate<0||t.taxRate>1)throw new Error("Invalid scheduled sale.");
+    allocated[t.from]+=t.initialAmount;
+   }
+   if(allocated.some((v,i)=>v>initialValue*s.weights[i]+1e-6))throw new Error("Scheduled sales exceed initial holdings.");
+  }
+ }
  const rng=random(input.seed);const normal=()=>Math.sqrt(-2*Math.log(Math.max(rng(),1e-12)))*Math.cos(2*Math.PI*rng());
  const values=strategies.map(()=>Array.from({length:years+1},()=>new Array<number>(paths)));
- const stats=strategies.map(()=>({drawdown:0,breaches:[0,0,0],loss:0,goal:0,unfunded:0}));
+ const stats=strategies.map(()=>({drawdown:0,breaches:[0,0,0],loss:0,goal:0,unfunded:0,tax:0}));
  for(let p=0;p<paths;p++){
   const balances=strategies.map(s=>s.weights.map(w=>w*initialValue));
   const unit=strategies.map(()=>1),peak=strategies.map(()=>1),dd=strategies.map(()=>0),unfunded=strategies.map(()=>false),netFlow=strategies.map(()=>0);
-  values.forEach(v=>v[0][p]=initialValue);
+  const priceFactors=assets.map(()=>1);
+  function transfer(month:number,k:number){
+   for(const t of strategies[k].transfers??[])if(t.month===month){
+    const gross=t.initialAmount*priceFactors[t.from],tax=Math.max(0,gross-t.basis)*t.taxRate;
+    balances[k][t.from]-=gross;balances[k][t.to]+=gross-tax;stats[k].tax+=tax;
+   }
+  }
+  strategies.forEach((_,k)=>{transfer(0,k);const total=balances[k].reduce((a,b)=>a+b,0);unit[k]=total/initialValue;dd[k]=1-unit[k];values[k][0][p]=total;});
   for(let month=1;month<=years*12;month++){
    // Common shocks make strategy differences attributable to allocation, not different random samples.
    const z=assets.map(()=>normal());
    const growth=assets.map((a,i)=>Math.exp((Math.log1p(a.expectedReturn)-a.volatility*a.volatility/2)/12+a.volatility/Math.sqrt(12)*lower[i].reduce((s,v,j)=>s+v*z[j],0)));
+   growth.forEach((g,i)=>priceFactors[i]*=g);
    strategies.forEach((s,k)=>{
     const b=balances[k],before=b.reduce((a,v)=>a+v,0);for(let i=0;i<n;i++)b[i]*=growth[i];
+    transfer(month,k);
     let total=b.reduce((a,v)=>a+v,0);
     if(!Number.isFinite(total))throw new Error("Assumptions produced numerical overflow; reduce horizon or volatility.");
     if(before>0){unit[k]*=total/before;peak[k]=Math.max(peak[k],unit[k]);dd[k]=Math.max(dd[k],1-unit[k]/peak[k]);}
@@ -62,6 +83,6 @@ export function simulate(input:SimulationInput):StrategyResult[]{
  }
  return strategies.map((s,k)=>{
   const sorted=values[k].map(v=>v.sort((a,b)=>a-b)),end=sorted[years],count=Math.max(1,Math.floor(paths*.05)),st=stats[k];
-  return {name:s.name,years:sorted.map((v,year)=>({year,percentiles:PERCENTILES.map(p=>quantile(v,p))})),endingValues:end,lossProbability:st.loss/paths,goalProbability:input.goal===undefined?null:st.goal/paths,expectedMaxDrawdown:st.drawdown/paths,drawdownProbabilities:st.breaches.map(v=>v/paths),worstFivePercentMean:end.slice(0,count).reduce((a,b)=>a+b,0)/count,unfundedWithdrawalProbability:st.unfunded/paths};
+  return {meanSaleTax:st.tax/paths,name:s.name,years:sorted.map((v,year)=>({year,percentiles:PERCENTILES.map(p=>quantile(v,p))})),endingValues:end,lossProbability:st.loss/paths,goalProbability:input.goal===undefined?null:st.goal/paths,expectedMaxDrawdown:st.drawdown/paths,drawdownProbabilities:st.breaches.map(v=>v/paths),worstFivePercentMean:end.slice(0,count).reduce((a,b)=>a+b,0)/count,unfundedWithdrawalProbability:st.unfunded/paths};
  });
 }

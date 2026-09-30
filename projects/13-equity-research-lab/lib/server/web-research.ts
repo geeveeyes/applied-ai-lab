@@ -1,8 +1,10 @@
+import { startUsage, recordUsage } from "./research-cost";
 import type { ResearchRun } from "../types";
 import { parseGroundingResponse } from "../grounding";
 export async function researchGaps(run: ResearchRun, integrated = false) {
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new Error("Web research is not configured.");
+  const usage=startUsage("Web evidence",process.env.OPENAI_WEB_MODEL || process.env.OPENAI_MODEL || "gpt-5.6-terra");
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST", cache: "no-store", signal: AbortSignal.timeout(110000),
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
@@ -17,5 +19,7 @@ export async function researchGaps(run: ResearchRun, integrated = false) {
     }),
   });
   if (!response.ok) throw new Error(response.status === 429 ? "Web research allowance is temporarily unavailable. Try again later." : "Web research could not complete. The saved report is unchanged.");
-  return parseGroundingResponse(await response.json());
+  const payload=await response.json();
+  recordUsage(usage,payload);
+  return parseGroundingResponse(payload);
 }

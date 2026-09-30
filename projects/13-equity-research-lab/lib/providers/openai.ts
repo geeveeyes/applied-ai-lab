@@ -1,3 +1,4 @@
+import { startUsage, recordUsage } from "../server/research-cost";
 import { z } from "zod";
 import { investmentCaseSchema, investmentCaseJsonSchema, type InvestmentCase } from "../investment";
 import type { ExecutiveSummary, ResearchScores } from "../types";
@@ -87,6 +88,7 @@ export class OpenAIResearchProvider {
     const key = process.env.OPENAI_API_KEY;
     if (!key) throw new Error("OPENAI_API_KEY is not configured");
 
+    const usage=startUsage("Investment synthesis",process.env.OPENAI_MODEL || "gpt-5.6-terra");
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       signal: AbortSignal.timeout(110000),
@@ -138,6 +140,7 @@ This is research support, not a guarantee of returns.`
       throw new Error(`OpenAI research failed: HTTP ${response.status} ${detail.slice(0, 240)}`);
     }
     const payload = await response.json();
+    recordUsage(usage,payload);
     const text = extractText(payload);
     if (!text) throw new Error("OpenAI returned no structured research output");
     const parsed = schema.parse(JSON.parse(text));
