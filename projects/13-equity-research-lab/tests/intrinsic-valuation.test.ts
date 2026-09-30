@@ -56,6 +56,12 @@ describe("intrinsic valuation", () => {
     expect(v.rating).toBe("Strong");
     expect(v.ratingCapped).toBe(true);
   });
+  it("caps extreme ratings for commodity cyclicals", () => {
+    const v = intrinsicValuation({ ...base, price: 20, marketCap: 20e9, cyclical: true });
+    if (!v.available) throw new Error(v.note);
+    expect(v.rating).toBe("Strong");
+    expect(v.warnings.join(" ")).toMatch(/mid-cycle/);
+  });
   it("clamps implausible consensus growth", () => {
     const v = intrinsicValuation({ ...base, estimates: [{ date: "2026-12-31", revenueAvg: 150e9 }] });
     if (!v.available) throw new Error(v.note);

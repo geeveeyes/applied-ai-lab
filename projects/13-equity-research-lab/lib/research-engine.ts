@@ -178,6 +178,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     cash: fundamentals?.cash, debt: fundamentals?.debt, annualPeriodEnd: fundamentals?.latestAnnualPeriodEnd,
     estimates: analystData?.estimates ?? [],
     financialInstitution: fundamentals?.financialInstitution || peerGroup(ticker)?.metric === "book",
+    cyclical: ["Exploration and production", "Integrated energy"].includes(peerGroup(ticker)?.sector ?? ""),
   });
   run.intrinsicValuation = intrinsic;
   const scenarios = valuationScenarios(intrinsic, market.price);

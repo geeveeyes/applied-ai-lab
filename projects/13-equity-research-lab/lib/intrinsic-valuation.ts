@@ -32,6 +32,8 @@ export type ValuationInputs = {
   estimates?: EstimateRow[];
   /** Set for banks/insurers: operating cash flow mixes deposits and lending, so a corporate DCF is invalid. */
   financialInstitution?: boolean;
+  /** Commodity-cyclical business: current cash earnings may be far from mid-cycle. */
+  cyclical?: boolean;
 };
 
 export type ValuationRating = "Very weak" | "Weak" | "Mixed" | "Strong" | "Very strong";
@@ -121,7 +123,8 @@ export function intrinsicValuation(i: ValuationInputs): IntrinsicValuation {
   const values = { bear: perShare("bear"), base: perShare("base"), bull: perShare("bull") };
   const upsidePct = Number(((values.base / i.price - 1) * 100).toFixed(1));
   let rating = ratingFor(upsidePct);
-  const ratingCapped = !forecast && (rating === "Very strong" || rating === "Very weak");
+  if (i.cyclical) warnings.push("Commodity-cyclical business: the latest year's cash earnings may be far from mid-cycle, so the rating is capped at Strong/Weak. Check normalized commodity-price assumptions.");
+  const ratingCapped = (!forecast || !!i.cyclical) && (rating === "Very strong" || rating === "Very weak");
   if (ratingCapped) rating = rating === "Very strong" ? "Strong" : "Weak";
 
   return {
