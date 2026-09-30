@@ -3,12 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Branch `claude/quick-check-watchlist` (12 commits on main `2a46795`) awaits push + PR.
-**Last updated:** 2026-09-30 (session 3) by Claude
-**Main at:** `2a46795` (PR #2 merged: P0 lockdown, DCF, diversification, track record, CI).
-**Baseline (branch):** tsc clean · vitest 134/134 · `npm run build` passes
+**Current holder:** none. Codex review completed on `codex/shared-tool-review`; PR delivery pending final CI/merge.
+**Last updated:** 2026-09-30 by Codex
+**Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
+**Latest code commit:** `855b8de` (atomic provider usage reservations), following `a4fa055` (decision/valuation correctness).
+**Validation:** 144 tests passed; type check and production build passed. Full final checks repeated before publishing.
 
 ## State
+
+**Current delivery (Codex):** recovered Claude's missing four commits from `equity-part2-import-scoring-backtest.mbox`, preserving authorship. Branch includes broker CSV import, one scoring model and the exploratory backtest. Engine v0.12.0 fixes the 15% margin, stale/unsupported quick-check signals, full-report priority, partial CSV coverage and cash-flow convention. Provider calls now reserve attempts atomically before work; failures count. No database migration required. Review: `docs/REVIEW_2026-09-30_codex.md`. Older dated entries below describe prior states.
+
 
 v0.9 engine is deployed at https://13-equity-research-lab.vercel.app (live mode, FMP + SEC + Alpha Vantage + OpenAI, Supabase archive).
 It has research reports, a 6-factor investment decision, peer valuation for 13 hard-coded sectors, cited web briefs,
@@ -34,12 +38,12 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-1. **Venkat:** push `claude/quick-check-watchlist`, open PR, merge when CI is green. Optional env: `QUICK_CHECK_DAILY_CAP` (default 60).
-2. Use it personally for 8–12 weeks (holdings → decisions → journal; monthly full reports on held names) so `/performance` and the journal accumulate evidence.
-3. Optional cleanup: `lib/scoring.ts`/`confidence.ts` remain only for demo mode and tests; `expectedReturn12m` is legacy.
-4. Run /backtest on 6+ names and record the zone results in Notion; tune `POLICY` only with written rationale.
-5. Test broker import on a real export; add Robinhood/E*TRADE layouts if needed.
-6. Prettier/ESLint format-only commit; Next 16 upgrade (postcss advisory).
+1. Merge the shared review PR only after type check, 144 tests and build pass; verify protected deployment. No subscription upgrades or trades.
+2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
+3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
+4. Fund look-through/AMZN overlap and portfolio completeness, then tax-lot-aware adjustments.
+5. Prospective outcome tracking plus a broader, audited point-in-time benchmark study. The current exploratory backtest is not proof of predictive accuracy.
+6. Browser-data export/recovery and a separate dependency-maintenance PR for the known Next/postcss advisory.
 
 ## Open questions for Venkat
 
@@ -50,6 +54,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+- **2026-09-30 · Codex shared review.** Reviewed `50439a1` and Notion; recovered four missing Claude commits (134 baseline tests). Corrected decision/valuation regressions and added atomic usage reservations. Final suite 144 tests; reviewed math against CFA/Damodaran cash-flow conventions. Branch `codex/shared-tool-review`; code at `855b8de`. No claims of proven investment returns. See Codex review for remaining gaps.
 
 - **2026-09-30 · Claude (session 3b).** Broker CSV import, one scoring model, zone backtest. 134 tests. Branch not pushed (session lacks push access).
 - **2026-09-30 · Claude (session 3).** Branch `claude/quick-check-watchlist`: AI-free quick checks, watchlist, per-holding decisions, decision journal, quick-screen, sensitivity grid, portfolio-first home, product strategy doc. 123 tests. Not pushed; delivered as patch series.
