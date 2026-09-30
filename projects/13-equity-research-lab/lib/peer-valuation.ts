@@ -22,9 +22,10 @@ export type PeerValuation={sector:string;metric:string;caveat:string;rows:Valuat
 export function valuationRow(symbol:string,f:FundamentalsSnapshot|null,m:MarketSnapshot|null,metric:'earnings'|'book',asOf:string):ValuationRow{
  const exclusions:string[]=[],age=(d?:string)=>(Date.parse(asOf)-Date.parse(d||''))/86400000;
  const epsBasis=metric==='earnings'&&f?.annualDilutedEps!=null;
- if(!m?.price||!Number.isFinite(m.price)||m.price<=0||(!epsBasis&&(!m.marketCap||!Number.isFinite(m.marketCap)||m.marketCap<=0))||!Number.isFinite(age(m.timestamp))||age(m.timestamp)<0||age(m.timestamp)>7)exclusions.push('Recent verified price and market capitalization required.');
+ if(!m?.price||!Number.isFinite(m.price)||m.price<=0||!Number.isFinite(age(m.timestamp))||age(m.timestamp)<0||age(m.timestamp)>7)exclusions.push('A verified positive share price from the last seven days is required.');
+ if(!epsBasis&&(!m?.marketCap||!Number.isFinite(m.marketCap)||m.marketCap<=0))exclusions.push('Verified market capitalization is required for this calculation.');
  const denominator=metric==='book'?f?.stockholdersEquity:epsBasis?f?.annualDilutedEps:f?.netIncome,date=metric==='book'?f?.balanceSheetDate:f?.latestAnnualPeriodEnd;
- if(!denominator||!Number.isFinite(denominator)||denominator<=0)exclusions.push(`Positive reported ${metric==='book'?'equity':'annual net income'} unavailable.`);
+ if(!denominator||!Number.isFinite(denominator)||denominator<=0)exclusions.push(`Positive reported ${metric==='book'?'equity':epsBasis?'annual diluted EPS':'annual net income'} unavailable.`);
  if(!Number.isFinite(age(date))||age(date)<0||age(date)>(metric==='book'?190:460))exclusions.push('Financial period missing or stale.');
  if(!f?.citations.some(c=>c.tier===1))exclusions.push('Primary financial source missing.');
  const eligible=exclusions.length===0;
