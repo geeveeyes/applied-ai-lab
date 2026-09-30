@@ -154,3 +154,13 @@ export function valuationScenarios(v: IntrinsicValuation, price: number): Scenar
     row("Bear", "bear", 25, "Growth 4 points below consensus and a 10% discount rate."),
   ];
 }
+
+/** Base-case value per share across discount rates and growth shifts (for a sensitivity grid). */
+export function sensitivity(v: IntrinsicValuation, rates = [0.08, 0.09, 0.10], shifts = [-0.04, -0.02, 0, 0.02]) {
+  if (!v.available) return null;
+  const [lo, hi] = POLICY.growthBounds;
+  return {
+    rates, shifts,
+    grid: shifts.map(sh => rates.map(r => Number(Math.max(0, (presentValue(v.baseCashEarnings, Math.min(hi + 0.05, Math.max(lo, v.growth + sh)), r) + (v.netCash ?? 0)) / v.shares).toFixed(2)))),
+  };
+}

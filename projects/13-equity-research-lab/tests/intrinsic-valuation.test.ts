@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { consensusGrowth, intrinsicValuation, presentValue, ratingFor, valuationScenarios, POLICY } from "../lib/intrinsic-valuation";
+import { consensusGrowth, intrinsicValuation, presentValue, ratingFor, valuationScenarios, sensitivity, POLICY } from "../lib/intrinsic-valuation";
 import { applyDeterministicValuation } from "../lib/valuation-factor";
 import type { InvestmentCase } from "../lib/investment";
 
@@ -71,6 +71,14 @@ describe("intrinsic valuation", () => {
     const s = valuationScenarios(intrinsicValuation(base), 100);
     expect(s.map(x => x.label)).toEqual(["Bull", "Base", "Bear"]);
     expect(s.every(x => x.valuationMethod?.includes("intrinsic value"))).toBe(true);
+  });
+  it("sensitivity grid reproduces the base value at 9% and zero shift, and rises with growth", () => {
+    const v = intrinsicValuation(base); const s = sensitivity(v)!;
+    if (!v.available) throw new Error("unavailable");
+    expect(s.grid[2][1]).toBeCloseTo(v.perShare.base, 2);
+    expect(s.grid[3][1]).toBeGreaterThan(s.grid[0][1]);
+    expect(s.grid[2][0]).toBeGreaterThan(s.grid[2][2]);
+    expect(sensitivity(intrinsicValuation({}))).toBeNull();
   });
   it("rating bands", () => {
     expect([35, 15, 0, -15, -40].map(ratingFor)).toEqual(["Very strong", "Strong", "Mixed", "Weak", "Very weak"]);
