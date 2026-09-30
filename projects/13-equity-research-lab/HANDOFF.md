@@ -4,8 +4,8 @@
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
 **Current holder:** none. Codex review merged in [PR #4](https://github.com/geeveeyes/applied-ai-lab/pull/4).
-**Last updated:** 2026-09-30 by Codex
-**Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
+**Last updated:** 2026-09-30 by Claude (session 4, reconciliation)
+**Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits). PR #3 was a squash of those 8; the 4 follow-up commits (CSV import, scoring, backtest, HANDOFF) reached main via PR #4 (patch-identical to the mbox). Nothing on branch `claude/quick-check-watchlist` is unmerged.
 **Latest code commit:** `e191172` (concentration correction); merged as `f9ed0fd`. Earlier fixes: `855b8de` (atomic usage), `a4fa055` (valuation/decisions).
 **Validation:** 146 tests, type check, production build and GitHub CI passed on the exact PR head. Both Vercel preview deployments passed. Browser verified one stock plus 90% cash reports one effective direct stock and incomplete exposure. Production deployment status is recorded in Notion after merge.
 
@@ -54,6 +54,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+- **2026-09-30 · Claude (session 4).** Applied the session-3b mbox onto the old branch (134 tests, tsc, build green), then found PR #3 already merged (squash, 8 commits) and the 4 commits already on main via PR #4 (identical patch-ids). No product code changed. Next: see Next up; ask Venkat before starting.
 
 - **2026-09-30 · Codex delivery complete.** PR #4 merged as `f9ed0fd`, code head `e191172`; 146 tests, type check, build and CI passed. Recovered all four Claude commits; corrected concentration, valuation, decision priority and usage reservation. Browser verification uses illustrative data only. Shared review and next priorities are in Notion; no owner push/merge action remains.
 
