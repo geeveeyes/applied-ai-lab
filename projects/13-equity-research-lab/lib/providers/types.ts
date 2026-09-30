@@ -2,6 +2,13 @@ import type { AnalystCall, Citation } from "../types";
 
 export type FundamentalsSnapshot = {
   annualDilutedEps?: number;
+  /** Cash + short-term investments at cashDebtDate (SEC instant facts). */
+  cash?: number;
+  /** Total borrowings at cashDebtDate; undefined when no debt tag is reported on that date. */
+  debt?: number;
+  cashDebtDate?: string;
+  /** Bank or insurer (deposit or policy-reserve tags present): corporate cash-flow valuation does not apply. */
+  financialInstitution?: boolean;
   stockholdersEquity?: number;
   balanceSheetDate?: string;
   companyName?: string;

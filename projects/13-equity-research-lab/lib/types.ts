@@ -104,6 +104,7 @@ export type ResearchRun = {
   expectationGap: string;
   valuationSummary: string;
   reverseDcf?: ReverseDcf;
+  intrinsicValuation?: import("./intrinsic-valuation").IntrinsicValuation;
   analystSummary: string;
   analysts: AnalystCall[];
   scenarios: Scenario[];
