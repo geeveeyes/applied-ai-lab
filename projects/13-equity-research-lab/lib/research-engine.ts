@@ -3,10 +3,10 @@ import { assessDecisionEvidence } from "./decision-evidence";
 import { withCosts } from "./server/research-cost";
 import { integratedResearch } from "./server/integrated-research";
 import { validateInvestmentCase, singleInvestmentDecision } from "./investment";
-import { ageDays, deterministicConfidence } from "./confidence";
+import { ageDays } from "./confidence";
 import { demoResearch } from "./mock-data";
 import { providers } from "./providers";
-import { evidenceAdjustScores, verdictFor, weightedCoverage, weightedScore } from "./scoring";
+import { weightedCoverage } from "./scoring";
 import { addYearsIso, reverseDcfFromMarketCap, selectHorizonEstimate } from "./valuation";
 import { intrinsicValuation, valuationScenarios } from "./intrinsic-valuation";
 import { applyDeterministicValuation } from "./valuation-factor";
@@ -22,7 +22,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.10.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.11.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -168,9 +168,6 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
   run.dimensionCoverage = coverage;
   const evidenceCoverage = weightedCoverage(coverage);
 
-  const confidence = deterministicConfidence({ coverage, asOf: run.analyzedAt, marketAsOf: market.timestamp,
-    annualEnd: hasAnnual ? fundamentals?.latestAnnualPeriodEnd : undefined,
-    quarterEnd: hasQuarter ? fundamentals?.latestQuarterPeriodEnd : undefined, estimate: horizonEstimate, citations });
   const intrinsic = intrinsicValuation({
     price: market.price, marketCap: market.marketCap, revenue: fundamentals?.revenue,
     operatingCashFlow: fundamentals?.operatingCashFlow, capitalExpenditures: fundamentals?.capitalExpenditures,
@@ -228,18 +225,14 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
 
   try {
     const ai = await providers.ai.synthesize(evidence);
-    const adjustedScores = evidenceAdjustScores(ai.scores, coverage);
-    run.scores = adjustedScores;
-    run.scoreReasons = ai.scoreReasons;
-    run.score = weightedScore(adjustedScores);
-    run.confidence = confidence.score;
-    run.verdict = verdictFor(run.score, run.confidence);
     run.investmentCase = applyDeterministicValuation(validateInvestmentCase(ai.investmentCase, citations.map(c => c.url), run.analyzedAt), intrinsic, {
       secUrl: fundamentals?.citations[0]?.url, asOf: (market.timestamp ?? run.analyzedAt).slice(0, 10), peerComparable: run.peerValuation?.status === "comparison available",
     });
     run.evidenceAssessment=assessDecisionEvidence(run);
     run.confidence=run.evidenceAssessment.score;
     const decision = singleInvestmentDecision(run);
+    // One scoring model: the six-factor investment score (0 when evidence is insufficient).
+    run.score = decision.score ?? 0;
     run.verdict = !decision.available ? "Insufficient data" : decision.action === "Buy candidate" ? "Buy candidate" : decision.action === "Avoid / review selling" ? "Avoid for now" : "Watch";
     run.executiveSummary = ai.executiveSummary;
     run.highlights = ai.highlights;
@@ -269,7 +262,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     run.notes = [
       run.evidenceAssessment.explanation,
       "The investment score uses six sourced factors. The valuation factor is set in code from a deterministic DCF (see Intrinsic value), made more conservative when a peer comparison disagrees. Intrinsic values are not 12-month price targets.",
-      "Ratings map to 10/30/50/70/90; insufficient evidence maps to neutral 50. Evidence adjustment: 50 + (raw score − 50) × coverage / 100. Missing evidence lowers confidence instead of implying a bad company.",
+      "Factor ratings map to 10/30/50/70/90 (Unknown = 50) with fixed weights: growth 20%, cash 20%, valuation 25%, competition 15%, execution 10%, market 10%. Missing evidence lowers evidence coverage instead of implying a bad company.",
       latestActualPeriod ? `Latest annual period: ${latestActualPeriod}; latest reported interim quarter (10-Q): ${fundamentals?.latestQuarterPeriodEnd ?? "unavailable"}.` : "Latest annual period unavailable.",
       `12-month valuation target date: ${targetDate12m}; selected fiscal EPS period: ${horizonEstimate?.date ?? "unavailable"}.`,
       "Sell-side price targets remain sentiment evidence only.",

@@ -1,74 +1,49 @@
 # Equity Research Skill
 
-Version: `equity-research-v0.5.2`
-
-> **Out of date (2026-09-30).** The app engine is v0.10.0: a six-factor investment score, with the valuation factor set in code from a deterministic DCF (`lib/intrinsic-valuation.ts`, `lib/valuation-factor.ts`). The 12-dimension model below is legacy and scheduled for removal; see `HANDOFF.md`.
+Version: `equity-research-v0.11.0` (matches `lib/research-engine.ts` `skillVersion`)
 
 ## Purpose
-Analyze a public company without conflating business quality, valuation, market expectations and trade timing. Preserve every conclusion as a timestamped prediction so later retrospectives can improve the process.
+Help the owner decide what to do with a stock (buy, hold, trim or wait) without mixing up business quality, valuation, market expectations and timing. Every conclusion is saved as a timestamped snapshot, so later reports and the decision journal can grade it.
 
-## Mandatory principles
-1. Prefer primary sources. SEC/company filings > market infrastructure > professional data > journalism > crowd sentiment.
-2. Timestamp every factual claim and citation. Never use later information in a historical retrospective.
-3. Separate **great company** from **good stock at this price**.
-4. Focus on the **expectation gap**: what operating performance is already embedded in the price, and is reality likely to exceed it?
-5. Present bull/base/bear cases and explicitly red-team the favored thesis.
-6. A high score is not an instruction to trade. State assumptions, uncertainty, downside and thesis invalidation conditions.
-7. Options are a separate decision layer. Compare shares, defined-risk option structures and no-trade; never infer “bullish stock = buy calls.”
-8. **Evidence gates scores.** Do not use model prior knowledge to award high moat, leadership, catalyst, governance, risk or other qualitative scores when the evidence packet does not support them.
-9. Track **evidence coverage per score dimension**. Low-coverage dimensions must be visibly adjusted toward neutral rather than contributing with false precision.
-10. **Match valuation to horizon.** A 12-month fair value must use earnings/cash-flow evidence appropriate to the 12-month target date, not simply the nearest fiscal-year estimate.
-11. Reverse DCF is an **expectations test**, not an intrinsic-value oracle. Expose discount rate, terminal growth, cash-flow base, horizon and important omitted items.
+## Principles
+1. Primary sources first: SEC filings > market-data providers > reputable journalism > everything else. Never invent a figure, date or citation. Missing data stays visibly missing.
+2. Timestamp every fact. Retrospectives use only point-in-time information; frozen snapshots are never rewritten.
+3. A great company is not the same as a good stock at this price.
+4. **Deterministic math lives in code**: valuation, scores, zones, concentration, grading. The LLM gathers and critiques evidence; it never sets the valuation or the score arithmetic.
+5. State the strongest counterargument, what would change the view, and the downside.
+6. Options are a separate decision. The stock score never selects a contract.
+7. Research aid, not financial advice.
 
-## Scorecard (100 points)
-- Business quality — 10
-- Financial performance — 15
-- Growth runway — 8
-- Industry & moat — 10
-- Leadership / talent / governance — 8
-- Valuation — 15
-- Analyst expectations — 8
-- Sentiment / positioning — 7
-- Technical / liquidity context — 4
-- Catalysts — 5
-- Risk / resilience — 5
-- Portfolio fit — 5
+## Decision model (one scoring model)
+Six factors, each rated Very weak / Weak / Mixed / Strong / Very strong / Unknown (mapped to 10/30/50/70/90, Unknown = 50):
 
-Score each dimension from 0–100, multiply by its weight, and retain the component scores **and evidence coverage**. Do not hide a weak valuation score inside a strong business score. When evidence coverage is weak, shrink ratings toward neutral and lower confidence. Missing evidence is not negative business evidence.
+| Factor | Weight | Who rates it |
+|---|---|---|
+| Growth potential | 20% | LLM, from cited evidence |
+| Profit, cash and funding | 20% | LLM, from cited evidence |
+| **Valuation** | 25% | **Code**: deterministic DCF (`lib/intrinsic-valuation.ts`). If a complete peer table disagrees, the more conservative rating wins (`lib/valuation-factor.ts`) |
+| Customers and competition | 15% | LLM |
+| Execution, governance, dilution | 10% | LLM |
+| Market, rates, external risks | 10% | LLM |
 
-## Workflow
-1. Resolve ticker, company, exchange, market timestamp and analysis timestamp.
-2. Retrieve the latest annual filing and latest interim filing. Preserve fiscal period end and filing date separately.
-3. Extract recent annual and quarterly revenue, earnings, cash flow, capex/FCF, margins where available, and identify freshness gaps.
-4. Retrieve forward estimates and treat estimate dates as **fiscal period-end dates**, not publication timestamps.
-5. Explain business model, revenue engines, unit economics and capital intensity only to the extent supported by evidence.
-6. Analyze revenue/EPS/FCF, margins, ROIC, dilution, leverage, cash conversion and earnings quality.
-7. Map competitors, substitutes, suppliers/customers, market structure and moat durability only when source-backed evidence exists.
-8. Evaluate leadership only when the packet contains evidence for tenure, incentives, capital allocation, turnover, insider behavior or promise-vs-delivery history.
-9. Identify consensus expectations and estimate-revision direction.
-10. Build valuation with explicit horizon alignment:
-   - choose the fiscal estimate relevant to the 12-month target date;
-   - make bull/base/bear P/E sensitivity assumptions explicit;
-   - never use analyst price targets as intrinsic value.
-11. Run reverse DCF / expectations analysis. State what FCF growth/margins are required for today's market value to make sense, with assumptions and caveats.
-12. Rank analyst evidence by track record when analyst-level data is available; otherwise clearly label consensus-only evidence.
-13. Analyze professional, institutional, insider, short, options, news and retail sentiment separately when data exists.
-14. Identify time-bounded catalysts with evidence; otherwise keep catalyst coverage low.
-15. Build bull/base/bear sensitivities with explicit illustrative weights and horizon-correct EPS; do not present these as independent fair value.
-16. Red-team: assume the investment loses 40%; identify the 3 most plausible causal paths and investigate them.
-17. State thesis killers: measurable conditions that would change the verdict.
-18. Evaluate portfolio fit separately from stock attractiveness. Without portfolio data, coverage must remain low.
-19. Produce research verdict, confidence, fair-value range and deterministic 12-month return range.
-20. Compare equity vs option structures only if live options data is available (IV, greeks, OI, volume, spread, DTE, earnings/event timing).
-21. Save an immutable snapshot with skill version, model version, sources, assumptions, evidence coverage, notes and benchmark.
-22. At 30/90/180/365 days, evaluate actual and benchmark returns, range calibration, direction, excess return and which signals helped or hurt.
+A factor becomes Unknown when its sources aren't in the retrieved catalogue or its evidence date is stale (120 days for valuation/market, 460 for the rest).
+A score requires ≥4 known factors including growth and cash, plus a price no more than 7 days old. Unknown valuation caps the score at 59.
+Bands: ≥70 buy candidate · 60–69 watch for a better entry · 40–59 hold/wait · <40 avoid/review selling. These are policy thresholds, not calibrated probabilities.
+Evidence coverage (0–100) is reported separately and measures completeness, not accuracy.
+
+## Valuation (code)
+- Cash-earnings base: free cash flow, or net income when capex > 60% of operating cash flow.
+- Growth: consensus revenue CAGR (clamped to −5%..25%) for 5 years, fading to 2.5% terminal by year 10.
+- Discount rates: bear 10% / base 9% / bull 8%; growth shifts −4 / 0 / +3 points. Adds net cash from SEC balance-sheet facts.
+- Excluded: banks and insurers (use price/book peers). Capped at Strong/Weak: commodity cyclicals, and names without a consensus forecast.
+- Zones: Buy zone ≥15% below base value ("buy below" = base ÷ 1.15); Fair −10%..+15%; Expensive < −10%.
+
+## Tiers
+- **Quick check** (no LLM): SEC + quote + consensus + DCF → zone and buy-below. Metered by `QUICK_CHECK_DAILY_CAP`, cached per ticker per day.
+- **Full report** (LLM): adds a cited web-evidence brief and the six-factor synthesis. POST only, capped by `RESEARCH_DAILY_CAP`, reused same day.
+
+## Portfolio layer
+Position decisions (`lib/position-advice.ts`) apply, in order: concentration vs the single-stock limit, then a full report from the last 30 days, then the quick-check zone. The decision journal records what was actually done and grades it against later prices.
 
 ## Output contract
-Return: ticker, company, analysis date, market-data timestamp, data freshness, verdict, confidence, total score, component scores, component evidence coverage, business thesis, latest-quarter evidence, expectation gap, horizon-correct valuation, reverse-DCF expectations test, analyst intelligence, sentiment, catalysts, risks, management credibility, scenarios, thesis killers, options decision frame, deterministic expected-return range, benchmark, citations and caveats.
-
-## v0.5 deterministic policy
-Confidence is an evidence quality index calculated only by code, not model interpretation or investment-success probability. Scenarios use price / horizon EPS as their same-period multiple anchor, analyst EPS range (minimum ±10%, fallback ±20%) and explicit ±20% multiple stress. Base is neutral by construction. Weights 25/50/25 are illustrative, not calibrated probabilities. Withhold Buy candidate until independent valuation evidence exists. Missing horizon EPS withholds scenarios; never substitute an expired forecast.
-
-Categorical model ratings avoid numeric scale ambiguity. Insufficient evidence is neutral 50. Evidence-adjust every rating symmetrically with 50 + (raw − 50) × coverage / 100; missing evidence must not produce a negative business verdict. Show a reason for every dimension. This supersedes earlier one-sided score-cap language.
-
-US-GAAP USD annual facts from 20-F/40-F and annual amendments are supported alongside 10-K. Show available annual facts even if current quotes fail; never turn partial fundamentals into a price-based verdict. Provider HTTP 402 is an entitlement/access diagnostic, not proof that a particular endpoint is excluded.
+The LLM returns `investmentCase` (six factors with reason, sources, evidence date, plus growth outlook, strongest counterargument, timing, change-my-mind), `executiveSummary`, highlights, risks, catalysts, management credibility, expectation gap, valuation summary (a critique of the code DCF), analyst summary and thesis killers. It does not return scores or valuations.
