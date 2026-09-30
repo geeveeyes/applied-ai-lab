@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UsageLimitError } from '@/lib/server/usage-budget';
 import { z } from "zod";
 import { runResearch } from "@/lib/research-engine";
 import { saveSnapshot } from "@/lib/server/archive";
 import { sameOrigin } from "@/lib/server/request-security";
-import { researchBudget, sameDayReport } from "@/lib/server/research-budget";
+import { researchBudget, sameDayReport, claimResearchSlot } from "@/lib/server/research-budget";
 export const maxDuration = 300;
 
 const headers = { "Cache-Control": "private, no-store" };
@@ -26,6 +27,6 @@ export async function POST(request: NextRequest) {
   }
   const budget = await researchBudget();
   if (budget.reason) return NextResponse.json({ error: budget.reason, budget }, { status: 429, headers });
-  try { return NextResponse.json(await saveSnapshot(await runResearch(input.ticker)), { headers }); }
-  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "analysis failed" }, { status: 400, headers }); }
+  try { await claimResearchSlot(); return NextResponse.json(await saveSnapshot(await runResearch(input.ticker)), { headers }); }
+  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "analysis failed" }, { status: error instanceof UsageLimitError ? 429 : 400, headers }); }
 }
