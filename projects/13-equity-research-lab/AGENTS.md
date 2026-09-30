@@ -8,7 +8,7 @@ Both agents follow this file. `CLAUDE.md` imports it.
 | What | Where |
 |------|-------|
 | Code, technical state, next engineering tasks | This repo. **`HANDOFF.md` is the baton.** |
-| Human decisions, status, action items | Notion → 🧠 Venkat AI Hub → *Project — Equity Research Lab*, **Decision Log**, **AI Action Inbox** |
+| Human decisions, status, action items, owners | Notion → 🧠 Venkat AI Hub → *Project — Equity Research Lab*, **Decision Log**, **AI Action Inbox**, **Agent Handoff Contract** |
 | Review findings / backlog rationale | `docs/REVIEW_*.md` |
 
 If Notion and `HANDOFF.md` conflict, the newer dated entry wins. A decision Venkat made in Notion overrides the repo.
@@ -19,6 +19,7 @@ If Notion and `HANDOFF.md` conflict, the newer dated entry wins. A decision Venk
 2. Read `HANDOFF.md`, then `PROJECT_STATUS.md` and the latest `docs/REVIEW_*.md`.
 3. Check the Notion project page's Handoff log and Decisions for entries newer than `HANDOFF.md`.
 4. Baseline: `npm ci && npx tsc --noEmit && npm test`. If the baseline fails, stop and report it before changing anything.
+5. Read the Notion **Agent Handoff Contract** and the AI Action Inbox cards where Project = Equity Research Lab and Owner is you or *Any agent*. Claim the card you take (Status WIP, Owner = you). Cards marked *NEEDS VENKAT APPROVAL* stay unstarted until Venkat says go.
 
 ## While working
 
@@ -35,7 +36,8 @@ If Notion and `HANDOFF.md` conflict, the newer dated entry wins. A decision Venk
    - prepend a dated entry to `Log`.
 2. Push the branch and/or merge.
 3. Add one row to the Notion project page's **Handoff log** (date, agent, SHA, one-line summary, next step).
-   Record any durable product decision in **Decision Log**. Put any action Venkat must take in **AI Action Inbox**.
+   Record any durable product decision in **Decision Log**.
+4. Update every AI Action Inbox card you touched: finished = Done plus a Link; handing to another agent or to Venkat = change `Owner`, set `Done when`, and add a dated handoff note (format in the Contract). Every open card has exactly one Owner. `HANDOFF.md` "Next up" items must exist as Inbox cards.
 
 ## Invariants (don't break these)
 

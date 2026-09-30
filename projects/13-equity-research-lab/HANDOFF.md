@@ -38,6 +38,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
+> Each item below is mirrored as an owned card in the Notion AI Action Inbox (Project = Equity Research Lab). Notion holds owner and status; this list holds the engineering detail. See the Agent Handoff Contract.
+
 1. PR #4 is merged and the missing-commits Notion task is closed. Check the Notion handoff for production status. No subscription upgrades or trades.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
 3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
