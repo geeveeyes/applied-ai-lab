@@ -7,7 +7,10 @@ import { ageDays, deterministicConfidence } from "./confidence";
 import { demoResearch } from "./mock-data";
 import { providers } from "./providers";
 import { evidenceAdjustScores, verdictFor, weightedCoverage, weightedScore } from "./scoring";
-import { addYearsIso, calibratedScenarios, reverseDcfFromMarketCap, selectHorizonEstimate } from "./valuation";
+import { addYearsIso, reverseDcfFromMarketCap, selectHorizonEstimate } from "./valuation";
+import { intrinsicValuation, valuationScenarios } from "./intrinsic-valuation";
+import { applyDeterministicValuation } from "./valuation-factor";
+import { peerGroup } from "./peer-valuation";
 import type { AnalystCall, Citation, DimensionCoverage, ResearchRun, ResearchScores } from "./types";
 
 const EMPTY_SCORES: ResearchScores = {
@@ -19,7 +22,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.9.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.10.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -168,13 +171,23 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
   const confidence = deterministicConfidence({ coverage, asOf: run.analyzedAt, marketAsOf: market.timestamp,
     annualEnd: hasAnnual ? fundamentals?.latestAnnualPeriodEnd : undefined,
     quarterEnd: hasQuarter ? fundamentals?.latestQuarterPeriodEnd : undefined, estimate: horizonEstimate, citations });
-  const scenarios = calibratedScenarios(market.price, horizonEstimate, targetDate12m);
+  const intrinsic = intrinsicValuation({
+    price: market.price, marketCap: market.marketCap, revenue: fundamentals?.revenue,
+    operatingCashFlow: fundamentals?.operatingCashFlow, capitalExpenditures: fundamentals?.capitalExpenditures,
+    freeCashFlow: fundamentals?.freeCashFlow, netIncome: fundamentals?.netIncome,
+    cash: fundamentals?.cash, debt: fundamentals?.debt, annualPeriodEnd: fundamentals?.latestAnnualPeriodEnd,
+    estimates: analystData?.estimates ?? [],
+    financialInstitution: fundamentals?.financialInstitution || peerGroup(ticker)?.metric === "book",
+    cyclical: ["Exploration and production", "Integrated energy"].includes(peerGroup(ticker)?.sector ?? ""),
+  });
+  run.intrinsicValuation = intrinsic;
+  const scenarios = valuationScenarios(intrinsic, market.price);
   const evidence = {
     peerValuation: run.peerValuation ?? {status:"incomplete",note:"No supported peer group is configured. Do not invent a benchmark."},
     integratedWebResearch: run.integratedResearch ?? null,
     sourceCatalog: citations,
-    calibratedScenarios: scenarios,
-    scenarioPolicy: "Price-anchored sensitivity only. Base is neutral by construction, not intrinsic value or expected appreciation. Multiples and weights are policy stresses; never describe them as justified fair value or empirical probabilities.",
+    deterministicValuation: intrinsic,
+    valuationPolicy: "The deterministic valuation above is computed in code from SEC filings, the verified price and consensus revenue forecasts. It is the primary valuation evidence. Do not invent a different intrinsic value; critique its assumptions (growth, cash-earnings base, heavy investment, balance sheet) in valuationSummary and in the valuation factor reason. If peer comparison is available, compare it with the DCF. The application sets the final valuation rating in code.",
     ticker,
     companyName: run.companyName,
     analysisTimestampUtc: run.analyzedAt,
@@ -221,7 +234,9 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     run.score = weightedScore(adjustedScores);
     run.confidence = confidence.score;
     run.verdict = verdictFor(run.score, run.confidence);
-    run.investmentCase = validateInvestmentCase(ai.investmentCase, citations.map(c => c.url), run.analyzedAt);
+    run.investmentCase = applyDeterministicValuation(validateInvestmentCase(ai.investmentCase, citations.map(c => c.url), run.analyzedAt), intrinsic, {
+      secUrl: fundamentals?.citations[0]?.url, asOf: (market.timestamp ?? run.analyzedAt).slice(0, 10), peerComparable: run.peerValuation?.status === "comparison available",
+    });
     run.evidenceAssessment=assessDecisionEvidence(run);
     run.confidence=run.evidenceAssessment.score;
     const decision = singleInvestmentDecision(run);
@@ -248,12 +263,12 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
         high: Number(Math.max(...returns).toFixed(1)),
       };
     } else {
-      run.notes.push("12-month scenario fair values were withheld because no usable horizon EPS estimate was available.");
+      run.notes.push(`Intrinsic value range withheld: ${intrinsic.available ? "price unavailable" : intrinsic.note}`);
     }
 
     run.notes = [
       run.evidenceAssessment.explanation,
-      "The investment score uses six sourced factors. Price-anchored scenarios are sensitivity tests and are not used as independent valuation evidence.",
+      "The investment score uses six sourced factors. The valuation factor is set in code from a deterministic DCF (see Intrinsic value), made more conservative when a peer comparison disagrees. Intrinsic values are not 12-month price targets.",
       "Ratings map to 10/30/50/70/90; insufficient evidence maps to neutral 50. Evidence adjustment: 50 + (raw score − 50) × coverage / 100. Missing evidence lowers confidence instead of implying a bad company.",
       latestActualPeriod ? `Latest annual period: ${latestActualPeriod}; latest reported interim quarter (10-Q): ${fundamentals?.latestQuarterPeriodEnd ?? "unavailable"}.` : "Latest annual period unavailable.",
       `12-month valuation target date: ${targetDate12m}; selected fiscal EPS period: ${horizonEstimate?.date ?? "unavailable"}.`,

@@ -7,6 +7,7 @@ import { ExecutiveSummary } from "./ExecutiveSummary";
 import { InvestmentChoices } from "./InvestmentChoices";
 import { GroundingPanel } from "./GroundingPanel";
 import { SnapshotRecorder } from "./SnapshotRecorder";
+import { IntrinsicValuePanel } from "./IntrinsicValuePanel";
 
 function utcLabel(iso?: string) {
   if (!iso) return null;
@@ -20,6 +21,7 @@ function moneyBillions(value?: number) {
 export function ResearchView({ run }: { run: ResearchRun }) {
   const calibrated = run.scenarios.some(s => s.valuationMethod?.includes("price-anchored")) || /^equity-research-v0\.[56]\./.test(run.skillVersion);
   const hasScores = run.score > 0 && run.confidence > 0;
+  const intrinsic = run.scenarios.some(s => s.valuationMethod?.includes("intrinsic value"));
   return <>
     <SnapshotRecorder run={run} />
     <section className="hero compact">
@@ -68,7 +70,8 @@ export function ResearchView({ run }: { run: ResearchRun }) {
       </> : <p className="muted">{run.reverseDcf.note}</p>}
     </section>}
 
-    {run.scenarios.length > 0 && <section><h2>12-month bull / base / bear{calibrated ? " sensitivity" : ""}</h2>{calibrated && <p className="muted">Price-anchored stress tests, not independent fair-value forecasts. Base is neutral by construction. Weights are illustrative; returns exclude dividends.</p>}<div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}% weight</p><h3>${s.fairValue.toFixed(2)}</h3><p><strong>{s.returnPct != null ? `${s.returnPct > 0 ? "+" : ""}${s.returnPct.toFixed(1)}% price return` : ""}</strong></p><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
+    {run.intrinsicValuation && <IntrinsicValuePanel v={run.intrinsicValuation} price={run.asOfPrice} />}
+    {run.scenarios.length > 0 && <section><h2>{intrinsic ? "Intrinsic value: bear / base / bull" : `12-month bull / base / bear${calibrated ? " sensitivity" : ""}`}</h2>{calibrated && <p className="muted">Price-anchored stress tests, not independent fair-value forecasts. Base is neutral by construction. Weights are illustrative; returns exclude dividends.</p>}<div className="scenario-grid">{run.scenarios.map(s => <article className="panel" key={s.label}><p className="eyebrow">{s.label} · {s.probability}% weight</p><h3>${s.fairValue.toFixed(2)}</h3><p><strong>{s.returnPct != null ? `${s.returnPct > 0 ? "+" : ""}${s.returnPct.toFixed(1)}% ${intrinsic ? "vs today's price" : "price return"}` : ""}</strong></p><ul>{s.thesis.map(x => <li key={x}>{x}</li>)}</ul>{s.assumptions?.length ? <><p className="muted"><strong>{s.valuationMethod}</strong></p><ul>{s.assumptions.map(x => <li key={x} className="muted">{x}</li>)}</ul></> : null}</article>)}</div></section>}
 
     {run.thesisKillers.length > 0 && <section className="panel"><h2>What would make us change our mind?</h2><ul>{run.thesisKillers.map(x => <li key={x}>{x}</li>)}</ul></section>}
 

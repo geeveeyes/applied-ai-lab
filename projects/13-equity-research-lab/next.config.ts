@@ -1,3 +1,7 @@
 import type { NextConfig } from "next";
-const nextConfig: NextConfig = { reactStrictMode: true };
+// Private research tool: keep every page and API out of search indexes.
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  async headers() { return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }]; },
+};
 export default nextConfig;

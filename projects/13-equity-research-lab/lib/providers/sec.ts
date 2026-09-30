@@ -94,6 +94,16 @@ export class SecProvider implements FundamentalsProvider {
     const gaap = data?.facts?.["us-gaap"] ?? {};
 
     const equity = newest((gaap.StockholdersEquity?.units?.USD ?? []).filter((x:FactUnit)=>["10-K","10-Q"].includes(x.form??"") && !x.start && x.end && x.filed && typeof x.val==="number"));
+    // Balance sheet (instant facts). Every component must share one balance-sheet date.
+    const instant = (fact: any) => newest(((fact?.units?.USD ?? []) as FactUnit[]).filter(x => ["10-K", "10-Q", "10-K/A", "10-Q/A"].includes(x.form ?? "") && !x.start && x.end && x.filed && typeof x.val === "number"));
+    const cashFactBs = instant(gaap.CashAndCashEquivalentsAtCarryingValue) ?? instant(gaap.CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents);
+    const bsDate = cashFactBs?.end;
+    const onDate = (fact: any) => { const f = instant(fact); return f && f.end === bsDate ? f.val : undefined; };
+    const sum = (...xs: (number | undefined)[]) => xs.some(x => x != null) ? xs.reduce<number>((a, x) => a + (x ?? 0), 0) : undefined;
+    const balanceCash = bsDate ? sum(cashFactBs?.val, onDate(gaap.ShortTermInvestments) ?? onDate(gaap.MarketableSecuritiesCurrent) ?? onDate(gaap.AvailableForSaleSecuritiesDebtSecuritiesCurrent)) : undefined;
+    const totalLtd = onDate(gaap.LongTermDebt);
+    const balanceDebt = bsDate ? (totalLtd != null ? sum(totalLtd, onDate(gaap.ShortTermBorrowings), onDate(gaap.CommercialPaper))
+      : sum(onDate(gaap.LongTermDebtNoncurrent), onDate(gaap.LongTermDebtCurrent), onDate(gaap.ShortTermBorrowings), onDate(gaap.CommercialPaper))) : undefined;
     const revenueFact = latestAnnualAcross(
       gaap.RevenueFromContractWithCustomerExcludingAssessedTax,
       gaap.Revenues,
@@ -158,6 +168,10 @@ export class SecProvider implements FundamentalsProvider {
 
     return {
       annualDilutedEps: annualValue(epsFact),
+      financialInstitution: Boolean(gaap.Deposits || gaap.InterestBearingDepositLiabilities || gaap.LiabilityForFuturePolicyBenefits || gaap.PolicyholderBenefitsAndClaimsIncurredNet),
+      cash: balanceCash,
+      debt: balanceDebt,
+      cashDebtDate: bsDate,
       stockholdersEquity: equity?.val,
       balanceSheetDate: equity?.end,
       companyName: data?.entityName ?? match.title,
