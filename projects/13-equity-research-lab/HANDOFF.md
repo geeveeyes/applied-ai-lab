@@ -3,13 +3,15 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Codex review merged in [PR #4](https://github.com/geeveeyes/applied-ai-lab/pull/4).
+**Current holder:** Codex — `codex/fidelity-import-review`, finishing CSV upload repair.
 **Last updated:** 2026-09-30 by Codex
 **Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
 **Latest code commit:** `e191172` (concentration correction); merged as `f9ed0fd`. Earlier fixes: `855b8de` (atomic usage), `a4fa055` (valuation/decisions).
 **Validation:** 146 tests, type check, production build and GitHub CI passed on the exact PR head. Both Vercel preview deployments passed. Browser verified one stock plus 90% cash reports one effective direct stock and incomplete exposure. Production deployment status is recorded in Notion after merge.
 
 ## State
+
+**Fidelity import repair:** the reported upload failure was an income CSV selected in the positions importer. The provided positions CSV parses. New import review sits at the top, names the selected file/errors, requires choosing one account from multi-account exports, shows AMZN/cash/basis/date summaries and links to the AMZN workflow. Unlisted row values remain in account totals; linked-account overlap is flagged. Total basis takes precedence over rounded average basis. Download timestamp is shown separately from the snapshot date. Local browser upload/save/AMZN transfer verified with the provided file; no raw file, account identifiers or personal figures are committed. Two synthetic regression tests added.
 
 **Current delivery (Codex):** recovered Claude's missing four commits from `equity-part2-import-scoring-backtest.mbox`, preserving authorship. Branch includes broker CSV import, one scoring model and the exploratory backtest. Engine v0.12.0 fixes the 15% margin, stale/unsupported quick-check signals, full-report priority, partial CSV coverage and cash-flow convention. Direct-stock concentration now excludes cash from the effective-count calculation and flags incomplete fund exposure. Provider calls now reserve attempts atomically before work; failures count. No database migration required. Review: `docs/REVIEW_2026-09-30_codex.md`. Older dated entries below describe prior states.
 
@@ -54,6 +56,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+- **2026-09-30 · Codex Fidelity upload repair.** Corrected confusing import feedback and multi-account handling; preserved unlisted value, exact basis and explicit date uncertainty. Baseline 146 tests; final suite 148 tests. Production verification follows the PR merge.
 
 - **2026-09-30 · Codex delivery complete.** PR #4 merged as `f9ed0fd`, code head `e191172`; 146 tests, type check, build and CI passed. Recovered all four Claude commits; corrected concentration, valuation, decision priority and usage reservation. Browser verification uses illustrative data only. Shared review and next priorities are in Notion; no owner push/merge action remains.
 
