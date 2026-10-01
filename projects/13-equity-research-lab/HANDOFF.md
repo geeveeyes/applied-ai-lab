@@ -3,11 +3,11 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** Codex — `codex/fidelity-import-review`, finishing CSV upload repair.
+**Current holder:** none. Fidelity import repair merged in [PR #5](https://github.com/geeveeyes/applied-ai-lab/pull/5).
 **Last updated:** 2026-09-30 by Codex
 **Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
-**Latest code commit:** `e191172` (concentration correction); merged as `f9ed0fd`. Earlier fixes: `855b8de` (atomic usage), `a4fa055` (valuation/decisions).
-**Validation:** 146 tests, type check, production build and GitHub CI passed on the exact PR head. Both Vercel preview deployments passed. Browser verified one stock plus 90% cash reports one effective direct stock and incomplete exposure. Production deployment status is recorded in Notion after merge.
+**Latest code commit:** `0682592` (Fidelity import review); merged as `7163f22`. Earlier shared review merged as `f9ed0fd`.
+**Validation:** 148 tests, type check, production build, GitHub CI and both preview deployments passed on `0682592`. Browser verified actual positions CSV account selection, review, save and AMZN transfer locally. Production deployment status is recorded in Notion after merge.
 
 ## State
 
@@ -40,7 +40,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-1. PR #4 is merged and the missing-commits Notion task is closed. Check the Notion handoff for production status. No subscription upgrades or trades.
+1. PR #5 import repair is merged. Use a positions CSV (not an income report), select one account and confirm the price date. Multi-account/linked-account reconciliation remains future work. Check Notion for production status.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
 3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
 4. Fund look-through/AMZN overlap and portfolio completeness, then tax-lot-aware adjustments.
@@ -57,7 +57,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Log
 
-- **2026-09-30 · Codex Fidelity upload repair.** Corrected confusing import feedback and multi-account handling; preserved unlisted value, exact basis and explicit date uncertainty. Baseline 146 tests; final suite 148 tests. Production verification follows the PR merge.
+- **2026-09-30 · Codex Fidelity upload repair.** Corrected confusing import feedback and multi-account handling; preserved unlisted value, exact basis and explicit date uncertainty. Baseline 146 tests; final suite 148 tests. PR #5 merged as `7163f22`; all checks passed. See Notion for production verification. Baton released.
 
 - **2026-09-30 · Codex delivery complete.** PR #4 merged as `f9ed0fd`, code head `e191172`; 146 tests, type check, build and CI passed. Recovered all four Claude commits; corrected concentration, valuation, decision priority and usage reservation. Browser verification uses illustrative data only. Shared review and next priorities are in Notion; no owner push/merge action remains.
 
