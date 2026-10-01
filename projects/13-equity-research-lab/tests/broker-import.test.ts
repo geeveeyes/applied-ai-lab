@@ -45,7 +45,7 @@ describe("broker import", () => {
     expect(r.merged).toEqual(["AMZN (2 accounts)"]);
     expect(r.holdings.positions.find(p => p.symbol === "VTI")!.kind).toBe("fund");
     expect(r.holdings.cashAvailable).toBe(5000);
-    expect(r.holdings.totalValue).toBe(64000 + 15000 + 5000);
+    expect(r.holdings.totalValue).toBe(64000 + 15000 + 5000 + 990);
     expect(r.skipped.join(" ")).toMatch(/912828XX1/);
     expect(() => holdingsSchema.parse(r.holdings)).not.toThrow();
   });
@@ -67,4 +67,38 @@ describe("broker import", () => {
   it("explains a wrong file type", () => {
     expect(() => importBrokerCsv("Date,Action,Amount\n2026-01-01,Buy,100")).toThrow(/header row/);
   });
+});
+
+it('selects one Fidelity account, preserves unlisted value, and uses reported total basis', () => {
+  const csv = `Account number,Account name,Symbol,Description,Quantity,Last price,Current value,Cost basis total,Average cost basis
+A,Individual - TOD,AMZN,AMAZON,3,100,300,100,33.33,
+B,Retirement,AMZN,AMAZON,2,100,200,80,40,
+B,Retirement,,PLAN FUND,1,50,50,40,40,
+B,Retirement,FDRXX**,HELD IN MONEY MARKET,,,10,,,
+"Date downloaded Oct-01-2026 12:52 a.m ET"`;
+  const discovery = importBrokerCsv(csv, '2026-09-30');
+  expect(discovery.accounts.map(a => a.label)).toEqual(['Individual - TOD', 'Retirement']);
+  const taxable = importBrokerCsv(csv, '2026-09-30', discovery.accounts[0].id);
+  expect(taxable.holdings.totalValue).toBe(300);
+  expect(taxable.holdings.positions[0].shares).toBe(3);
+  expect(taxable.holdings.positions[0].averageCost! * 3).toBeCloseTo(100, 6);
+  expect(taxable.exportedAt).toBe('Oct-01-2026 12:52 a.m ET');
+  expect(taxable.warnings.join(' ')).toMatch(/Confirm the snapshot date/);
+  const retirement = importBrokerCsv(csv, '2026-09-30', discovery.accounts[1].id);
+  expect(retirement.holdings.totalValue).toBe(260);
+  expect(retirement.unmodeledValue).toBe(50);
+  expect(retirement.holdings.cashAvailable).toBe(10);
+  expect(retirement.holdings.coverage).toBe('partial');
+});
+
+it('does not silently clamp a dated export and flags linked-account overlap', () => {
+  const csv = `Positions as of 10/01/2026
+Account number,Account name,Symbol,Description,Quantity,Last price,Current value
+A,Plan,,BROKERAGELINK,500,1,500
+B,BrokerageLink,AMZN,AMAZON,5,100,500`;
+  const r = importBrokerCsv(csv, '2026-09-30');
+  expect(r.holdings.asOf).toBe('2026-10-01');
+  expect(r.warnings.join(' ')).toMatch(/overlap/i);
+  expect(r.warnings.join(' ')).toMatch(/future/i);
+  expect(() => importBrokerCsv(csv, '2026-09-30', 'missing')).toThrow(/account/i);
 });
