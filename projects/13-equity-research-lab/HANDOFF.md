@@ -3,16 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Connected accounts portal step is ready for owner setup on `codex/personal-portfolio-connection`.
+**Current holder:** none. Connected accounts portal is merged and deployed; the first live portfolio refresh remains to be verified.
 **Last updated:** 2026-10-01 by Codex
-**Main baseline:** `7d35624`.
-**Latest code commit:** `9444846` (pushed to `codex/personal-portfolio-connection`).
-**Validation:** 156 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`); GitHub Actions run 13 passed. No live brokerage data was accessed; account credentials are not configured here.
+**Main baseline:** `efb4d89` (PR #6 merged).
+**Latest code commit:** `efb4d89` (merged and deployed).
+**Validation:** 156 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`); GitHub Actions run 14 passed. Production `/accounts` page loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; no account refresh has been run in this session.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
 
-**Personal dashboard milestone 1:** user approved all six milestones and cost controls. The `/accounts` page now offers manual read-only Fidelity and Robinhood refresh, account type, brokerage-reported total, explicit cash, positions and provider timestamps. Other institutions are skipped before per-account requests. Data remains in page memory, is not archived, and no AI calls or trades are made. The endpoint is POST-only, same-origin, and disabled until `SNAPTRADE_PORTAL_ENABLED=true`. The existing workspace cookie remains anonymous; keep Vercel Deployment Protection → All Deployments enabled as the owner access gate. SnapTrade Personal key setup for the portal is not complete: current ChatGPT-to-SnapTrade MCP access is separate. The account key is not configured in this repo or Vercel. No secrets or brokerage records are stored. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Monarch has an official MCP, currently under maintenance; none is connected here.
+**Personal dashboard milestone 1:** user approved all six milestones and cost controls. PR #6 merged as `efb4d89`; the `/accounts` page is deployed and loaded behind Vercel authentication. It offers manual read-only Fidelity and Robinhood refresh, account type, brokerage-reported total, explicit cash, positions and provider timestamps. Other institutions are skipped before per-account requests. Data remains in page memory, is not archived, and no AI calls or trades are made. The endpoint is POST-only and same-origin. Venkat reports that server-only SnapTrade variables are configured; first live refresh and statement reconciliation are still pending. Keep Vercel Deployment Protection → All Deployments enabled. The existing workspace cookie remains anonymous. No secrets or brokerage records are stored. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Monarch has an official MCP, currently under maintenance; none is connected here.
 
 **Fidelity import repair:** the reported upload failure was an income CSV selected in the positions importer. The provided positions CSV parses. New import review sits at the top, names the selected file/errors, requires choosing one account from multi-account exports, shows AMZN/cash/basis/date summaries and links to the AMZN workflow. Unlisted row values remain in account totals; linked-account overlap is flagged. Total basis takes precedence over rounded average basis. Download timestamp is shown separately from the snapshot date. Local browser upload/save/AMZN transfer verified with the provided file; no raw file, account identifiers or personal figures are committed. Two synthetic regression tests added.
 
@@ -43,7 +43,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-0. Continue `codex/personal-portfolio-connection` from the latest checkpoint. Owner: create a SnapTrade Personal API key and add it only as server-side local/Vercel environment variables; never send it in chat or Notion. Before enabling the deployed endpoint, verify Vercel All Deployments protection is still active. Then refresh the portal twice, reconcile account types, shares, cash, totals and dates against Fidelity/Robinhood, and record only non-sensitive status. No automatic sync or AI research scheduler exists. Subsequent approved milestones are in Notion.
+0. Open the deployed `/accounts` page and press **Refresh Fidelity and Robinhood**. If it succeeds, refresh once more and reconcile account types, shares, cash, totals and dates against Fidelity/Robinhood. Record only account coverage, timestamps, and warnings, never raw holdings or values, in Notion. If it fails, use a redacted error only to debug the SnapTrade setup. No automatic sync or AI research scheduler exists. Subsequent approved milestones are in Notion.
 
 1. PR #5 import repair is merged. Use a positions CSV (not an income report), select one account and confirm the price date. Multi-account/linked-account reconciliation remains future work. Check Notion for production status.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
@@ -54,7 +54,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Open questions for Venkat
 
-- Direct portal credentials are not configured. The existing ChatGPT SnapTrade connection does not supply credentials to this website; create a separate Personal API key in SnapTrade Dashboard when ready. Do not share it through chat or Notion.
+- Venkat reports that separate SnapTrade Personal credentials are configured in Vercel. The existing ChatGPT SnapTrade connection does not supply credentials to this website. Do not share any key through chat or Notion. First live refresh remains unverified.
 
 - ~~Auth~~ Decided: Vercel Deployment Protection, All Deployments. ~~Daily cap~~ Set to 5 by Venkat (2026-09-30).
 - Are the 10% single-stock / 30% sector defaults right for you? (Editable per session on /holdings.)
@@ -63,6 +63,11 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-01 — Codex: portal merged and deployed
+- PR #6 merged as `efb4d89`; Vercel production deployment uses that main commit. The live `/accounts` page loads while signed in through Vercel Authentication. Vercel Deployment Protection is enabled in the project settings.
+- Venkat reports server-only SnapTrade variables are configured. The manual account refresh has not yet been clicked, so live holdings, coverage, provider dates and refresh repeatability are unverified.
+- 156 tests, TypeScript, production build and GitHub Actions run 14 passed. No financial values or secrets recorded. Holder released to none.
 
 ### 2026-10-01 — Codex: connected accounts portal step
 - Added `/accounts` with manual Fidelity/Robinhood reads, account coverage and freshness; excluded other institutions before reading positions/balances. Result is held only in page memory.
