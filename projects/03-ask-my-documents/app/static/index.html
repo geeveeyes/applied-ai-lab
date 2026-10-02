@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ask My Documents</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark">03</span><span>Applied AI Lab <b>/ Ask My Documents</b></span></div><span class="status" id="folder">LOCAL FOLDER</span></header>
+  <main>
+    <section class="panel">
+      <p class="eyebrow">ASK</p>
+      <h1>Ask your documents</h1>
+      <form id="form">
+        <label for="question">Question</label>
+        <input id="question" maxlength="500" placeholder="How much is the home office stipend?" required autocomplete="off">
+        <div class="examples" id="examples"></div>
+        <div class="controls">
+          <label for="provider">Provider</label>
+          <select id="provider"><option value="mock">Mock (free, offline)</option><option value="openai">OpenAI</option></select>
+          <label for="mode">Retrieval</label>
+          <select id="mode"><option value="hybrid">Hybrid</option><option value="lexical">Keyword</option><option value="dense">Embedding</option></select>
+          <button class="primary" id="run" type="submit">Ask</button>
+          <button class="quiet" id="ingest" type="button">Index folder</button>
+        </div>
+        <p class="note" id="info"></p>
+        <p class="error" id="error" role="alert" hidden></p>
+      </form>
+    </section>
+    <section class="panel" aria-live="polite">
+      <p class="eyebrow">ANSWER</p>
+      <div id="answer" class="empty">Your answer and its sources will appear here.</div>
+      <div id="sources"></div>
+      <p class="note" id="usage"></p>
+    </section>
+  </main>
+  <script src="/main.js" defer></script>
+</body>
+</html>

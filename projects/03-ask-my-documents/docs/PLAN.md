@@ -1,6 +1,6 @@
 # Project 03 — Ask My Documents: Plan
 
-Status: **POC done (milestone 0). Awaiting sign-off before milestones 1–6.**
+Status: **Signed off (OpenAI, JSON vector store, optional pypdf). Milestones 1–6 implemented; OpenAI live eval and eval on real notes pending.**
 
 ## Objective
 

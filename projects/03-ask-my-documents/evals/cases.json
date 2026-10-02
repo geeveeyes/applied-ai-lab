@@ -1,9 +1,137 @@
 [
-  {"q": "How much is the home office stipend?", "source": "remote-work-policy.md", "contains": "$500"},
-  {"q": "What is the daily meal reimbursement limit on business trips?", "source": "expense-guide.md", "contains": "$75"},
-  {"q": "When can I deploy code?", "source": "onboarding-notes.txt", "contains": "before 4pm"},
-  {"q": "How quickly must a lost laptop be reported?", "source": "remote-work-policy.md", "contains": "24 hours"},
-  {"q": "Can I get reimbursed for alcohol?", "source": "expense-guide.md", "contains": "Alcohol"},
-  {"q": "How fast must the on-call engineer respond to a page?", "source": "onboarding-notes.txt", "contains": "15 minutes"},
-  {"q": "What is the company's stock vesting schedule?", "source": null, "contains": null}
+ {
+  "q": "How much is the home office stipend?",
+  "source": "remote-work-policy.md",
+  "contains": "$500"
+ },
+ {
+  "q": "How many days a week can I work from home?",
+  "source": "remote-work-policy.md",
+  "contains": "three days"
+ },
+ {
+  "q": "How quickly must a lost laptop be reported?",
+  "source": "remote-work-policy.md",
+  "contains": "24 hours"
+ },
+ {
+  "q": "What is the daily meal reimbursement limit on business trips?",
+  "source": "expense-guide.md",
+  "contains": "$75"
+ },
+ {
+  "q": "What is the hotel nightly cap in major cities?",
+  "source": "expense-guide.md",
+  "contains": "$250 per night"
+ },
+ {
+  "q": "Can I get reimbursed for alcohol?",
+  "source": "expense-guide.md",
+  "contains": "Alcohol"
+ },
+ {
+  "q": "When can I deploy code?",
+  "source": "onboarding-notes.txt",
+  "contains": "before 4pm"
+ },
+ {
+  "q": "How fast must the on-call engineer respond to a page?",
+  "source": "onboarding-notes.txt",
+  "contains": "15 minutes"
+ },
+ {
+  "q": "How many vacation days do I get per year?",
+  "source": "pto-and-leave.md",
+  "contains": "20 days"
+ },
+ {
+  "q": "How many unused PTO days can carry over?",
+  "source": "pto-and-leave.md",
+  "contains": "5 unused days"
+ },
+ {
+  "q": "How long is parental leave?",
+  "source": "pto-and-leave.md",
+  "contains": "16 weeks"
+ },
+ {
+  "q": "When does health insurance coverage start?",
+  "source": "benefits.md",
+  "contains": "first day"
+ },
+ {
+  "q": "What is the 401(k) match?",
+  "source": "benefits.md",
+  "contains": "4 percent"
+ },
+ {
+  "q": "How big is the annual learning budget?",
+  "source": "benefits.md",
+  "contains": "$1,200"
+ },
+ {
+  "q": "Who is the incident commander for a Severity 1 incident and how soon?",
+  "source": "security-incident-response.md",
+  "contains": "30 minutes"
+ },
+ {
+  "q": "How soon is a postmortem due?",
+  "source": "security-incident-response.md",
+  "contains": "5 business days"
+ },
+ {
+  "q": "How often are performance reviews held?",
+  "source": "performance-reviews.md",
+  "contains": "twice a year"
+ },
+ {
+  "q": "When are promotions decided?",
+  "source": "performance-reviews.md",
+  "contains": "December cycle only"
+ },
+ {
+  "q": "Who must approve a $5,000 purchase?",
+  "source": "procurement.md",
+  "contains": "director"
+ },
+ {
+  "q": "What needs to happen before buying software that handles customer data?",
+  "source": "procurement.md",
+  "contains": "security questionnaire"
+ },
+ {
+  "q": "How long are application logs kept?",
+  "source": "data-retention.txt",
+  "contains": "90 days"
+ },
+ {
+  "q": "How long must invoices be retained?",
+  "source": "data-retention.txt",
+  "contains": "7 years"
+ },
+ {
+  "q": "Which day of the week has no internal meetings?",
+  "source": "meeting-norms.md",
+  "contains": "Wednesdays"
+ },
+ {
+  "q": "What is the maximum length of weekly team meetings?",
+  "source": "meeting-norms.md",
+  "contains": "45 minutes"
+ },
+ {
+  "q": "What is the company's stock vesting schedule?",
+  "source": null,
+  "contains": null
+ },
+ {
+  "q": "Who is the CEO of the company?",
+  "source": null,
+  "contains": null
+ },
+ {
+  "q": "What is the dress code for the office?",
+  "source": null,
+  "contains": null
+ }
 ]

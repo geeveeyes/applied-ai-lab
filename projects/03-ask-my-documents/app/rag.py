@@ -1,92 +1,109 @@
-"""Dependency-free RAG core: ingest -> chunk -> index -> retrieve -> cited answer.
-
-POC retrieval is hybrid: BM25 (lexical) fused with hashed bag-of-words cosine
-(a stand-in for dense embeddings) via reciprocal-rank fusion. A real embedding
-provider plugs in at `embed()` in milestone 3.
-"""
-import hashlib
+"""RAG core: chunk -> index (BM25 + vectors, cached by file hash) -> hybrid retrieve -> cited answer."""
+import json
 import math
 import re
 from collections import Counter
 from pathlib import Path
 
-SUPPORTED = {".md", ".txt"}
-MAX_FILES = 50
-MAX_FILE_BYTES = 500_000
+from .embedders import tokens
+
 CHUNK_CHARS = 700
 OVERLAP_CHARS = 100
 TOP_K = 4
 MIN_COVERAGE = 0.4
-DIM = 512
-STOP = set("a an and are as at be by for from how in is it of on or that the to was what when where which who will with do does can i my".split())
+MIN_CHUNK_COVERAGE = 0.3  # IDF-weighted share of question terms found in the best chunk
+MAX_CHUNKS = 2000
+CHUNK_VERSION = 1  # bump when chunking changes so cached vectors are discarded
+MODES = ("lexical", "dense", "hybrid")
+REFUSAL = "I couldn't find this in your documents."
 
 
-def tokens(text):
-    return [t for t in re.findall(r"[a-z0-9$]+", text.lower()) if t not in STOP]
+def chunk_doc(doc):
+    """Paragraph-aware chunks with overlap; each keeps its nearest heading and PDF page."""
+    chunks = []
+    for page, text in doc["pages"]:
+        heading, buf = "", ""
 
+        def flush():
+            nonlocal buf
+            if buf.strip():
+                chunks.append({"source": doc["source"], "heading": heading, "page": page, "text": buf.strip()})
+            buf = buf[-OVERLAP_CHARS:] if len(buf) > OVERLAP_CHARS else ""
 
-def load_folder(folder):
-    files = sorted(p for p in Path(folder).rglob("*") if p.suffix.lower() in SUPPORTED)[:MAX_FILES]
-    docs = []
-    for path in files:
-        if path.stat().st_size > MAX_FILE_BYTES:
-            continue
-        docs.append({"source": str(path.relative_to(folder)), "text": path.read_text(errors="replace")})
-    if not docs:
-        raise ValueError("No .md or .txt documents found.")
-    return docs
-
-
-def chunk(doc):
-    """Paragraph-aware chunks with overlap; each keeps the nearest heading."""
-    heading, chunks, buf = "", [], ""
-    def flush():
-        nonlocal buf
-        if buf.strip():
-            chunks.append({"source": doc["source"], "heading": heading, "text": buf.strip()})
-        buf = buf[-OVERLAP_CHARS:] if len(buf) > OVERLAP_CHARS else ""
-    for para in re.split(r"\n\s*\n", doc["text"]):
-        para = para.strip()
-        if not para:
-            continue
-        if para.startswith("#"):
-            flush(); buf = ""
-            heading = para.lstrip("# ").strip()
-            continue
-        if len(buf) + len(para) > CHUNK_CHARS:
-            flush()
-        buf += ("\n\n" if buf else "") + para
-    flush()
+        for para in re.split(r"\n\s*\n", text):
+            para = para.strip()
+            if not para:
+                continue
+            if para.startswith("#"):
+                flush()
+                buf = ""
+                heading = para.lstrip("# ").strip()
+                continue
+            if len(buf) + len(para) > CHUNK_CHARS:
+                flush()
+            buf += ("\n\n" if buf else "") + para
+        flush()
     return chunks
 
 
-def embed(text):
-    """Hashed bag-of-words unit vector. Deterministic, offline stand-in for an embedding model."""
-    vec = [0.0] * DIM
-    for tok in tokens(text):
-        h = int(hashlib.md5(tok.encode()).hexdigest(), 16)
-        vec[h % DIM] += 1.0 if (h >> 64) & 1 else -1.0
-    norm = math.sqrt(sum(v * v for v in vec)) or 1.0
-    return [v / norm for v in vec]
+def load_cache(path):
+    try:
+        return json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return {}
 
 
 class Index:
-    def __init__(self, docs):
-        self.chunks = []
-        for doc in docs:
-            self.chunks.extend(chunk(doc))
+    def __init__(self, chunks, embedder):
+        self.embedder = embedder
+        self.chunks = chunks
         for i, c in enumerate(self.chunks):
             c["id"] = f"C{i + 1}"
             c["tf"] = Counter(tokens(c["heading"] + " " + c["text"]))
-            c["vec"] = embed(c["heading"] + " " + c["text"])
         self.df = Counter(t for c in self.chunks for t in c["tf"])
         self.avg_len = sum(sum(c["tf"].values()) for c in self.chunks) / max(len(self.chunks), 1)
 
+    @classmethod
+    def build(cls, docs, embedder, cache_path=None):
+        """Embed only files whose content hash changed. Returns (index, stats)."""
+        cache = load_cache(cache_path) if cache_path else {}
+        valid = cache.get("embedder") == embedder.id and cache.get("version") == CHUNK_VERSION
+        old = cache.get("files", {}) if valid else {}
+        chunks, files, pending, stats = [], {}, [], {"files_reused": 0, "files_embedded": 0, "chunks_embedded": 0, "embedding_tokens": 0}
+        for doc in docs:
+            hit = old.get(doc["source"])
+            if hit and hit["hash"] == doc["hash"]:
+                stats["files_reused"] += 1
+                files[doc["source"]] = hit
+                chunks.extend(dict(c) for c in hit["chunks"])
+            else:
+                fresh = chunk_doc(doc)
+                pending.append((doc, fresh))
+        total = len(chunks) + sum(len(f) for _, f in pending)
+        if total > MAX_CHUNKS:
+            raise ValueError(f"Too many chunks ({total}); the limit is {MAX_CHUNKS}.")
+        if pending:
+            texts = [c["heading"] + "\n" + c["text"] for _, fresh in pending for c in fresh]
+            vectors, used = embedder.embed(texts)
+            it = iter(vectors)
+            for doc, fresh in pending:
+                for c in fresh:
+                    c["vec"] = [round(v, 5) for v in next(it)]
+                files[doc["source"]] = {"hash": doc["hash"], "chunks": fresh}
+                chunks.extend(dict(c) for c in fresh)
+                stats["files_embedded"] += 1
+            stats["chunks_embedded"], stats["embedding_tokens"] = len(texts), used
+        if cache_path and (pending or valid is False or set(old) != set(files)):
+            Path(cache_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(cache_path).write_text(json.dumps({"embedder": embedder.id, "version": CHUNK_VERSION, "files": files}))
+        stats["chunks"] = len(chunks)
+        return cls(chunks, embedder), stats
+
     def bm25(self, query):
-        n, scores = len(self.chunks), []
+        n, scores, qt = len(self.chunks), [], set(tokens(query))
         for c in self.chunks:
             length, s = sum(c["tf"].values()), 0.0
-            for t in set(tokens(query)):
+            for t in qt:
                 if t in c["tf"]:
                     idf = math.log(1 + (n - self.df[t] + 0.5) / (self.df[t] + 0.5))
                     f = c["tf"][t]
@@ -95,36 +112,60 @@ class Index:
         return scores
 
     def dense(self, query):
-        q = embed(query)
+        q = self.embedder.embed([query])[0][0]
         return [sum(a * b for a, b in zip(q, c["vec"])) for c in self.chunks]
 
-    def search(self, query, k=TOP_K):
+    def search(self, query, k=TOP_K, mode="hybrid"):
+        if mode not in MODES:
+            raise ValueError("Unknown retrieval mode.")
+        bm = self.bm25(query)
+        signals = []
+        if mode in ("lexical", "hybrid"):
+            signals.append(bm)
+        if mode in ("dense", "hybrid"):
+            signals.append(self.dense(query))
         fused = Counter()
-        for scores in (self.bm25(query), self.dense(query)):
-            ranked = sorted(range(len(scores)), key=lambda i: -scores[i])
-            for rank, i in enumerate(ranked):
+        for scores in signals:
+            for rank, i in enumerate(sorted(range(len(scores)), key=lambda i: -scores[i])):
                 if scores[i] > 0:
                     fused[i] += 1 / (60 + rank)
         top = [i for i, _ in fused.most_common(k)]
-        bm = self.bm25(query)
-        return [{**{key: self.chunks[i][key] for key in ("id", "source", "heading", "text")}, "score": round(fused[i], 4), "lexical_hit": bm[i] > 0} for i in top]
+        qt = set(tokens(query))
+        weight = {t: math.log(1 + (len(self.chunks) + 0.5) / (self.df[t] + 0.5)) for t in qt}
+        total = sum(weight.values()) or 1.0
+        coverage = lambda i: sum(w for t, w in weight.items() if t in self.chunks[i]["tf"]) / total
+        return [{**{key: self.chunks[i][key] for key in ("id", "source", "heading", "page", "text")}, "score": round(fused[i], 4), "lexical_hit": bm[i] > 0, "coverage": round(coverage(i), 3)} for i in top]
 
 
-def answer(question, hits):
-    """Mock grounded answer: extractive, cited, and refuses when nothing lexically matches."""
+def label(hit):
+    page = f" p.{hit['page']}" if hit.get("page") else ""
+    return f"{hit['source']}{page}" + (f" › {hit['heading']}" if hit["heading"] else "")
+
+
+def mock_answer(question, hits):
+    """Extractive, cited, and refuses unless a sentence covers enough of the question's terms."""
     q = set(tokens(question))
-    if not hits or not any(h["lexical_hit"] for h in hits):
-        return {"answer": "I couldn't find this in your documents.", "citations": []}
-    best, scored = [], []
+    if not hits or max(h["coverage"] for h in hits) < MIN_CHUNK_COVERAGE:
+        return {"answer": REFUSAL, "citations": []}
+    scored = []
     for h in hits:
         for sent in re.split(r"(?<=[.!?])\s+", h["text"]):
             overlap = len(q & set(tokens(sent)))
             if overlap:
                 scored.append((overlap, h["id"], sent.strip()))
     scored.sort(key=lambda x: -x[0])
-    # Relevance gate: the best sentence must cover a meaningful share of the question's terms.
     if not scored or scored[0][0] / max(len(q), 1) < MIN_COVERAGE:
-        return {"answer": "I couldn't find this in your documents.", "citations": []}
-    for _, cid, sent in scored[:2]:
-        best.append((cid, sent))
-    return {"answer": " ".join(f"{s} [{c}]" for c, s in best), "citations": sorted({c for c, _ in best})}
+        return {"answer": REFUSAL, "citations": []}
+    best = scored[:2]
+    return {"answer": " ".join(f"{s} [{c}]" for _, c, s in best), "citations": sorted({c for _, c, _ in best})}
+
+
+def validate(result, hits):
+    """Drop citations that don't point at a retrieved chunk; an uncited answer becomes a refusal."""
+    ids = {h["id"] for h in hits}
+    cites = [c for c in result.get("citations", []) if c in ids]
+    text = str(result.get("answer", "")).strip()
+    text = re.sub(r"\[(C\d+)\]", lambda m: m.group(0) if m.group(1) in ids else "", text).strip()
+    if not cites or not text:
+        return {"answer": REFUSAL, "citations": []}
+    return {"answer": text, "citations": sorted(set(cites), key=lambda c: int(c[1:]))}

@@ -1,0 +1,7 @@
+Data retention rules
+
+Customer support tickets are kept for 3 years and then deleted. Application logs are retained for 90 days. Backups are kept for 35 days and encrypted at rest.
+
+Financial records, including invoices and tax filings, must be retained for 7 years. Employee records are kept for 6 years after the end of employment.
+
+Deletion requests from customers are completed within 30 days and confirmed by email.
