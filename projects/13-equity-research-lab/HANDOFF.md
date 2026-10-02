@@ -5,9 +5,9 @@
 
 **Current holder:** none. Connected-portfolio interlink is merged in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) as `4758c63`; both Vercel production checks passed.
 **Last updated:** 2026-10-02 by Codex
-**Main baseline:** `4758c63` (PR #7 merged).
-**Latest code commit:** `4758c63` (squash merge of `codex/account-attention`).
-**Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`); both Vercel production checks passed for the merge. Production pages previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh and statement reconciliation remain unverified.
+**Main baseline:** `eedfaee` (PR #8 agent-guide update atop PR #7).
+**Latest feature commit:** `4758c63` (PR #7 connected-portfolio flow); latest docs commit: `eedfaee` (PR #8 completion-status reporting rule).
+**Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`) for PR #8; both Vercel production checks passed for the PR #7 merge. PR #8 changes documentation only and does not change the live deployment. Production pages previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh and statement reconciliation remain unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
@@ -60,6 +60,12 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-02 — Codex: project completion status rule (PR #8, merged)
+- Added the required final report for GitHub code/docs and PR state, Notion context/action state, live deployment and end-to-end verification, and remaining owner/action. Deployment checks must be distinguished from user-flow verification.
+- Updated the shared Notion Agent Handoff Contract and Equity Research Lab project page. The matching repository rule in `AGENTS.md` merged as [PR #8](https://github.com/geeveeyes/applied-ai-lab/pull/8), squash commit `eedfaee`.
+- TypeScript, all 163 tests and production build pass. Documentation only; live portal unchanged. Latest production verification remains PR #7's passing Vercel checks; live brokerage refresh remains unverified.
+- Next: Venkat verifies the account refresh through the linked workspaces and reconciles coverage/dates against statements.
 
 ### 2026-10-02 — Codex: connected portfolio interlink (PR #7, merged)
 - One read-only refresh now feeds account review, My holdings, Portfolio Lab and a symbol-selectable holding trim comparison through tab memory and in-app navigation.
