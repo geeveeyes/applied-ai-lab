@@ -1,0 +1,7 @@
+Onboarding notes for new engineers
+
+Week one: set up your laptop, join the engineering Slack channels, and meet your onboarding buddy. Access to production is not granted until security training is complete.
+
+Week two: ship a small starter ticket. Code review requires one approval from a teammate and passing CI. Deploys happen on weekdays before 4pm.
+
+Support rotation: engineers join the on-call rotation after three months. The on-call engineer acknowledges pages within 15 minutes.

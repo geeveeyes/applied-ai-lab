@@ -1,0 +1,9 @@
+[
+  {"q": "How much is the home office stipend?", "source": "remote-work-policy.md", "contains": "$500"},
+  {"q": "What is the daily meal reimbursement limit on business trips?", "source": "expense-guide.md", "contains": "$75"},
+  {"q": "When can I deploy code?", "source": "onboarding-notes.txt", "contains": "before 4pm"},
+  {"q": "How quickly must a lost laptop be reported?", "source": "remote-work-policy.md", "contains": "24 hours"},
+  {"q": "Can I get reimbursed for alcohol?", "source": "expense-guide.md", "contains": "Alcohol"},
+  {"q": "How fast must the on-call engineer respond to a page?", "source": "onboarding-notes.txt", "contains": "15 minutes"},
+  {"q": "What is the company's stock vesting schedule?", "source": null, "contains": null}
+]

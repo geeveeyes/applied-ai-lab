@@ -43,7 +43,7 @@ applied-ai-lab/
 |---|---|---|---|
 | 01 | Personal Chief of Staff | provider abstraction, structured outputs, tool use, evals | deployed |
 | 02 | Deep Research Briefing Agent | planning, citations, critique loops | local MVP |
-| 03 | Ask My Documents | RAG, embeddings, retrieval quality | planned |
+| 03 | Ask My Documents | RAG, embeddings, retrieval quality | POC (plan pending sign-off) |
 | 04 | Personal Context MCP Server | tools, resources, reusable context | planned |
 | 05 | LLM Eval Arena | eval design, model comparison, scoring | planned |
 | 06 | AI Engineering Manager Copilot | issue summarization, decision support | planned |
