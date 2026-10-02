@@ -3,11 +3,11 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Integration milestone is pushed in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7); Vercel previews are building.
+**Current holder:** none. Connected-portfolio interlink is merged in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) as `4758c63`; both Vercel production checks passed.
 **Last updated:** 2026-10-02 by Codex
-**Main baseline:** `fb4424e` (local main, after PR #6 handoff update).
-**Latest code commit:** `036bd5b` (feature commit; PR branch also includes the handoff update).
-**Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`). Production `/accounts` page was previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh remains unverified.
+**Main baseline:** `4758c63` (PR #7 merged).
+**Latest code commit:** `4758c63` (squash merge of `codex/account-attention`).
+**Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`); both Vercel production checks passed for the merge. Production pages previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh and statement reconciliation remain unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
@@ -45,10 +45,9 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-1. Wait for PR #7 checks and preview builds. Merge when required checks pass, then confirm the deployed portfolio flow.
-2. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
-3. Build the next approved decision milestone on the shared portfolio: compare destination allocations and staged reductions with clearer cost-basis and uncertainty handling. Keep alternatives user-editable and avoid forced Buy labels.
-4. Then continue fund look-through, Monarch where its official MCP is available, historical ROI (XIRR/TWR only with sufficient dates/flows), and prospective benchmark validation. No automatic sync/research or trades.
+1. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
+2. Build the next approved decision milestone on the shared portfolio: compare destination allocations and staged reductions with clearer cost-basis and uncertainty handling. Keep alternatives user-editable and avoid forced Buy labels.
+3. Then continue fund look-through, Monarch where its official MCP is available, historical ROI (XIRR/TWR only with sufficient dates/flows), and prospective benchmark validation. No automatic sync/research or trades.
 
 ## Open questions for Venkat
 
@@ -62,11 +61,11 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Log
 
-### 2026-10-02 — Codex: connected portfolio interlink (PR #7)
+### 2026-10-02 — Codex: connected portfolio interlink (PR #7, merged)
 - One read-only refresh now feeds account review, My holdings, Portfolio Lab and a symbol-selectable holding trim comparison through tab memory and in-app navigation.
 - Portfolio Lab keeps connected runs in the browser session; six strategies compare keep, 25%, 50%, 75%, 100% trims and a staged 50% trim. Missing/unsupported exposure remains visible as partial coverage.
-- 163 tests, TypeScript and production build pass. Commit `036bd5b` on `codex/account-attention`; [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) is open and preview checks are pending. Live data/reconciliation remains unverified.
-- Next: merge after required checks, then verify one refresh through all linked pages without recording financial figures.
+- 163 tests, TypeScript and production build pass. [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) squash-merged as `4758c63`; both Vercel production checks passed. Live data/reconciliation remains unverified.
+- Next: Venkat verifies one refresh through all linked pages and reconciles broker coverage/dates without recording financial figures. Then continue the approved allocation-comparison milestone.
 
 ### 2026-10-01 — Codex: portal merged and deployed
 - PR #6 merged as `efb4d89`; Vercel production deployment uses that main commit. The live `/accounts` page loads while signed in through Vercel Authentication. Vercel Deployment Protection is enabled in the project settings.
