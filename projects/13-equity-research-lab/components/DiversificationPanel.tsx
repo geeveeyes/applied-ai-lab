@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { diversification, DEFAULT_LIMITS } from '@/lib/diversification';
 import { dollars, percent, type Holdings } from '@/lib/holdings';
 
@@ -14,7 +15,7 @@ export function DiversificationPanel({ holdings }: { holdings: Holdings }) {
     <div className="input-grid"><label>Single-stock limit (%)<input type="number" min="1" max="100" value={single} onChange={e => setSingle(Number(e.target.value) || 10)} /></label><label>Sector limit (%)<input type="number" min="5" max="100" value={sector} onChange={e => setSector(Number(e.target.value) || 30)} /></label></div>
     {d.flags.length ? <ul>{d.flags.map(f => <li key={f}>{f}</li>)}</ul> : <p>No position or known sector exceeds your limits.</p>}
     {d.sectors.length > 0 && <div className="table-wrap"><table><thead><tr><th>Sector (known names)</th><th>Weight</th></tr></thead><tbody>{d.sectors.map(s => <tr key={s.sector}><td>{s.sector}{s.overLimit ? ' ⚠' : ''}</td><td>{percent(s.weight)}</td></tr>)}</tbody></table></div>}
-    {d.positions.some(p => p.overLimit) && <p>Over-limit positions: {d.positions.filter(p => p.overLimit).map(p => `${p.symbol} (trim ≈ ${dollars(p.trimToLimit)})`).join(', ')}. Compare staged selling and taxes in the <a href="/portfolio">Portfolio Lab</a> or the <a href="/amzn">AMZN workspace</a>.</p>}
+    {d.positions.some(p => p.overLimit) && <p>Over-limit positions: {d.positions.filter(p => p.overLimit).map(p => `${p.symbol} (trim ≈ ${dollars(p.trimToLimit)})`).join(', ')}. Compare allocation outcomes in the <Link href="/portfolio">Portfolio Lab</Link> or run trim ratios for the largest holding in the <Link href={`/amzn?symbol=${encodeURIComponent(d.positions.find(p=>p.overLimit)!.symbol)}`}>holding diversification tool</Link>.</p>}
     <p className="muted">Deterministic arithmetic on your saved snapshot. Fund underlying holdings and overlap are not included; sector labels cover only names with a configured sector. Not tax or investment advice.</p>
   </section>;
 }
