@@ -3,16 +3,18 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Connected accounts portal is merged and deployed; the first live portfolio refresh remains to be verified.
-**Last updated:** 2026-10-01 by Codex
-**Main baseline:** `efb4d89` (PR #6 merged).
-**Latest code commit:** `efb4d89` (merged and deployed).
-**Validation:** 156 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`); GitHub Actions run 14 passed. Production `/accounts` page loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; no account refresh has been run in this session.
+**Current holder:** none. Integration milestone is pushed in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7); Vercel previews are building.
+**Last updated:** 2026-10-02 by Codex
+**Main baseline:** `fb4424e` (local main, after PR #6 handoff update).
+**Latest code commit:** `036bd5b` (feature commit; PR branch also includes the handoff update).
+**Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`). Production `/accounts` page was previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh remains unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
 
 **Personal dashboard milestone 1:** user approved all six milestones and cost controls. PR #6 merged as `efb4d89`; the `/accounts` page is deployed and loaded behind Vercel authentication. It offers manual read-only Fidelity and Robinhood refresh, account type, brokerage-reported total, explicit cash, positions and provider timestamps. Other institutions are skipped before per-account requests. Data remains in page memory, is not archived, and no AI calls or trades are made. The endpoint is POST-only and same-origin. Venkat reports that server-only SnapTrade variables are configured; first live refresh and statement reconciliation are still pending. Keep Vercel Deployment Protection → All Deployments enabled. The existing workspace cookie remains anonymous. No secrets or brokerage records are stored. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Monarch has an official MCP, currently under maintenance; none is connected here.
+
+**Personal dashboard interlink milestone:** commit `036bd5b` adds one tab-memory snapshot shared through in-app navigation. Connected positions feed My holdings, report-level position context, Portfolio Lab and the generalized holding-diversification page. My holdings keeps data in memory by default; the owner must click Save to persist a browser copy. Connected Portfolio Lab runs locally and does not send account-derived amounts to the portfolio save API. The generic diversification page accepts any held stock or fund and compares keeping, 25%/50%/75%/100% immediate trims and a staged 50% trim. Its assumptions are editable and explicitly illustrative. Portfolio Lab starts with the current mix versus an equal-weight non-cash mix; zero return/risk placeholders must be replaced or supplemented before interpreting a run. Direct-stock, sector, AMZN and unknown-fund flags remain account-scoped. Missing/unsupported positions and possible account overlap mark the portfolio partial. Reloading clears the connected snapshot. Validation: 163 tests, TypeScript and production build pass.
 
 **Fidelity import repair:** the reported upload failure was an income CSV selected in the positions importer. The provided positions CSV parses. New import review sits at the top, names the selected file/errors, requires choosing one account from multi-account exports, shows AMZN/cash/basis/date summaries and links to the AMZN workflow. Unlisted row values remain in account totals; linked-account overlap is flagged. Total basis takes precedence over rounded average basis. Download timestamp is shown separately from the snapshot date. Local browser upload/save/AMZN transfer verified with the provided file; no raw file, account identifiers or personal figures are committed. Two synthetic regression tests added.
 
@@ -43,14 +45,10 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-0. Open the deployed `/accounts` page and press **Refresh Fidelity and Robinhood**. If it succeeds, refresh once more and reconcile account types, shares, cash, totals and dates against Fidelity/Robinhood. Record only account coverage, timestamps, and warnings, never raw holdings or values, in Notion. If it fails, use a redacted error only to debug the SnapTrade setup. No automatic sync or AI research scheduler exists. Subsequent approved milestones are in Notion.
-
-1. PR #5 import repair is merged. Use a positions CSV (not an income report), select one account and confirm the price date. Multi-account/linked-account reconciliation remains future work. Check Notion for production status.
-2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
-3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
-4. Fund look-through/AMZN overlap and portfolio completeness, then tax-lot-aware adjustments.
-5. Prospective outcome tracking plus a broader, audited point-in-time benchmark study. The current exploratory backtest is not proof of predictive accuracy.
-6. Browser-data export/recovery and a separate dependency-maintenance PR for the known Next/postcss advisory.
+1. Wait for PR #7 checks and preview builds. Merge when required checks pass, then confirm the deployed portfolio flow.
+2. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
+3. Build the next approved decision milestone on the shared portfolio: compare destination allocations and staged reductions with clearer cost-basis and uncertainty handling. Keep alternatives user-editable and avoid forced Buy labels.
+4. Then continue fund look-through, Monarch where its official MCP is available, historical ROI (XIRR/TWR only with sufficient dates/flows), and prospective benchmark validation. No automatic sync/research or trades.
 
 ## Open questions for Venkat
 
@@ -63,6 +61,12 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-02 — Codex: connected portfolio interlink (PR #7)
+- One read-only refresh now feeds account review, My holdings, Portfolio Lab and a symbol-selectable holding trim comparison through tab memory and in-app navigation.
+- Portfolio Lab keeps connected runs in the browser session; six strategies compare keep, 25%, 50%, 75%, 100% trims and a staged 50% trim. Missing/unsupported exposure remains visible as partial coverage.
+- 163 tests, TypeScript and production build pass. Commit `036bd5b` on `codex/account-attention`; [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) is open and preview checks are pending. Live data/reconciliation remains unverified.
+- Next: merge after required checks, then verify one refresh through all linked pages without recording financial figures.
 
 ### 2026-10-01 — Codex: portal merged and deployed
 - PR #6 merged as `efb4d89`; Vercel production deployment uses that main commit. The live `/accounts` page loads while signed in through Vercel Authentication. Vercel Deployment Protection is enabled in the project settings.

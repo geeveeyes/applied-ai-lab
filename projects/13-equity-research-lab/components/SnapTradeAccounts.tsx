@@ -1,23 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-
-type Position = {
-  symbol: string | null; description: string | null; kind: string | null;
-  units: number | null; price: number | null; costBasis: number | null;
-  currency: string | null; cashEquivalent: boolean;
-};
-type Account = {
-  institution: string; name: string | null; type: string | null; category: string | null;
-  status: string | null; reportedTotal: { amount?: number | string | null; currency?: string | null } | null;
-  lastHoldingsSync: string | null; positionsAsOf: string | null; positionsAvailable: boolean;
-  positions: Position[] | null; cash: { currency: string | null; amount: number | null }[] | null;
-  warnings: string[];
-};
-type Snapshot = { retrievedAt: string; excludedAccountCount: number; accounts: Account[] };
+import Link from 'next/link';
+import { accountAttention } from '@/lib/account-attention';
+import { usePortfolioSession } from './PortfolioSession';
+import type { ConnectedSnapshot } from '@/lib/connected-portfolio';
 
 export function SnapTradeAccounts() {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const { snapshot, setSnapshot } = usePortfolioSession();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -30,7 +20,7 @@ export function SnapTradeAccounts() {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Could not refresh connected accounts.');
-      setSnapshot(body as Snapshot);
+      setSnapshot(body as ConnectedSnapshot);
       setMessage('Account data refreshed. No research or trades were run.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not refresh connected accounts.');
@@ -45,6 +35,27 @@ export function SnapTradeAccounts() {
     {snapshot && <>
       <p className="muted">Retrieved {dateTime(snapshot.retrievedAt)} · {snapshot.accounts.length} accounts shown · {snapshot.excludedAccountCount} accounts at other institutions skipped</p>
       {snapshot.accounts.length === 0 && <p>No Fidelity or Robinhood accounts were returned. Check the provider connection and refresh again.</p>}
+      {snapshot.accounts.length > 0 && <section className="panel">
+        <h2>Continue with this refresh</h2>
+        <p>The same in-memory account data is now available across these tools in this tab. It clears when you reload or close the tab.</p>
+        <div className="button-row"><Link className="action" href="/holdings">Open My holdings</Link><Link className="action secondary" href="/portfolio">Compare in Portfolio Lab</Link><Link className="action secondary" href="/amzn">Diversify a holding</Link></div>
+      </section>}
+      {snapshot.accounts.length > 0 && <section className="panel">
+        <h2>What may need attention</h2>
+        <p className="muted">These are account-by-account review flags from the snapshot above. They do not combine accounts, estimate fund holdings, or tell you to trade.</p>
+        {snapshot.accounts.map((account, i) => {
+          const review = accountAttention({
+            institution: account.institution, name: account.name, reportedTotal: account.reportedTotal,
+            positionsAvailable: account.positionsAvailable, positions: account.positions,
+          });
+          return <article key={`${review.accountLabel}-${i}`} className="panel">
+            <h3>{review.accountLabel}</h3>
+            {review.findings.map((finding, j) => <p key={j}>
+              <strong>{finding.priority}: {finding.title}.</strong> {finding.detail}
+            </p>)}
+          </article>;
+        })}
+      </section>}
       <div className="table-wrap"><table><thead><tr><th>Institution / account</th><th>Type</th><th>Reported total</th><th>Cash</th><th>Holdings / freshness</th></tr></thead>
         <tbody>{snapshot.accounts.map((account, i) => <tr key={`${account.institution}-${account.name}-${i}`}>
           <td><strong>{account.institution}</strong><br />{account.name || 'Account name unavailable'}<br /><span className="muted">{account.status || 'Status unavailable'}</span></td>

@@ -27,7 +27,7 @@ function random(seed:number){let state=seed>>>0;return()=>{state=(state+0x6D2B79
 export function quantile(sorted:number[],p:number){const x=(sorted.length-1)*p,i=Math.floor(x);return sorted[i]+(sorted[Math.min(i+1,sorted.length-1)]-sorted[i])*(x-i);}
 export function simulate(input:SimulationInput):StrategyResult[]{
  const {assets,strategies,years,paths,initialValue}=input,n=assets.length;
- if(n<1||n>20||strategies.length<1||strategies.length>4||!Number.isInteger(years)||years<1||years>30||!Number.isInteger(paths)||paths<1||paths>100000||!Number.isFinite(initialValue)||initialValue<=0||initialValue>1e12||!Number.isInteger(input.seed))throw new Error("Invalid simulation size or starting value.");
+ if(n<1||n>20||strategies.length<1||strategies.length>6||!Number.isInteger(years)||years<1||years>30||!Number.isInteger(paths)||paths<1||paths>100000||!Number.isFinite(initialValue)||initialValue<=0||initialValue>1e12||!Number.isInteger(input.seed))throw new Error("Invalid simulation size or starting value.");
  if(assets.some(a=>!a.symbol||!Number.isFinite(a.expectedReturn)||a.expectedReturn<=-.95||a.expectedReturn>1||!Number.isFinite(a.volatility)||a.volatility<0||a.volatility>1.5))throw new Error("Returns must be above -95% and at most 100%; volatility must be 0–150%.");
  if(new Set(assets.map(a=>a.symbol)).size!==n)throw new Error("Combine duplicate assets before simulation.");
  const flow=input.monthlyContribution??0;
