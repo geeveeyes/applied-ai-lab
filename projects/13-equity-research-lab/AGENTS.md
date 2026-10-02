@@ -36,6 +36,12 @@ If Notion and `HANDOFF.md` conflict, the newer dated entry wins. A decision Venk
 2. Push the branch and/or merge.
 3. Add one row to the Notion project page's **Handoff log** (date, agent, SHA, one-line summary, next step).
    Record any durable product decision in **Decision Log**. Put any action Venkat must take in **AI Action Inbox**.
+4. In your final reply, give a separate status for each of these:
+   - **GitHub:** code/docs branch, PR or commit, and whether the repository is current.
+   - **Notion:** whether project AI context, the Handoff log and action items are current.
+   - **Live portal/product:** whether deployment checks passed and what was actually verified in the running product. Distinguish a successful deployment from a working end-to-end flow; name anything unverified.
+   - **Still needed:** any missing update, blocker, owner and next action. Never say everything is current when one of these is stale or unverified.
+   Keep the report brief and never include private financial records or secrets.
 
 ## Invariants (don't break these)
 
