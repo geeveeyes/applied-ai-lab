@@ -3,16 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Personal connection pilot is ready for continuation on `codex/personal-portfolio-connection`.
+**Current holder:** none. Connected accounts portal step is ready for owner setup on `codex/personal-portfolio-connection`.
 **Last updated:** 2026-10-01 by Codex
 **Main baseline:** `7d35624`.
-**Latest code commit:** `df1aeea` (pushed).
-**Validation:** 155 tests, type check and production build passed. Missing-credentials local check fails safely. No live brokerage data was accessed. No public route or deployed connection was added.
+**Latest code commit:** pending checkpoint commit.
+**Validation:** 156 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`). No live brokerage data was accessed; account credentials are not configured here.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
 
-**Personal dashboard milestone 1:** user approved all six milestones and cost controls. Official SnapTrade Personal SDK adapter, bounded reads and a redacted local connection check are implemented. Owner confirmed initial setup is needed; a Human to-do is in Notion. Seven new synthetic tests cover missing data, deduplication, failures and limits. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Existing workspace cookie is anonymous: implement owner authentication before web exposure. No secrets or brokerage records are stored in the repo. Monarch has an official MCP, currently under maintenance; none is connected here.
+**Personal dashboard milestone 1:** user approved all six milestones and cost controls. The `/accounts` page now offers manual read-only Fidelity and Robinhood refresh, account type, brokerage-reported total, explicit cash, positions and provider timestamps. Other institutions are skipped before per-account requests. Data remains in page memory, is not archived, and no AI calls or trades are made. The endpoint is POST-only, same-origin, and disabled until `SNAPTRADE_PORTAL_ENABLED=true`. The existing workspace cookie remains anonymous; keep Vercel Deployment Protection → All Deployments enabled as the owner access gate. SnapTrade Personal key setup for the portal is not complete: current ChatGPT-to-SnapTrade MCP access is separate. The account key is not configured in this repo or Vercel. No secrets or brokerage records are stored. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Monarch has an official MCP, currently under maintenance; none is connected here.
 
 **Fidelity import repair:** the reported upload failure was an income CSV selected in the positions importer. The provided positions CSV parses. New import review sits at the top, names the selected file/errors, requires choosing one account from multi-account exports, shows AMZN/cash/basis/date summaries and links to the AMZN workflow. Unlisted row values remain in account totals; linked-account overlap is flagged. Total basis takes precedence over rounded average basis. Download timestamp is shown separately from the snapshot date. Local browser upload/save/AMZN transfer verified with the provided file; no raw file, account identifiers or personal figures are committed. Two synthetic regression tests added.
 
@@ -43,7 +43,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-0. Continue `codex/personal-portfolio-connection` from `df1aeea`. Owner: complete SnapTrade Personal read-only setup (Notion action). Agent: implement owner-authenticated access and secure snapshot storage, then reconcile actual account types, shares, cash, totals and dates; verify repeat refresh before declaring milestone 1 done. Do not deploy the personal API key behind anonymous workspace routes. No automatic sync or AI research scheduler exists yet. Subsequent approved milestones are in Notion.
+0. Continue `codex/personal-portfolio-connection` from the latest checkpoint. Owner: create a SnapTrade Personal API key and add it only as server-side local/Vercel environment variables; never send it in chat or Notion. Before enabling the deployed endpoint, verify Vercel All Deployments protection is still active. Then refresh the portal twice, reconcile account types, shares, cash, totals and dates against Fidelity/Robinhood, and record only non-sensitive status. No automatic sync or AI research scheduler exists. Subsequent approved milestones are in Notion.
 
 1. PR #5 import repair is merged. Use a positions CSV (not an income report), select one account and confirm the price date. Multi-account/linked-account reconciliation remains future work. Check Notion for production status.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
@@ -54,7 +54,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Open questions for Venkat
 
-- Personal SnapTrade setup is not complete. Owner has the setup task; no credentials should be shared through chat or Notion.
+- Direct portal credentials are not configured. The existing ChatGPT SnapTrade connection does not supply credentials to this website; create a separate Personal API key in SnapTrade Dashboard when ready. Do not share it through chat or Notion.
 
 - ~~Auth~~ Decided: Vercel Deployment Protection, All Deployments. ~~Daily cap~~ Set to 5 by Venkat (2026-09-30).
 - Are the 10% single-stock / 30% sector defaults right for you? (Editable per session on /holdings.)
@@ -63,6 +63,12 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-01 — Codex: connected accounts portal step
+- Added `/accounts` with manual Fidelity/Robinhood reads, account coverage and freshness; excluded other institutions before reading positions/balances. Result is held only in page memory.
+- Endpoint is same-origin POST-only and feature-disabled by default; no trades, AI calls, recurring sync, combined total or persistent raw financial data.
+- 156 tests, TypeScript and production build pass. No real portal credentials; live refresh remains unverified. Next: owner adds server-only Personal API key after confirming Vercel All Deployments protection, then reconcile two refreshes.
+- Commit: pending; holder released to none.
 
 ### 2026-10-01 — Codex: personal connection pilot
 - Approved milestones and cost policy saved in Notion; setup and implementation tasks created, decision updated.

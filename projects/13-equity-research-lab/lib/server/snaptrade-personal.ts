@@ -25,14 +25,22 @@ export function createPersonalReader(env: Record<string, string | undefined> = p
   };
 }
 
-export async function readPersonalPortfolio(reader: PortfolioReader, now = new Date()) {
+export async function readPersonalPortfolio(
+  reader: PortfolioReader,
+  now = new Date(),
+  options: { institutions?: string[] } = {},
+) {
   let accounts: Account[];
   try { accounts = await reader.accounts(); }
   catch { throw new Error("Unable to read SnapTrade accounts. Check the connection in SnapTrade."); }
-  if (accounts.length > 20) throw new Error("More than 20 accounts: select a smaller scope before syncing.");
+  const allowedInstitutions = options.institutions?.map(normalizeInstitution);
+  const included = allowedInstitutions?.length
+    ? accounts.filter(account => allowedInstitutions.some(name => normalizeInstitution(account.institution_name).includes(name)))
+    : accounts;
+  if (included.length > 20) throw new Error("More than 20 accounts in this scope: select a smaller scope before syncing.");
   const seen = new Set<string>();
   const snapshots = [];
-  for (const account of accounts) {
+  for (const account of included) {
     const identity = account.institution_account_id
       ? `${account.institution_name}:${account.institution_account_id}` : `snaptrade:${account.id}`;
     if (seen.has(identity)) continue;
@@ -58,6 +66,7 @@ export async function readPersonalPortfolio(reader: PortfolioReader, now = new D
     snapshots.push({
       accountId: account.id, institution: account.institution_name,
       name: account.name, status: account.status ?? null,
+      raw_type: account.raw_type ?? null, account_category: account.account_category ?? null,
       // Preserve the brokerage total; do not synthesize totals across currencies or derivatives.
       total: account.balance?.total ?? null,
       lastSync, positionsAsOf: positions?.data_freshness?.as_of ?? null,
@@ -66,5 +75,14 @@ export async function readPersonalPortfolio(reader: PortfolioReader, now = new D
       warnings,
     });
   }
-  return { source: "snaptrade" as const, retrievedAt: now.toISOString(), accounts: snapshots };
+  return {
+    source: "snaptrade" as const,
+    retrievedAt: now.toISOString(),
+    excludedAccountCount: accounts.length - included.length,
+    accounts: snapshots,
+  };
+}
+
+function normalizeInstitution(value?: string | null) {
+  return (value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }

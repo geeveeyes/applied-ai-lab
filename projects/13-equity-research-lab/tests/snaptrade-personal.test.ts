@@ -48,6 +48,18 @@ describe("personal read-only connection", () => {
     await expect(readPersonalPortfolio(r, now)).rejects.toThrow("20 accounts");
     expect(r.positions).not.toHaveBeenCalled();
   });
+  it("filters to the requested institutions before applying the account limit", async () => {
+    const fidelity = account({ institution_name: "Fidelity" });
+    const robinhood = account({ id: "rh", institution_name: "Robinhood Financial", institution_account_id: "rh-id" });
+    const r = reader([fidelity, robinhood, ...Array.from({ length: 21 }, (_, i) => account({
+      id: `other-${i}`, institution_name: "Wells Fargo", institution_account_id: `wf-${i}`,
+    }))]);
+    const result = await readPersonalPortfolio(r, now, { institutions: ["Fidelity", "Robinhood"] });
+    expect(result.accounts.map(a => a.institution)).toEqual(["Fidelity", "Robinhood Financial"]);
+    expect(result.excludedAccountCount).toBe(21);
+    expect(r.positions).toHaveBeenCalledTimes(2);
+    expect(result.accounts.every(a => a.institution !== "Wells Fargo")).toBe(true);
+  });
   it("flags missing identity and stale data", async () => {
     const result = await readPersonalPortfolio(reader([account({ institution_account_id: null, sync_status: {} })]), now);
     expect(result.accounts[0].warnings).toHaveLength(3);
