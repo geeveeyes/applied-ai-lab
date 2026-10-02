@@ -6,8 +6,8 @@
 **Current holder:** none. Connected accounts portal step is ready for owner setup on `codex/personal-portfolio-connection`.
 **Last updated:** 2026-10-01 by Codex
 **Main baseline:** `7d35624`.
-**Latest code commit:** `9444846` (local checkpoint; push pending).
-**Validation:** 156 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`). No live brokerage data was accessed; account credentials are not configured here.
+**Latest code commit:** `9444846` (pushed to `codex/personal-portfolio-connection`).
+**Validation:** 156 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`); GitHub Actions run 13 passed. No live brokerage data was accessed; account credentials are not configured here.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
@@ -68,7 +68,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - Added `/accounts` with manual Fidelity/Robinhood reads, account coverage and freshness; excluded other institutions before reading positions/balances. Result is held only in page memory.
 - Endpoint is same-origin POST-only and feature-disabled by default; no trades, AI calls, recurring sync, combined total or persistent raw financial data.
 - 156 tests, TypeScript and production build pass. No real portal credentials; live refresh remains unverified. Next: owner adds server-only Personal API key after confirming Vercel All Deployments protection, then reconcile two refreshes.
-- Code commit: `9444846`; holder released to none. Handoff-only commit follows.
+- Code commit: `9444846`; pushed as head `479a3df`. GitHub Actions passed. Draft PR #6 updated; holder released to none.
 
 ### 2026-10-01 — Codex: personal connection pilot
 - Approved milestones and cost policy saved in Notion; setup and implementation tasks created, decision updated.
