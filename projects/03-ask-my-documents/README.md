@@ -25,7 +25,7 @@ python3 -m evals.report                   # lexical vs dense vs hybrid + answer 
 python3 -m evals.report --provider openai # same, with real embeddings and answers
 ```
 
-Mock results on 27 questions (24 answerable, 3 not) over 11 synthetic documents:
+Mock results on 27 questions (24 answerable, 3 not) over 10 synthetic documents:
 
 | retrieval | hit@4 | MRR |
 |---|---|---|

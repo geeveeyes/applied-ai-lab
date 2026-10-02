@@ -14,9 +14,10 @@ OPENAI_DIMS = 1536
 
 
 def stem(tok):
+    """Strip plural/verb suffixes repeatedly so 'meetings' and 'meeting' reach the same stem."""
     for suffix in ("ing", "ed", "es", "s"):
         if tok.endswith(suffix) and len(tok) - len(suffix) >= 4:
-            return tok[: -len(suffix)]
+            return stem(tok[: -len(suffix)])
     return tok
 
 

@@ -43,7 +43,7 @@ applied-ai-lab/
 |---|---|---|---|
 | 01 | Personal Chief of Staff | provider abstraction, structured outputs, tool use, evals | deployed |
 | 02 | Deep Research Briefing Agent | planning, citations, critique loops | local MVP |
-| 03 | Ask My Documents | RAG, embeddings, retrieval quality | local MVP |
+| 03 | Ask My Documents | RAG, embeddings, retrieval quality | local MVP; hosted portal POC in `00-lab-portal` |
 | 04 | Personal Context MCP Server | tools, resources, reusable context | planned |
 | 05 | LLM Eval Arena | eval design, model comparison, scoring | planned |
 | 06 | AI Engineering Manager Copilot | issue summarization, decision support | planned |
@@ -88,6 +88,16 @@ python3 -m app.server
 
 Open `http://127.0.0.1:8002` and choose **Load example**. See the [Project 02 README](projects/02-deep-research-briefing/README.md) for API key setup and scope.
 
+
+## Lab portal (hosted, POC)
+
+```bash
+cd projects/00-lab-portal
+npm install
+npm run dev   # http://localhost:3000
+```
+
+Private Next.js portal for the lab; hosts Ask My Documents in Mock mode today. See the [portal plan](projects/00-lab-portal/docs/PLAN.md).
 
 ## Project 13
 
