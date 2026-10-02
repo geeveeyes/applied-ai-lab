@@ -45,3 +45,10 @@ Validation: 21 regression tests pass; production build and type checks pass. Liv
 The portal is suitable for reviewing the research workflow and its disclosed sensitivity assumptions; it is not a trading system. No trades are executed.
 
 NBIS follow-up: accept US-GAAP USD annual 20-F/40-F facts and amendments; show verified annual metrics when market quotes are unavailable. FMP errors preserve sanitized provider detail instead of treating every 402 as proof of endpoint exclusion. Quote/forecast entitlements still depend on the configured provider account.
+# Current working milestone — 2026-10-02
+
+The account refresh now feeds My holdings, report-level holding context, Portfolio Lab and a symbol-selectable holding diversification comparison through tab memory and in-app navigation. The generalized comparison covers keep, immediate 25%/50%/75%/100% trims, and a staged 50% trim. Connected Portfolio Lab runs locally and does not submit connected amounts to the cloud save route. It starts with the current mix and an editable equal-weight comparison; return/risk placeholders are zero until the user edits or loads historical risk. Incomplete/unpriced/overlap exposure is flagged.
+
+Local branch `codex/account-attention`, code commit `036bd5b`. Not pushed or deployed because GitHub DNS was unavailable. 163 tests, TypeScript and production build pass. First live SnapTrade refresh remains unverified.
+
+## v0.12.0 — combined review delivery
