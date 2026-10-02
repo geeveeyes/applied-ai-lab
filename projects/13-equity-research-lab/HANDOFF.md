@@ -3,13 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Fidelity import repair merged in [PR #5](https://github.com/geeveeyes/applied-ai-lab/pull/5).
-**Last updated:** 2026-09-30 by Codex
-**Main reviewed:** `50439a1` (PR #3, first eight Claude session-3 commits).
-**Latest code commit:** `0682592` (Fidelity import review); merged as `7163f22`. Earlier shared review merged as `f9ed0fd`.
-**Validation:** 148 tests, type check, production build, GitHub CI and both preview deployments passed on `0682592`. Browser verified actual positions CSV account selection, review, save and AMZN transfer locally. Production deployment status is recorded in Notion after merge.
+**Current holder:** none. Personal connection pilot is ready for continuation on `codex/personal-portfolio-connection`.
+**Last updated:** 2026-10-01 by Codex
+**Main baseline:** `7d35624`.
+**Latest code commit:** `df1aeea` (pushed).
+**Validation:** 155 tests, type check and production build passed. Missing-credentials local check fails safely. No live brokerage data was accessed. No public route or deployed connection was added.
+**Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
+
+**Personal dashboard milestone 1:** user approved all six milestones and cost controls. Official SnapTrade Personal SDK adapter, bounded reads and a redacted local connection check are implemented. Owner confirmed initial setup is needed; a Human to-do is in Notion. Seven new synthetic tests cover missing data, deduplication, failures and limits. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Existing workspace cookie is anonymous: implement owner authentication before web exposure. No secrets or brokerage records are stored in the repo. Monarch has an official MCP, currently under maintenance; none is connected here.
 
 **Fidelity import repair:** the reported upload failure was an income CSV selected in the positions importer. The provided positions CSV parses. New import review sits at the top, names the selected file/errors, requires choosing one account from multi-account exports, shows AMZN/cash/basis/date summaries and links to the AMZN workflow. Unlisted row values remain in account totals; linked-account overlap is flagged. Total basis takes precedence over rounded average basis. Download timestamp is shown separately from the snapshot date. Local browser upload/save/AMZN transfer verified with the provided file; no raw file, account identifiers or personal figures are committed. Two synthetic regression tests added.
 
@@ -40,6 +43,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
+0. Continue `codex/personal-portfolio-connection` from `df1aeea`. Owner: complete SnapTrade Personal read-only setup (Notion action). Agent: implement owner-authenticated access and secure snapshot storage, then reconcile actual account types, shares, cash, totals and dates; verify repeat refresh before declaring milestone 1 done. Do not deploy the personal API key behind anonymous workspace routes. No automatic sync or AI research scheduler exists yet. Subsequent approved milestones are in Notion.
+
 1. PR #5 import repair is merged. Use a positions CSV (not an income report), select one account and confirm the price date. Multi-account/linked-account reconciliation remains future work. Check Notion for production status.
 2. Source-date verification and fixed full-report evaluations, including missing/adverse evidence cases.
 3. Improve cash-flow forecasts, reinvestment/dilution and sector-specific valuation; validate thresholds rather than maximizing Buy labels.
@@ -49,6 +54,8 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Open questions for Venkat
 
+- Personal SnapTrade setup is not complete. Owner has the setup task; no credentials should be shared through chat or Notion.
+
 - ~~Auth~~ Decided: Vercel Deployment Protection, All Deployments. ~~Daily cap~~ Set to 5 by Venkat (2026-09-30).
 - Are the 10% single-stock / 30% sector defaults right for you? (Editable per session on /holdings.)
 - Is a 15% margin of safety the right "buy zone" threshold?
@@ -56,6 +63,11 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-01 — Codex: personal connection pilot
+- Approved milestones and cost policy saved in Notion; setup and implementation tasks created, decision updated.
+- `df1aeea`: private read-only adapter and local check; 155 tests/types/build pass. SDK Axios override avoids introducing its pinned dependency advisory; existing baseline advisories remain.
+- Live setup/reconciliation, owner access, storage and scheduling remain outstanding. No account modifications or trades.
 
 - **2026-09-30 · Codex Fidelity upload repair.** Corrected confusing import feedback and multi-account handling; preserved unlisted value, exact basis and explicit date uncertainty. Baseline 146 tests; final suite 148 tests. PR #5 merged as `7163f22`; all checks passed. See Notion for production verification. Baton released.
 
