@@ -34,3 +34,7 @@ The skill validator script could not run because PyYAML was absent in both Pytho
 4. Maintain prospective benchmarked outcomes across all recommendations, including failures and unrated cases.
 
 The owner's first live brokerage refresh and coverage reconciliation remain pending in the existing Notion action item.
+
+## Release follow-up
+
+Production review exposed an existing hydration warning: the holdings default snapshot date was computed at module initialization and embedded in static output, so an older build and a later browser date could disagree. Initialize the server/browser first render with an empty date, then set the current date after mount only when there is no saved or connected snapshot. Clearing a snapshot also uses the current date. Existing saved dates remain unchanged. Imported mutual-fund classification and fund look-through remain a priority for a later milestone.
