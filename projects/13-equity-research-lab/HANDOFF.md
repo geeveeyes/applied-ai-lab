@@ -3,11 +3,11 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** Codex on `codex/thesis-review`; dated review milestone ready for release. Prior state: none. Connected-portfolio interlink is merged in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) as `4758c63`; both Vercel production checks passed.
+**Current holder:** none. PR #9 dated thesis reviews merged as `7796430`; PR #10 holdings-date fix merged as `604b368`.
 **Last updated:** 2026-10-04 by Codex
-**Main baseline:** `eedfaee` (PR #8 agent-guide update atop PR #7).
-**Latest feature commit:** `4758c63` (PR #7 connected-portfolio flow); latest docs commit: `eedfaee` (PR #8 completion-status reporting rule).
-**Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`) for PR #8; both Vercel production checks passed for the PR #7 merge. PR #8 changes documentation only and does not change the live deployment. Production pages previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh and statement reconciliation remain unverified.
+**Main baseline:** `604b368` (PR #10 atop PR #9).
+**Latest feature commits:** `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
+**Validation:** 180 tests, TypeScript and production build pass; GitHub CI and both preview checks pass for both PRs. Both PR #9 production checks passed. Both PR #10 production checks passed. Local Chrome verified a synthetic missing-evidence report and illustrative holding review status with no captured errors; test report removed, illustrative holdings not saved. Live PR #9 review column and existing-report legacy fallback verified. No paid research or live broker calls. Fresh v0.13.0 provider output and first linked-account refresh remain unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
@@ -47,9 +47,10 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
+0. Any agent: evaluate one fresh v0.13.0 report against actual source observations, dates, proposed thresholds and event dates. Prefer an existing report; otherwise one explicit capped request. Notion action: https://app.notion.com/p/3efdf6e02bd781399bd9d6c13b0df83e. Skill validation script lacked PyYAML; frontmatter/reference paths inspected manually.
 1. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
 2. Build the next approved decision milestone on the shared portfolio: compare destination allocations and staged reductions with clearer cost-basis and uncertainty handling. Keep alternatives user-editable and avoid forced Buy labels.
-3. Then continue fund look-through, Monarch where its official MCP is available, historical ROI (XIRR/TWR only with sufficient dates/flows), and prospective benchmark validation. No automatic sync/research or trades.
+3. Verify imported mutual-fund classification before fund look-through, then continue Monarch where its official MCP is available, historical ROI (XIRR/TWR only with sufficient dates/flows), and prospective benchmark validation. No automatic sync/research or trades.
 
 ## Open questions for Venkat
 
@@ -62,6 +63,14 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-04 — Codex: dated thesis reviews and release fix (PR #9 / #10, merged)
+- User authorized autonomous iteration while AFK. Adapted the useful supplied-skill discipline into the existing research skill, without its numerical gates or hindsight-fit probability claims.
+- New reports contain dated observations, exact source links, proposed change conditions, reported/suggested review dates and missing-information gaps. My holdings exposes review status and saved-report links through in-app navigation. Old reports remain immutable and show a useful legacy state.
+- Deterministic source/date checks withhold unsupported observations; a review due date does not imply a failure or change a verdict. No valuation or score arithmetic changed. No migration or additional provider calls.
+- Production review found an existing default-date hydration problem. PR #10 initializes the first render consistently and assigns today's date after mount while preserving saved/connected dates.
+- 180 tests, TypeScript, production build, CI and preview checks pass. See validation header for production checks. Local synthetic UI and live column/legacy-report checks passed. Fresh paid-provider output and first live broker reconciliation remain unverified.
+- Notion project context, Decision Log and AI Action Inbox updated; next agent task is source-level review of one fresh report. The existing Venkat brokerage verification card remains open. Keep private financial records out of GitHub and Notion.
 
 ### 2026-10-02 — Codex: project completion status rule (PR #8, merged)
 - Added the required final report for GitHub code/docs and PR state, Notion context/action state, live deployment and end-to-end verification, and remaining owner/action. Deployment checks must be distinguished from user-flow verification.
