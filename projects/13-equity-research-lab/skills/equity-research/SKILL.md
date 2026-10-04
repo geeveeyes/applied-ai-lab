@@ -1,6 +1,11 @@
+---
+name: equity-research
+description: Research listed companies and revisit personal portfolio buy, hold, trim or wait decisions using dated evidence and deterministic valuation.
+---
+
 # Equity Research Skill
 
-Version: `equity-research-v0.12.0` (matches `lib/research-engine.ts` `skillVersion`)
+Version: `equity-research-v0.13.0` (matches `lib/research-engine.ts` `skillVersion`)
 
 ## Purpose
 Help the owner decide what to do with a stock (buy, hold, trim or wait) without mixing up business quality, valuation, market expectations and timing. Every conclusion is saved as a timestamped snapshot, so later reports and the decision journal can grade it.
@@ -46,4 +51,7 @@ Evidence coverage (0–100) is reported separately and measures completeness, no
 Position decisions (`lib/position-advice.ts`) apply, in order: concentration vs the single-stock limit, then a full report from the last 30 days, then the quick-check zone. The decision journal records what was actually done and grades it against later prices.
 
 ## Output contract
-The LLM returns `investmentCase` (six factors with reason, sources, evidence date, plus growth outlook, strongest counterargument, timing, change-my-mind), `executiveSummary`, highlights, risks, catalysts, management credibility, expectation gap, valuation summary (a critique of the code DCF), analyst summary and thesis killers. It does not return scores or valuations.
+The LLM returns `investmentCase` (six factors with reason, sources, evidence date, plus growth outlook, strongest counterargument, timing, change-my-mind), `executiveSummary`, highlights, risks, catalysts, management credibility, expectation gap, valuation summary (a critique of the code DCF), analyst summary and thesis killers. It also returns `thesisReview`: up to three dated, sourced observations, observable conditions for reconsideration, and sourced or explicitly suggested review dates, plus up to four evidence gaps. It does not return scores or valuations.
+
+## Revisit the case
+Read [thesis review guidance](references/thesis-review.md) for evidence checks, sector questions and personal portfolio context. The application validates source membership and calendar dates, withholds unsupported observations, and shows due reviews separately from evidence gaps. These checks do not change verdicts or trigger selling. Existing frozen reports remain unchanged.

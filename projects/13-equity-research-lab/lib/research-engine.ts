@@ -1,3 +1,4 @@
+import { validateThesisReview, researchQuestions } from "./thesis-review";
 import { peerResearch } from "./server/peer-research";
 import { assessDecisionEvidence } from "./decision-evidence";
 import { withCosts } from "./server/research-cost";
@@ -22,7 +23,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.12.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.13.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -183,6 +184,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     peerValuation: run.peerValuation ?? {status:"incomplete",note:"No supported peer group is configured. Do not invent a benchmark."},
     integratedWebResearch: run.integratedResearch ?? null,
     sourceCatalog: citations,
+    researchQuestions: researchQuestions(ticker),
     deterministicValuation: intrinsic,
     valuationPolicy: "The deterministic valuation above is computed in code from SEC filings, the verified price and consensus revenue forecasts. It is the primary valuation evidence. Do not invent a different intrinsic value; critique its assumptions (growth, cash-earnings base, heavy investment, balance sheet) in valuationSummary and in the valuation factor reason. If peer comparison is available, compare it with the DCF. The application sets the final valuation rating in code.",
     ticker,
@@ -243,6 +245,7 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
     run.valuationSummary = ai.valuationSummary;
     run.analystSummary = ai.analystSummary;
     run.thesisKillers = ai.thesisKillers;
+    if (ai.thesisReview) run.thesisReview = validateThesisReview(ai.thesisReview, citations, run.analyzedAt);
     run.optionIdeas = []; // No live options chain; do not assign unsupported strategy fit.
     run.benchmark = "SPY";
     run.analysts = (analystData?.calls ?? []) as AnalystCall[];

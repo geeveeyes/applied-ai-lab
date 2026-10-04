@@ -3,14 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Connected-portfolio interlink is merged in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) as `4758c63`; both Vercel production checks passed.
-**Last updated:** 2026-10-02 by Codex
+**Current holder:** Codex on `codex/thesis-review`; dated review milestone ready for release. Prior state: none. Connected-portfolio interlink is merged in [PR #7](https://github.com/geeveeyes/applied-ai-lab/pull/7) as `4758c63`; both Vercel production checks passed.
+**Last updated:** 2026-10-04 by Codex
 **Main baseline:** `eedfaee` (PR #8 agent-guide update atop PR #7).
 **Latest feature commit:** `4758c63` (PR #7 connected-portfolio flow); latest docs commit: `eedfaee` (PR #8 completion-status reporting rule).
 **Validation:** 163 tests, type check and production build passed (`NEXT_TELEMETRY_DISABLED=1`) for PR #8; both Vercel production checks passed for the PR #7 merge. PR #8 changes documentation only and does not change the live deployment. Production pages previously loaded behind Vercel authentication. Venkat reports server-only SnapTrade environment variables are configured; the first live refresh and statement reconciliation remain unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
+
+**Dated investment-case review milestone:** user authorized autonomous iteration while AFK. Engine v0.13.0 and the existing equity research skill adapt falsifiable conditions and business-specific questions from the reviewed package. New full reports include up to three dated/source-linked observations, proposed change conditions, reported or suggested review dates and evidence gaps. My holdings shows review status and saved-report links through Next Link. Deterministic guards withhold unsupported observations; review dates do not alter verdicts. 180 tests, TypeScript and production build pass. Local synthetic saved-report and holdings browser checks pass, without paid research or brokerage access. Fresh live report output remains unverified. No migration. Details and next priorities: `docs/THESIS_REVIEW_2026-10-04.md`.
 
 **Personal dashboard milestone 1:** user approved all six milestones and cost controls. PR #6 merged as `efb4d89`; the `/accounts` page is deployed and loaded behind Vercel authentication. It offers manual read-only Fidelity and Robinhood refresh, account type, brokerage-reported total, explicit cash, positions and provider timestamps. Other institutions are skipped before per-account requests. Data remains in page memory, is not archived, and no AI calls or trades are made. The endpoint is POST-only and same-origin. Venkat reports that server-only SnapTrade variables are configured; first live refresh and statement reconciliation are still pending. Keep Vercel Deployment Protection → All Deployments enabled. The existing workspace cookie remains anonymous. No secrets or brokerage records are stored. Read `docs/PERSONAL_CONNECTION_PILOT.md` before proceeding. Monarch has an official MCP, currently under maintenance; none is connected here.
 

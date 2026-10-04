@@ -1,3 +1,4 @@
+import { thesisReviewSchema, thesisReviewJsonSchema, type ThesisReviewInput } from "../thesis-review";
 import { startUsage, recordUsage } from "../server/research-cost";
 import { z } from "zod";
 import { investmentCaseSchema, investmentCaseJsonSchema, type InvestmentCase } from "../investment";
@@ -13,6 +14,7 @@ const schema = z.object({
   expectationGap: z.string(),
   valuationSummary: z.string(),
   analystSummary: z.string(),
+  thesisReview: thesisReviewSchema.optional(),
   thesisKillers: z.array(z.string()).min(2).max(6),
 
 });
@@ -28,6 +30,7 @@ export type AIResearch = {
   valuationSummary: string;
   analystSummary: string;
   thesisKillers: string[];
+  thesisReview?: ThesisReviewInput;
 
 };
 
@@ -37,10 +40,11 @@ function jsonSchema() {
     additionalProperties: false,
     required: [
       "investmentCase","executiveSummary","highlights","risks","catalysts","managementCredibility",
-      "expectationGap","valuationSummary","analystSummary","thesisKillers",
+      "expectationGap","valuationSummary","analystSummary","thesisKillers","thesisReview",
     ],
     properties: {
       investmentCase: investmentCaseJsonSchema,
+      thesisReview: thesisReviewJsonSchema,
       executiveSummary: { type: "object", additionalProperties: false, required: ["overview", "strength", "concern", "watchFor"], properties: Object.fromEntries(["overview", "strength", "concern", "watchFor"].map(key => [key, { type: "string" }])) },
       highlights: { type: "array", maxItems: 6, items: { type: "string" } },
       risks: { type: "array", maxItems: 6, items: { type: "string" } },
@@ -78,7 +82,7 @@ export class OpenAIResearchProvider {
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
         store: false,
         reasoning: { effort: "medium" },
-        prompt_cache_key: "applied-ai-lab:equity-research:v9.0",
+        prompt_cache_key: "applied-ai-lab:equity-research:v10.0",
         input: [
           {
             role: "system",
@@ -94,12 +98,13 @@ Start with executiveSummary: explain how the company is doing in simple English 
 Never invent a price, financial metric, analyst call, catalyst, valuation input, historical fact, management claim, competitive claim, or estimate timestamp.
 Analyst-estimate dates are FISCAL PERIOD END DATES, not publication dates.
 Price-target consensus is sentiment evidence only, never a valuation anchor.
-The deterministicValuation packet is a DCF computed in code (cash-earnings base, consensus-implied growth, bear/base/bull discount rates, net cash). Treat it as the primary valuation evidence: explain what the price implies relative to it and critique its weakest assumption (heavy investment, cyclicality, dilution, balance sheet). Never produce a different intrinsic value or price target. The application sets the final valuation rating in code; your valuation factor reason is shown as critique.
+The deterministicValuation packet is a DCF computed in code (cash-earnings base, consensus-implied growth, bear/base/bull discount rates; equity cash flows after interest with no new borrowing). Treat it as the primary valuation evidence: explain what the price implies relative to it and critique its weakest assumption (heavy investment, cyclicality, dilution, balance sheet). Never produce a different intrinsic value or price target. The application sets the final valuation rating in code; your valuation factor reason is shown as critique.
 The reverse DCF is a deterministic expectations test supplied by code. Discuss its implication and limitations; do not recompute it or present it as intrinsic value.
 Evidence confidence is fully deterministic and is not a probability of investment success.
 Do not recommend options because no live options chain/Greeks are supplied. Catalysts must be operating events supported by the packet; a stock reaching an analyst target or moving above an average is not a fundamental catalyst. Do not treat a mechanical reverse-DCF growth rate as a required annual company forecast: annual CFO minus cash capex may be temporarily depressed by investment, and no normalized cash-flow base has been established.
 Scenario weights are illustrative, not empirical probabilities.
 Business quality is not the same thing as stock attractiveness.
+Create thesisReview with at most three checks and four missing-information gaps. Use researchQuestions as prompts, not validated gates. Each check has question, observation, reviewCondition, evidenceDate, sources, reviewBy and dateBasis. Observation must be supported by exact sourceCatalog URLs and a publication/as-of date. Use empty observation/date/sources if unavailable. reviewCondition is a proposed observable condition for reconsideration, not a claim that it has occurred. Use quantitative thresholds only if supported or clearly labeled as proposed assumptions; do not invent metrics. reviewBy is YYYY-MM-DD or empty. A future event date requires source support and dateBasis Reported event. An optional suggested review date uses Planning assumption. Otherwise use empty reviewBy and Unknown. Missing industry coverage must not force Wait or imply that the company failed. Avoid blanket numeric gates and speculative forecasts. Do not calculate probabilities or scores in this section.
 This is research support, not a guarantee of returns.`
             }],
           },
