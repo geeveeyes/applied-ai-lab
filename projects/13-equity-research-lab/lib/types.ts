@@ -1,3 +1,4 @@
+import type { ThesisReview } from "./thesis-review";
 export type ScoreKey =
   | "businessQuality"
   | "financialPerformance"
@@ -109,6 +110,7 @@ export type ResearchRun = {
   analysts: AnalystCall[];
   scenarios: Scenario[];
   thesisKillers: string[];
+  thesisReview?: ThesisReview;
   optionIdeas: OptionIdea[];
   benchmark: string;
   expectedReturn12m: { low: number; high: number };

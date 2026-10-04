@@ -1,3 +1,4 @@
+import { ThesisReviewPanel } from "./ThesisReviewPanel";
 import { PeerValuationPanel } from "./PeerValuationPanel";
 import { HoldingAdjustment } from "./HoldingAdjustment";
 import { ReportTools } from "./ReportTools";
@@ -39,6 +40,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
     {run.dataMode !== "demo" && !hasScores && <div className="warning"><strong>Live-data mode, incomplete analysis.</strong> The app did not substitute demo scores when a provider or AI synthesis failed. Check Research notes below.</div>}
 
     <ExecutiveSummary run={run} />
+    <ThesisReviewPanel run={run} />
     <PeerValuationPanel run={run} />
     <HoldingAdjustment ticker={run.ticker} />
     <ReportTools run={run} />

@@ -22,3 +22,18 @@ it("parses the six-factor contract; the legacy 12-dimension scorecard is no long
   expect(body.text.format.schema.required).not.toContain("scores");
   expect(JSON.stringify(body.input)).not.toMatch(/For each score choose/);
 });
+it('requests dated checks and parses bounded source-backed review fields', async () => {
+  vi.stubEnv('OPENAI_API_KEY', 'test');
+  const thesisReview = { checks: [{ question: 'Cash?', observation: '', reviewCondition: 'Review next cash results', evidenceDate: '', sources: [], reviewBy: '', dateBasis: 'Unknown' }], gaps: ['Current cash evidence'] };
+  const fetch = vi.fn(async () => ({ ok: true, json: async () => ({ output_text: JSON.stringify({ ...response('Unknown'), thesisReview }) }) }));
+  vi.stubGlobal('fetch', fetch);
+  const result = await new OpenAIResearchProvider().synthesize({});
+  expect(result.thesisReview).toEqual(thesisReview);
+  const body = JSON.parse((fetch.mock.calls[0] as unknown as [string, { body: string }])[1].body);
+  expect(body.text.format.schema.required).toContain('thesisReview');
+});
+it('rejects an invented review date basis', async () => {
+  vi.stubEnv('OPENAI_API_KEY', 'test');
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ output_text: JSON.stringify({ ...response('Unknown'), thesisReview: { checks: [{ question: 'Cash?', observation: '', reviewCondition: '', evidenceDate: '', sources: [], reviewBy: '', dateBasis: 'Guaranteed' }], gaps: [] } }) }) })));
+  await expect(new OpenAIResearchProvider().synthesize({})).rejects.toThrow();
+});

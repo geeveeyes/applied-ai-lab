@@ -1,10 +1,14 @@
 # Project Status
 
-# Current working milestone — 2026-10-02
+# Current working milestone — 2026-10-04
+
+Engine v0.13.0 adds dated investment-case checks in new full reports and review status beside holdings. Missing evidence is visible and does not change verdicts. The research skill now includes independently authored thesis-review guidance, without unvalidated numerical gates. 180 tests, TypeScript and production build pass; local synthetic report and holdings browser checks pass. Fresh paid-provider output remains unverified. See `docs/THESIS_REVIEW_2026-10-04.md` and `HANDOFF.md` for release state.
+
+# Previous milestone — 2026-10-02
 
 The account refresh now feeds My holdings, report-level holding context, Portfolio Lab and a symbol-selectable holding diversification comparison through tab memory and in-app navigation. The generalized comparison covers keep, immediate 25%/50%/75%/100% trims, and a staged 50% trim. Connected Portfolio Lab runs locally and does not submit connected amounts to the cloud save route. It starts with the current mix and an editable equal-weight comparison; return/risk placeholders are zero until the user edits or loads historical risk. Incomplete/unpriced/overlap exposure is flagged.
 
-PR #7 is open from `codex/account-attention`; code commit `036bd5b`. Vercel previews are building. 163 tests, TypeScript and production build pass. First live SnapTrade refresh remains unverified.
+PR #7 merged as `4758c63`; both production deployment checks passed. 163 tests, TypeScript and production build pass. First live SnapTrade refresh remains unverified.
 
 ## v0.12.0 — combined review delivery
 
