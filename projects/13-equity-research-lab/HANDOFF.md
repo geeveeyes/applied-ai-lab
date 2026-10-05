@@ -4,7 +4,7 @@
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
 **Current holder:** none. PR #9 dated thesis reviews merged as `7796430`; PR #10 holdings-date fix merged as `604b368`.
-**Last updated:** 2026-10-04 by Codex
+**Last updated:** 2026-10-04 by Claude (branch `claude/owner-auth-snaptrade`, PR open, not merged)
 **Main baseline:** `604b368` (PR #10 atop PR #9).
 **Latest feature commits:** `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
 **Validation:** 180 tests, TypeScript and production build pass; GitHub CI and both preview checks pass for both PRs. Both PR #9 production checks passed. Both PR #10 production checks passed. Local Chrome verified a synthetic missing-evidence report and illustrative holding review status with no captured errors; test report removed, illustrative holdings not saved. Live PR #9 review column and existing-report legacy fallback verified. No paid research or live broker calls. Fresh v0.13.0 provider output and first linked-account refresh remain unverified.
@@ -47,6 +47,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
+00. **Venkat, before the next `/accounts` refresh:** add `OWNER_ACCESS_KEY` (server-only, `openssl rand -base64 32`) to Vercel Production + Preview, then merge the owner-auth PR. Until the key is set, account refresh is disabled by design. Keep it in a password manager; never in chat, Notion or the repo.
 0. Any agent: evaluate one fresh v0.13.0 report against actual source observations, dates, proposed thresholds and event dates. Prefer an existing report; otherwise one explicit capped request. Notion action: https://app.notion.com/p/3efdf6e02bd781399bd9d6c13b0df83e. Skill validation script lacked PyYAML; frontmatter/reference paths inspected manually.
 1. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
 2. Build the next approved decision milestone on the shared portfolio: compare destination allocations and staged reductions with clearer cost-basis and uncertainty handling. Keep alternatives user-editable and avoid forced Buy labels.
@@ -56,13 +57,20 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 - Venkat reports that separate SnapTrade Personal credentials are configured in Vercel. The existing ChatGPT SnapTrade connection does not supply credentials to this website. Do not share any key through chat or Notion. First live refresh remains unverified.
 
-- ~~Auth~~ Decided: Vercel Deployment Protection, All Deployments. ~~Daily cap~~ Set to 5 by Venkat (2026-09-30).
+- ~~Auth~~ Decided: Vercel Deployment Protection, All Deployments, plus (2026-10-04, pending merge) owner sign-in on `/accounts` and `/api/snaptrade`, because the Origin check alone is forgeable outside a browser. ~~Daily cap~~ Set to 5 by Venkat (2026-09-30).
 - Are the 10% single-stock / 30% sector defaults right for you? (Editable per session on /holdings.)
 - Is a 15% margin of safety the right "buy zone" threshold?
 - Generic-tool direction: see `docs/PRODUCT_STRATEGY.md`. The narrow candidate is an educational concentration planner for stock-comp employees.
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-04 — Claude: owner sign-in for connected accounts (branch `claude/owner-auth-snaptrade`)
+- Security review finding: `/api/snaptrade` returned all Fidelity/Robinhood positions with cost basis, guarded only by a same-origin check (forgeable with curl) and Vercel Deployment Protection.
+- Added `lib/server/owner-auth.ts`: `OWNER_ACCESS_KEY` (32+ chars, server-only) is exchanged at `/api/owner-session` for a 12-hour HMAC-signed, httpOnly, SameSite=strict cookie. Constant-time comparisons; unset or short key fails closed. `/api/snaptrade` returns 401 without a valid session; `/accounts` shows a sign-in form instead of the account UI. Sign-out via DELETE.
+- Fixed the stale "no web route imports this module" comment in `snaptrade-personal.ts`. Added `vitest.config.ts` (`@/` alias) so route handlers are tested directly.
+- Validation: tsc, 190 tests (10 new), production build pass. Local production-build check: forged-origin/no-session 401, wrong key 401, cross-site sign-in 403, owner sign-in 200, session reaches the enablement check (503 with portal disabled), sign-out returns to 401. No live SnapTrade call was made.
+- Next: Venkat sets `OWNER_ACCESS_KEY` in Vercel and merges; then the existing "Verify linked portfolio refresh" item.
 
 ### 2026-10-04 — Codex: dated thesis reviews and release fix (PR #9 / #10, merged)
 - User authorized autonomous iteration while AFK. Adapted the useful supplied-skill discipline into the existing research skill, without its numerical gates or hindsight-fit probability claims.
