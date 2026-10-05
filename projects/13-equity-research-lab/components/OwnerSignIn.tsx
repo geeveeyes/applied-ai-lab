@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { usePortfolioSession } from './PortfolioSession';
 
 export function OwnerSignIn({ configured }: { configured: boolean }) {
   const router = useRouter();
@@ -44,9 +45,13 @@ export function OwnerSignIn({ configured }: { configured: boolean }) {
 
 export function OwnerSignOut() {
   const router = useRouter();
+  const { clearSnapshot } = usePortfolioSession();
   async function signOut() {
-    await fetch('/api/owner-session', { method: 'DELETE', cache: 'no-store' });
-    router.refresh();
+    // Drop the in-tab brokerage snapshot first: router.refresh() keeps client context,
+    // so /holdings, /portfolio and /amzn would otherwise still see it.
+    clearSnapshot();
+    try { await fetch('/api/owner-session', { method: 'DELETE', cache: 'no-store' }); }
+    finally { router.refresh(); }
   }
   return <button className="secondary" onClick={() => void signOut()}>Sign out</button>;
 }
