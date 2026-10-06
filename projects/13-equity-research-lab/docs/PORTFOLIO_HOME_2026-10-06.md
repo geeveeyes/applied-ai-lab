@@ -8,7 +8,7 @@ Venkat chose Portfolio home after reviewing Portfolio home, Decision guide and C
 
 - Homepage reads the connected tab snapshot first, otherwise the validated saved browser snapshot. It shows scope/date/source, total, stock/fund/cash mix, incomplete coverage, concentration and an editable single-stock limit.
 - Compact holding rows reuse the existing deterministic advice, dated review status and latest saved report. Funds say Review fund exposure rather than implying assessed fund quality. Review and Compare change are beside each position.
-- `/compare?symbol=…` reuses the six-strategy trim model and automatically loads the requested positive position from connected or saved holdings. Changing the holding loads it immediately. A custom multi-holding comparison is available in a collapsed section and loads its component only when opened.
+- `/compare?symbol=…` reuses the six-strategy trim model and automatically loads the requested positive position from connected or saved holdings. Changing the holding loads it immediately. A custom multi-holding comparison is available in a collapsed section and loads its component only when opened, starting from the same connected or saved snapshot. Both private sources run locally without sending amounts to the simulation save service.
 - Activity contains Decisions, Saved research and Research outcomes. Prior archive/performance/watchlist/holdings/simulation URLs remain available; no records are migrated or removed.
 - Account refresh points back to the portfolio, replacing its three competing destinations. Research search says Review stock; its loading state accurately says it checks for saved research and does not spend credits.
 
