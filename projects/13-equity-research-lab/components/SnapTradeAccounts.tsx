@@ -38,7 +38,7 @@ export function SnapTradeAccounts() {
       {snapshot.accounts.length > 0 && <section className="panel">
         <h2>Continue with this refresh</h2>
         <p>The same in-memory account data is now available across these tools in this tab. It clears when you reload or close the tab.</p>
-        <div className="button-row"><Link className="action" href="/holdings">Open My holdings</Link><Link className="action secondary" href="/portfolio">Compare in Portfolio Lab</Link><Link className="action secondary" href="/amzn">Diversify a holding</Link></div>
+        <div className="button-row"><Link className="action" href="/">Return to your portfolio</Link><Link className="action secondary" href="/holdings">Manage snapshot or import holdings</Link></div>
       </section>}
       {snapshot.accounts.length > 0 && <section className="panel">
         <h2>What may need attention</h2>
