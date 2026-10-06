@@ -3,16 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Portfolio home implementation is on `codex/portfolio-home`; release checks pending.  PR #9 dated thesis reviews merged as `7796430`; PR #10 holdings-date fix merged as `604b368`.
+**Current holder:** none. Portfolio home PR #12 merged as `33171c8` (code `d0beced`). Claude owner-auth PR #11 remains open and separate.
 **Last updated:** 2026-10-06 by Codex
-**Main baseline:** `604b368` (PR #10 atop PR #9).
-**Latest feature commits:** `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
-**Validation:** 180 tests, TypeScript and production build pass; GitHub CI and both preview checks pass for both PRs. Both PR #9 production checks passed. Both PR #10 production checks passed. Local Chrome verified a synthetic missing-evidence report and illustrative holding review status with no captured errors; test report removed, illustrative holdings not saved. Live PR #9 review column and existing-report legacy fallback verified. No paid research or live broker calls. Fresh v0.13.0 provider output and first linked-account refresh remain unverified.
+**Main baseline:** `33171c8` (PR #12 atop PR #10).
+**Latest feature commits:** `d0beced` / merge `33171c8` (Portfolio home); `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
+**Validation:** 180 tests, TypeScript and production build pass. Final PR #12 CI and both preview checks pass; both `33171c8` production deployment checks pass. Local production browser verified synthetic portfolio rows, one-click non-AMZN trim comparison, saved-snapshot custom mix, Activity views and 320px homepage layout. Live home loaded the existing saved snapshot; Compare loaded its selected holding and dated values; Activity journal and cloud archive loaded, with no captured browser errors. No paid research, live broker refresh or trades. First live brokerage reconciliation and fresh provider evidence validation remain unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
 
-**Portfolio home navigation:** Venkat selected Portfolio home from three reviewed mocks. Main navigation now has Portfolio and Activity plus Account settings. The home reads connected or saved holdings, shows mix/coverage/date/concentration and per-position review/comparison actions. `/compare` autoloads the selected holding and offers the existing six trim strategies with a collapsed custom mix. Activity consolidates journal/archive/research outcomes. 180 tests, TypeScript and build pass. Local production browser verified synthetic MSFT/VTI weights, one-click non-AMZN comparison, Activity views and 320px layout. No paid research or live broker call. Release pending; see `docs/PORTFOLIO_HOME_2026-10-06.md`. Claude security PR #11 is open and remains separate.
+**Portfolio home navigation:** Venkat selected Portfolio home from three reviewed mocks. Main navigation now has Portfolio and Activity plus Account settings. The home reads connected or saved holdings, shows mix/coverage/date/concentration and per-position review/comparison actions. `/compare` autoloads the selected holding and offers the existing six trim strategies with a collapsed custom mix. Activity consolidates journal/archive/research outcomes. 180 tests, TypeScript and build pass. Local production browser verified synthetic MSFT/VTI weights, one-click non-AMZN comparison, Activity views and 320px layout. No paid research or live broker call. PR #12 merged as `33171c8`; CI, previews and both production deployments pass. Live home, saved-snapshot comparison autoload and Activity journal/cloud archive verified; see `docs/PORTFOLIO_HOME_2026-10-06.md`. Claude security PR #11 is open and remains separate.
 
 **Dated investment-case review milestone:** user authorized autonomous iteration while AFK. Engine v0.13.0 and the existing equity research skill adapt falsifiable conditions and business-specific questions from the reviewed package. New full reports include up to three dated/source-linked observations, proposed change conditions, reported or suggested review dates and evidence gaps. My holdings shows review status and saved-report links through Next Link. Deterministic guards withhold unsupported observations; review dates do not alter verdicts. 180 tests, TypeScript and production build pass. Local synthetic saved-report and holdings browser checks pass, without paid research or brokerage access. Fresh live report output remains unverified. No migration. Details and next priorities: `docs/THESIS_REVIEW_2026-10-04.md`.
 
@@ -49,7 +49,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 ## Next up (in order)
 
-- Deliver and verify `codex/portfolio-home` in production; update this baton and Notion with its PR/merge/deployment status. Owner-auth PR #11 remains open; preserve it rather than folding its security changes into navigation.
+- Owner: complete the existing owner-key / security PR #11 setup and first brokerage refresh/reconciliation task. Portfolio home is delivered; no new navigation approval is needed. Next agent: verify imported mutual-fund classification, then improve portfolio-aware candidate additions and destination allocations without adding more menu destinations.
 
 0. Any agent: evaluate one fresh v0.13.0 report against actual source observations, dates, proposed thresholds and event dates. Prefer an existing report; otherwise one explicit capped request. Notion action: https://app.notion.com/p/3efdf6e02bd781399bd9d6c13b0df83e. Skill validation script lacked PyYAML; frontmatter/reference paths inspected manually.
 1. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
@@ -72,7 +72,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - Two main destinations, accounts as settings, compact portfolio overview and holding rows, one comparison entry point, Activity journal/archive/outcomes. Prior URLs remain usable.
 - Selected connected/saved holdings autoload into trim comparisons; changing symbols loads values immediately. Latest saved report links avoid a needless fresh-research entry. No paid calls added.
 - 180 tests, TypeScript and build pass. Local synthetic production browser verification and phone layout pass. Cloud archive unavailable locally; visible browser fallback verified. Live data, tax-lot/fund overlap and ROI limits remain open.
-- Notion project direction and Decision Log updated. Code and release details pending publication. Holder released.
+- Notion project direction, Decision Log and Handoff log updated. Code `d0beced`, PR #12 merge `33171c8`; CI, both previews and both production deployments pass. Live home/saved snapshot, selected-holding autoload, Activity journal/cloud archive and clean browser log verified. Holder released.
 
 ### 2026-10-04 — Codex: dated thesis reviews and release fix (PR #9 / #10, merged)
 - User authorized autonomous iteration while AFK. Adapted the useful supplied-skill discipline into the existing research skill, without its numerical gates or hindsight-fit probability claims.
