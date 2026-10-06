@@ -1,5 +1,9 @@
 # Project Status
 
+## Current milestone — 2026-10-06
+
+Portfolio home is the approved direction. Portfolio and Activity replace eight peer menu links; Account settings supplies the data. Connected/saved holdings, concentration, existing-holding review and comparison start at home. Activity consolidates decisions, saved research and research outcomes. Existing calculations and cost controls are preserved. 180 tests, TypeScript and build pass; synthetic production browser flows and 320px home layout verified. Release state: `HANDOFF.md`. Scope/limits: `docs/PORTFOLIO_HOME_2026-10-06.md`.
+
 # Current working milestone — 2026-10-04
 
 Engine v0.13.0 adds dated investment-case checks in new full reports and review status beside holdings. Missing evidence is visible and does not change verdicts. The research skill now includes independently authored thesis-review guidance, without unvalidated numerical gates. 180 tests, TypeScript and production build pass; local synthetic report and holdings browser checks pass. Fresh paid-provider output remains unverified. See `docs/THESIS_REVIEW_2026-10-04.md` and `HANDOFF.md` for release state.
