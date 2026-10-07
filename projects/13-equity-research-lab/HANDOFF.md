@@ -3,14 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Portfolio home PR #12 merged as `33171c8` (code `d0beced`). Claude owner-auth PR #11 remains open and separate.
+**Current holder:** none. Portfolio privacy PR #13 merged as `b3a26cd` (code `68084dd`). Claude owner-auth PR #11 remains open and separate.
 **Last updated:** 2026-10-06 by Codex
-**Main baseline:** `33171c8` (PR #12 atop PR #10).
-**Latest feature commits:** `d0beced` / merge `33171c8` (Portfolio home); `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
-**Validation:** 180 tests, TypeScript and production build pass. Final PR #12 CI and both preview checks pass; both `33171c8` production deployment checks pass. Local production browser verified synthetic portfolio rows, one-click non-AMZN trim comparison, saved-snapshot custom mix, Activity views and 320px homepage layout. Live home loaded the existing saved snapshot; Compare loaded its selected holding and dated values; Activity journal and cloud archive loaded, with no captured browser errors. No paid research, live broker refresh or trades. First live brokerage reconciliation and fresh provider evidence validation remain unverified.
+**Main baseline:** `b3a26cd` (privacy PR #13 atop Portfolio home PR #12).
+**Latest feature commits:** `68084dd` / merge `b3a26cd` (portfolio privacy); `d0beced` / merge `33171c8` (Portfolio home); `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
+**Validation:** 183 tests, TypeScript and production build pass. PR #13 CI, both previews and both production deployment checks pass. Local browser verified default hiding, Show/Hide, unsaved draft retention, navigation retention, reload reset and 320px fit. Live saved-snapshot home starts masked; reveal, cross-page comparison, manual hiding and reload reset verified. Exact ten-minute expiry/cancellation/past deadline covered by fake-clock tests. No paid research, live broker refresh or trades. First brokerage reconciliation and fresh provider evidence validation remain unverified.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
+
+**Portfolio display privacy:** User requested numbers hidden by default and revealed on demand for ten minutes. Shared memory-only reveal across in-app navigation; fixed deadline, manual Hide and reload reset. Native hidden/inert removes private details from display and accessibility; forms/results stay mounted to preserve drafts. Public research metrics stay visible. This is display privacy, not account access control or encryption. PR #13 merged/deployed and live verified; see `docs/PORTFOLIO_PRIVACY_2026-10-06.md`. Durable decision and handoff mirrored in Notion. No new owner action.
 
 **Portfolio home navigation:** Venkat selected Portfolio home from three reviewed mocks. Main navigation now has Portfolio and Activity plus Account settings. The home reads connected or saved holdings, shows mix/coverage/date/concentration and per-position review/comparison actions. `/compare` autoloads the selected holding and offers the existing six trim strategies with a collapsed custom mix. Activity consolidates journal/archive/research outcomes. 180 tests, TypeScript and build pass. Local production browser verified synthetic MSFT/VTI weights, one-click non-AMZN comparison, Activity views and 320px layout. No paid research or live broker call. PR #12 merged as `33171c8`; CI, previews and both production deployments pass. Live home, saved-snapshot comparison autoload and Activity journal/cloud archive verified; see `docs/PORTFOLIO_HOME_2026-10-06.md`. Claude security PR #11 is open and remains separate.
 
@@ -121,3 +123,5 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - **2026-09-30 · Claude (session 2).** Vercel protection → All Deployments. Branch `claude/p0-lockdown-and-valuation`: P0 cost guard, deterministic DCF valuation, diversification check, zero-cost track record, CI. 106 tests. Not pushed (session lacks repo push access); delivered as patch series.
 - **2026-09-30 · Claude.** Reviewed the codebase and added `AGENTS.md`, `CLAUDE.md`, `HANDOFF.md` and `docs/REVIEW_2026-09-30_claude.md`. No product code changed.
 - **2026-09-25 · Codex.** Last feature commit `2e26aed`: peer valuation inputs and reference limitations.
+
+- **2026-10-06 · Codex privacy delivery.** PR #13 merged as `b3a26cd`, code `68084dd`. Default-hidden portfolio numbers with fixed ten-minute reveal, navigation retention, manual hide and reload reset. 183 tests, types, build, CI and both preview/production checks pass. Local and live browser behavior verified; drafts preserved. No private financial values recorded. Security PR #11 and brokerage reconciliation remain open. Baton released.
