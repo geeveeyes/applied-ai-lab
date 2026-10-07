@@ -1,4 +1,5 @@
 'use client';
+import { PrivatePortfolio } from './PortfolioPrivacy';
 import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
 import {compareHolding,holdingDiversificationSchema,type HoldingDiversificationInput} from '@/lib/portfolio/amzn';
@@ -11,7 +12,7 @@ const today='';
 const defaults:HoldingDiversificationInput={symbol:'AMZN',scope:'Connect or load a private holdings snapshot',asOf:today,total:1000000,holding:700000,basis:0,tax:.25,years:10,holdingReturn:.08,holdingVol:.32,otherReturn:.06,otherVol:.18,correlation:.6};
 const key='equity-diversify-holding-comparison-v1';
 
-export function AmznDecision(){
+function AmznDecisionContent(){
  const {snapshot}=usePortfolioSession();
  const [s,S]=useState(defaults),[result,R]=useState<ReturnType<typeof compareHolding>|null>(null),[used,U]=useState<HoldingDiversificationInput|null>(null),[message,M]=useState(''),[busy,B]=useState(false),[sourceHoldings,H]=useState<Holdings|null>(null);
  const symbols=useMemo(()=>sourceHoldings?.positions.filter(p=>p.shares>0).map(p=>p.symbol).sort()??[],[sourceHoldings]);
@@ -39,3 +40,5 @@ export function AmznDecision(){
  <div className="table-wrap"><table><thead><tr><th>Allocation</th><th>Holding weight after initial sale</th><th>Mean modeled sale tax</th><th>Downside (5th)</th><th>Median</th><th>Upside (95th)</th><th>Chance of ending below start</th></tr></thead><tbody>{result.results.map((r,i)=>{const fractions=[0,.25,.5,.75,1,.125],gross=used.holding*fractions[i],tax=Math.max(0,gross-used.basis*gross/used.holding)*used.tax,end=r.years.at(-1)!.percentiles;return <tr key={r.name}><td>{r.name}</td><td>{percent((used.holding-gross)/(used.total-tax))}</td><td>{dollars(r.meanSaleTax)}</td><td>{dollars(end[0])}</td><td>{dollars(end[3])}</td><td>{dollars(end[6])}</td><td>{percent(r.lossProbability)}</td></tr>;})}</tbody></table></div>
  <p>Lower trim ratios retain more upside and downside exposure to {used.symbol}; larger trims reduce that concentration and realize more tax sooner. The highest modeled median is not automatically the best choice.</p><div className="scenario-grid">{result.results.map(r=><FanChart key={r.name} result={r} maxValue={Math.max(...result.results.flatMap(v=>v.years.map(y=>y.percentiles[6])))}/>)}</div><button onClick={save}>Save comparison privately</button><details><summary>Year-by-year median, downside and upside</summary><div className="table-wrap"><table><thead><tr><th>Year</th>{result.results.map(r=><th key={r.name}>{r.name} · 5th / 50th / 95th</th>)}</tr></thead><tbody>{result.results[0].years.map((y,i)=><tr key={y.year}><td>{y.year}</td>{result.results.map(r=><td key={r.name}>{[0,3,6].map(q=>dollars(r.years[i].percentiles[q])).join(' / ')}</td>)}</tr>)}</tbody></table></div></details></section>}</>;
 }
+
+export function AmznDecision() { return <PrivatePortfolio><AmznDecisionContent /></PrivatePortfolio>; }

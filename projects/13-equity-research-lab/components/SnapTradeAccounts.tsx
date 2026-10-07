@@ -1,4 +1,5 @@
 'use client';
+import { PrivatePortfolio } from './PortfolioPrivacy';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -6,7 +7,7 @@ import { accountAttention } from '@/lib/account-attention';
 import { usePortfolioSession } from './PortfolioSession';
 import type { ConnectedSnapshot } from '@/lib/connected-portfolio';
 
-export function SnapTradeAccounts() {
+function SnapTradeAccountsContent() {
   const { snapshot, setSnapshot } = usePortfolioSession();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -95,3 +96,5 @@ function dateTime(value: string | null | undefined) {
   if (!value || !Number.isFinite(Date.parse(value))) return 'Unavailable';
   return new Date(value).toLocaleString();
 }
+
+export function SnapTradeAccounts() { return <PrivatePortfolio><SnapTradeAccountsContent /></PrivatePortfolio>; }
