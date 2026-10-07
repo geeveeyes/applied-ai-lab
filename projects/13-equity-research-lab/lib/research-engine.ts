@@ -1,3 +1,5 @@
+import { completionState } from './research-completion';
+import { researchGaps } from './server/web-research';
 import { validateThesisReview, researchQuestions } from "./thesis-review";
 import { peerResearch } from "./server/peer-research";
 import { assessDecisionEvidence } from "./decision-evidence";
@@ -60,11 +62,11 @@ function dimensionCoverage(args: {
 }
 
 
-export async function runResearch(tickerRaw: string): Promise<ResearchRun> {
-  const {value,cost}=await withCosts(()=>research(tickerRaw));
+export async function runResearch(tickerRaw: string, focus?: string[]): Promise<ResearchRun> {
+  const {value,cost}=await withCosts(async()=>{ const result = await research(tickerRaw, focus); result.researchCompletion = completionState({...result, researchCompletion: {attempted: !!focus} as ResearchRun["researchCompletion"]}); return result; });
   return {...value,cost};
 }
-async function research(tickerRaw: string): Promise<ResearchRun> {
+async function research(tickerRaw: string, focus?: string[]): Promise<ResearchRun> {
   const ticker = tickerRaw.trim().toUpperCase();
   if (!/^[A-Z.\-]{1,10}$/.test(ticker)) throw new Error("Invalid ticker symbol");
   if (process.env.NEXT_PUBLIC_APP_MODE !== "live") return demoResearch(ticker);
@@ -131,11 +133,11 @@ async function research(tickerRaw: string): Promise<ResearchRun> {
 
   const peerWork=peerResearch(ticker,fundamentals,market,run.analyzedAt).catch(()=>undefined);
   try {
-    run.integratedResearch = await integratedResearch(run);
+    run.integratedResearch = focus ? await researchGaps(run, true, focus) : await integratedResearch(run);
     for (const source of run.integratedResearch.citations) {
       if (!citations.some(c => c.url === source.url)) citations.push({ title: source.title, url: source.url, source: "Web research", retrievedAt: run.integratedResearch.generatedAt, tier: 3 });
     }
-  } catch { errors.push("Automatic web research did not complete. Unsupported investment factors remain unknown; retry a new report to deepen the evidence."); }
+  } catch { errors.push(focus ? "The targeted evidence follow-up did not complete. Unsupported factors remain unknown; automatic attempts have stopped." : "Automatic web research did not complete. Unsupported investment factors remain unknown."); }
 
   run.peerValuation=await peerWork;
   for(const row of run.peerValuation?.rows??[])for(const c of row.sources)if(!citations.some(x=>x.url===c.url))citations.push(c);
