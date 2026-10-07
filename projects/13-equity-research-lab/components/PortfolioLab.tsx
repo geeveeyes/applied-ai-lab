@@ -1,4 +1,5 @@
 "use client";
+import { PrivatePortfolio } from './PortfolioPrivacy';
 import {useEffect,useState} from "react";
 import Link from 'next/link';
 import type {SimulationInput} from "@/lib/portfolio/engine";
@@ -15,7 +16,7 @@ const names={A:"100% VTI",B:"50% VTI / 50% QQQ",C:"70% AMZN / 30% VTI",D:"35% AM
 const initial:SimulationInput={assets:[{symbol:"AMZN",expectedReturn:.08,volatility:.32},{symbol:"VTI",expectedReturn:.06,volatility:.18},{symbol:"QQQ",expectedReturn:.07,volatility:.25},{symbol:"CASH",expectedReturn:.02,volatility:0}],correlation:[[1,.65,.75,0],[.65,1,.9,0],[.75,.9,1,0],[0,0,0,1]],strategies:[{name:names.C,weights:presets.C,rebalance:"none"},{name:names.D,weights:presets.D,rebalance:"none"}],initialValue:1000000,years:10,paths:10000,seed:42,monthlyContribution:0,goal:2000000};
 type Saved={id:string;createdAt:string;names:string[];local?:PortfolioSnapshot};
 function localRuns():PortfolioSnapshot[]{try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch{return [];}}
-export function PortfolioLab({usePrivateSnapshot=false}:{usePrivateSnapshot?:boolean}={}){
+function PortfolioLabContent({usePrivateSnapshot=false}:{usePrivateSnapshot?:boolean}={}){
  const {snapshot:connectedSnapshot}=usePortfolioSession();
  const [connectedMode,setConnectedMode]=useState(false);
  const [input,setInput]=useState<SimulationInput>(initial),[history,setHistory]=useState<HistoryEstimate|undefined>(),[windowYears,setWindowYears]=useState(5),[returnSource,setReturnSource]=useState("Illustrative forward assumptions, not research-derived forecasts."),[riskSource,setRiskSource]=useState("Illustrative risk assumptions. Load historical estimates or edit before using."),[ack,setAck]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(""),[snapshot,setSnapshot]=useState<PortfolioSnapshot|null>(null),[saved,setSaved]=useState<Saved[]>([]),[newSymbol,setNewSymbol]=useState("");
@@ -78,3 +79,5 @@ function PortfolioResults({snapshot}:{snapshot:PortfolioSnapshot}){
  <button className="action secondary" onClick={exportRun}>Export inputs and results</button>
  </section>;
 }
+
+export function PortfolioLab(props: Parameters<typeof PortfolioLabContent>[0] = {}) { return <PrivatePortfolio><PortfolioLabContent {...props} /></PrivatePortfolio>; }

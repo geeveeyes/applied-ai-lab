@@ -1,10 +1,11 @@
 'use client';
+import { PrivatePortfolio } from './PortfolioPrivacy';
 import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {adjustHolding,readHoldings,dollars,percent,type Holdings} from '@/lib/holdings';
 import {usePortfolioSession} from './PortfolioSession';
 import {connectedHoldings} from '@/lib/connected-portfolio';
-export function HoldingAdjustment({ticker}:{ticker:string}){
+function HoldingAdjustmentContent({ticker}:{ticker:string}){
  const {snapshot}=usePortfolioSession();
  const [s,S]=useState<Holdings|null>(null),[loadError,E]=useState(''),[mode,M]=useState('hold'),[amount,A]=useState(10000),[funding,F]=useState<'cash'|'external'>('cash'),[limit,L]=useState(10);
  useEffect(()=>{try{S(snapshot?connectedHoldings(snapshot).holdings:readHoldings());}catch{E('Connected or saved holdings could not be read. Refresh or import a valid snapshot.');}},[snapshot]);
@@ -21,3 +22,5 @@ export function HoldingAdjustment({ticker}:{ticker:string}){
  <p className="muted">The default 10% limit is an editable planning assumption. Company quality and price attractiveness are assessed above. {p.kind==='fund'?'This is a fund: its underlying company and sector exposure may overlap other holdings.':'Other stocks and funds may add exposure to the same companies or sector.'} Fund look-through is not calculated.</p><p className="muted">Uses the snapshot price of ${p.price.toFixed(2)} throughout, not the report price. Trim proceeds remain as cash in this scope. Taxes, fees and price movement are excluded; use <Link href={`/compare?symbol=${encodeURIComponent(p.symbol)}`}>holding diversification</Link> for illustrative trim-ratio comparisons. Fractional shares are mathematical estimates.</p></>}
  </>}</section>;
 }
+
+export function HoldingAdjustment(props: Parameters<typeof HoldingAdjustmentContent>[0]) { return <PrivatePortfolio><HoldingAdjustmentContent {...props} /></PrivatePortfolio>; }

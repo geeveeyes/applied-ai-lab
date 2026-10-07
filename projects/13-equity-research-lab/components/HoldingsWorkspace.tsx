@@ -1,4 +1,5 @@
 'use client';
+import { PrivatePortfolio } from './PortfolioPrivacy';
 import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {DiversificationPanel} from './DiversificationPanel';
@@ -9,7 +10,7 @@ import {BrokerImport} from './BrokerImport';
 import {usePortfolioSession} from './PortfolioSession';
 import {connectedHoldings} from '@/lib/connected-portfolio';
 const empty:Holdings={version:1,scope:'My selected account',asOf:'',coverage:'partial',totalValue:0,cashAvailable:0,positions:[]};
-export function HoldingsWorkspace(){
+function HoldingsWorkspaceContent(){
  const {snapshot}=usePortfolioSession();
  const [importPending,setImportPending]=useState(false);
  const [source,setSource]=useState<'saved'|'connected'>('saved');
@@ -32,3 +33,5 @@ export function HoldingsWorkspace(){
  <label>Import private snapshot (JSON)<input type="file" accept=".json,application/json" onChange={e=>void importFile(e.target.files?.[0])}/></label>
  <details><summary>Import format</summary><p>Manual entry works without a file. To import, use this format with your own values. Dates and prices must match the total. This is an example only.</p><pre>{JSON.stringify({...empty,asOf:s.asOf,totalValue:10000,cashAvailable:5000,positions:[{symbol:'MSFT',shares:10,price:400,kind:'stock'}]},null,2)}</pre></details></section><PositionDecisions holdings={s}/><DiversificationPanel holdings={s}/></>;
 }
+
+export function HoldingsWorkspace() { return <PrivatePortfolio><HoldingsWorkspaceContent /></PrivatePortfolio>; }
