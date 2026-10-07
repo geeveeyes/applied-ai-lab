@@ -3,14 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Portfolio privacy PR #13 merged as `b3a26cd` (code `68084dd`). Claude owner-auth PR #11 remains open and separate.
-**Last updated:** 2026-10-06 by Codex
-**Main baseline:** `b3a26cd` (privacy PR #13 atop Portfolio home PR #12).
-**Latest feature commits:** `68084dd` / merge `b3a26cd` (portfolio privacy); `d0beced` / merge `33171c8` (Portfolio home); `1713ee6` / merge `7796430` (dated reviews); `f5a9e27` / merge `604b368` (date hydration).
-**Validation:** 183 tests, TypeScript and production build pass. PR #13 CI, both previews and both production deployment checks pass. Local browser verified default hiding, Show/Hide, unsaved draft retention, navigation retention, reload reset and 320px fit. Live saved-snapshot home starts masked; reveal, cross-page comparison, manual hiding and reload reset verified. Exact ten-minute expiry/cancellation/past deadline covered by fake-clock tests. No paid research, live broker refresh or trades. First brokerage reconciliation and fresh provider evidence validation remain unverified.
+**Current holder:** none. Browser feedback PR #14 merged as `2e9a1b9` (code `69a1965`). Claude owner-auth PR #11 remains open and separate.
+**Last updated:** 2026-10-07 by Codex
+**Main baseline:** `2e9a1b9` (connected-first holdings and bounded research completion).
+**Latest feature commits:** `69a1965` / merge `2e9a1b9` (browser feedback); `68084dd` / merge `b3a26cd` (portfolio privacy).
+**Validation:** 196 tests, TypeScript, production build, PR CI and both preview/production deployment checks pass. Actual components verified with synthetic two-account selection, shared portfolio scope, refresh/provider date separation, collapsed manual imports/journal and 320px layout. Local production empty-state and Activity navigation verified. Live browser navigation timed out repeatedly after deployment; deployed UI visual verification is not claimed. No paid research, live broker refresh or trades. First brokerage reconciliation and fresh provider evidence validation remain open.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
+
+**October 7 browser feedback:** Connected account dropdown selects all or one account and scopes Portfolio home/holdings/comparison through tab memory. Values are read-only; app refresh time and provider holdings/sync dates are distinct. Manual imports are collapsed below guidance. Activity starts with Saved research; journal is optional and last. Full research makes at most one automatic targeted evidence follow-up, consuming a second daily slot and at most three searches. Archived incomplete reports offer Complete research. Remaining gaps are explicit; no forced Buy. Foreign SEC USD instant cash/debt facts now accept 20-F/40-F/6-K. IFRS tags and normalized loss-making valuations remain gaps. See `docs/BROWSER_FEEDBACK_2026-10-07.md`.
 
 **Portfolio display privacy:** User requested numbers hidden by default and revealed on demand for ten minutes. Shared memory-only reveal across in-app navigation; fixed deadline, manual Hide and reload reset. Native hidden/inert removes private details from display and accessibility; forms/results stay mounted to preserve drafts. Public research metrics stay visible. This is display privacy, not account access control or encryption. PR #13 merged/deployed and live verified; see `docs/PORTFOLIO_PRIVACY_2026-10-06.md`. Durable decision and handoff mirrored in Notion. No new owner action.
 
@@ -69,6 +71,12 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-07 — Codex: five browser comments delivered (PR #14)
+- Connected account selection replaces editable account scope for connected holdings, with read-only values and separate refresh/provider dates. Account selection is shared across portfolio tools; imports and journal are lower priority.
+- One bounded automatic full-report evidence follow-up and explicit archive completion controls; existing daily cap applies to each new report. Foreign-filer balance facts fixed without inventing missing debt or valuation inputs.
+- Code `69a1965`, merge `2e9a1b9`. 196 tests, TypeScript, build, CI and both preview/production checks pass. Synthetic actual-component and local production UI checks pass.
+- Post-deploy in-app browser navigation repeatedly timed out. Next agent should verify the live holdings/Activity pages, then one fresh targeted report against source evidence. No paid research or live brokerage calls in this delivery. Existing owner reconciliation and security PR #11 remain open. No private figures in GitHub/Notion.
 
 ### 2026-10-06 — Codex: approved Portfolio home navigation
 - Two main destinations, accounts as settings, compact portfolio overview and holding rows, one comparison entry point, Activity journal/archive/outcomes. Prior URLs remain usable.
