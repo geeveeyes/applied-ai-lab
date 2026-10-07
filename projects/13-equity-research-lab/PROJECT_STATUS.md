@@ -1,5 +1,9 @@
 # Project Status
 
+## Current milestone — 2026-10-07
+
+Browser feedback implemented: connected-account selection with read-only holdings and separate refresh/provider dates; manual imports below the primary flow; Saved research first and optional journal last; bounded automatic evidence follow-up with explicit remaining gaps. Foreign-filer USD balance-sheet extraction corrected. 196 tests, TypeScript and build pass. Technical scope and limitations: `docs/BROWSER_FEEDBACK_2026-10-07.md`; release/live state: `HANDOFF.md`.
+
 ## Current milestone — 2026-10-06
 
 Portfolio home is the approved direction. Portfolio and Activity replace eight peer menu links; Account settings supplies the data. Connected/saved holdings, concentration, existing-holding review and comparison start at home. Activity consolidates decisions, saved research and research outcomes. Existing calculations and cost controls are preserved. 180 tests, TypeScript and build pass; synthetic production browser flows and 320px home layout verified. Release state: `HANDOFF.md`. Scope/limits: `docs/PORTFOLIO_HOME_2026-10-06.md`.
