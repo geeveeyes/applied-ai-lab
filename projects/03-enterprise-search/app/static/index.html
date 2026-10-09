@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Enterprise Search</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark">03</span><span>Applied AI Lab <b>/ Enterprise Search</b></span></div><span class="status" id="corpus">LOADING</span></header>
+  <main>
+    <section class="panel">
+      <p class="eyebrow">ASK THE WORKSPACE</p>
+      <form id="form">
+        <div class="ask"><input id="question" maxlength="500" placeholder="How many vacation days can I carry over?" required autofocus><button class="primary" id="run" type="submit">Search</button></div>
+        <div class="examples" id="examples"></div>
+        <div class="knobs">
+          <label>Viewer<select id="viewer"></select></label>
+          <label>Retrieval<select id="mode"></select></label>
+          <label>Chunking<select id="chunking"></select></label>
+          <label>Answer with<select id="provider"><option value="mock">Mock (free)</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option></select></label>
+          <label class="check"><input type="checkbox" id="rerank" checked> Rerank</label>
+        </div>
+        <p class="error" id="error" role="alert" hidden></p>
+      </form>
+    </section>
+    <section class="results" aria-live="polite">
+      <div id="answer" class="answer" hidden></div>
+      <div class="meta" id="meta"></div>
+      <div id="hits"></div>
+    </section>
+  </main>
+  <script src="/main.js" defer></script>
+</body>
+</html>

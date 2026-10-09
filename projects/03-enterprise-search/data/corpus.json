@@ -1,0 +1,226 @@
+[
+ {
+  "id": "confluence-pto-policy",
+  "source": "confluence",
+  "title": "Paid Time Off Policy",
+  "groups": [
+   "all"
+  ],
+  "text": "Northwind employees accrue 1.5 days of paid time off per month, up to 18 days per year. Sick leave is tracked separately and does not reduce the PTO balance.\n\nUnused vacation days may be carried over into the next calendar year, up to a maximum of 5 days. Anything above that is forfeited on January 31.\n\nRequests longer than 3 days must be submitted in Workday at least 2 weeks in advance and approved by your manager."
+ },
+ {
+  "id": "confluence-parental-leave",
+  "source": "confluence",
+  "title": "Parental Leave Policy",
+  "groups": [
+   "all"
+  ],
+  "text": "Primary caregivers receive 16 weeks of fully paid parental leave. Secondary caregivers receive 8 weeks of fully paid leave.\n\nLeave may be taken in one block or split into two blocks within the first 12 months after birth or adoption. Notify People Operations at least 30 days before the planned start date."
+ },
+ {
+  "id": "confluence-expense-policy",
+  "source": "confluence",
+  "title": "Travel and Expense Policy",
+  "groups": [
+   "all"
+  ],
+  "text": "Book flights and hotels through Concur. Meals while traveling are reimbursed up to $75 per day. Alcohol is not reimbursable.\n\nSubmit receipts within 30 days of the expense. Any single purchase over $2,500 needs written approval from a VP before it is made."
+ },
+ {
+  "id": "confluence-remote-work",
+  "source": "confluence",
+  "title": "Remote Work Guidelines",
+  "groups": [
+   "all"
+  ],
+  "text": "Remote employees receive a one-time $600 home office stipend, paid with the first paycheck after the start date.\n\nCore collaboration hours are 10am to 3pm PT. Meetings should be scheduled inside that window unless all attendees agree otherwise.\n\nCoworking memberships are reimbursed up to $200 per month with a receipt."
+ },
+ {
+  "id": "confluence-oncall-runbook",
+  "source": "confluence",
+  "title": "On-Call Runbook",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "The primary on-call engineer rotates weekly. Handoff happens Monday at 10am PT in the #eng-oncall channel.\n\nFor a sev1 incident the primary must acknowledge the page within 5 minutes. If there is no acknowledgement after 10 minutes, the page escalates to the secondary on-call, then to the engineering manager.\n\nDo not silence alerts without a linked ticket. Alert thresholds are reviewed each quarter."
+ },
+ {
+  "id": "confluence-incident-process",
+  "source": "confluence",
+  "title": "Incident Management Process",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "Severity levels: sev1 means customer-facing outage or data loss; sev2 means major degradation; sev3 means minor impact with a workaround.\n\nThe incident commander owns communication. A written postmortem is due within 5 business days of resolution for every sev1 and sev2 incident, and it must be blameless."
+ },
+ {
+  "id": "confluence-security-basics",
+  "source": "confluence",
+  "title": "Security Basics",
+  "groups": [
+   "all"
+  ],
+  "text": "All employees must use the company password manager and enable multi-factor authentication on every account.\n\nAccess to production systems requires a hardware security key. Authenticator apps and SMS codes are not accepted for production.\n\nLaptops must have full-disk encryption. A lost or stolen device must be reported to security within 1 hour of discovery."
+ },
+ {
+  "id": "confluence-okrs-q3",
+  "source": "confluence",
+  "title": "Q3 Company OKRs",
+  "groups": [
+   "all"
+  ],
+  "text": "Objective 1: make search feel instant. Key result: reduce p95 search latency to under 400ms.\n\nObjective 2: launch Atlas self-serve billing for small teams.\n\nObjective 3: complete the SOC 2 Type II audit with no major findings."
+ },
+ {
+  "id": "confluence-vendor-procurement",
+  "source": "confluence",
+  "title": "Vendor Procurement",
+  "groups": [
+   "all"
+  ],
+  "text": "Every new vendor needs a security review and a signed data processing agreement before any customer data is shared.\n\nContracts above $50,000 per year require legal review. Legal and security each commit to a 10 business day turnaround."
+ },
+ {
+  "id": "confluence-api-limits",
+  "source": "confluence",
+  "title": "Public API Rate Limits",
+  "groups": [
+   "all"
+  ],
+  "text": "The public API allows 600 requests per minute per API key, with a burst allowance of 100 requests.\n\nWhen the limit is exceeded the API returns HTTP 429 with a Retry-After header. Clients should back off exponentially and must not retry in a tight loop."
+ },
+ {
+  "id": "confluence-onboarding",
+  "source": "confluence",
+  "title": "New Hire Onboarding Checklist",
+  "groups": [
+   "all"
+  ],
+  "text": "Week one: pick up your laptop from IT, meet your assigned buddy, and join your team channel.\n\nComplete the mandatory security awareness training within 7 days of your start date. Set up your hardware key if your role needs production access."
+ },
+ {
+  "id": "jira-ENG-1423",
+  "source": "jira",
+  "title": "ENG-1423: Search latency regression after index migration",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "Status: Resolved. Reporter: Marcus. Assignee: Priya.\n\nAfter the index migration, p95 search latency rose from 380ms to 910ms. Dashboards showed the slowdown only on the first requests after each deploy.\n\nRoot cause: new shard replicas were not warmed up, so early queries hit cold caches. Fix: enable replica warmup before traffic is shifted. p95 returned to 395ms after the change."
+ },
+ {
+  "id": "jira-ENG-1501",
+  "source": "jira",
+  "title": "ENG-1501: Billing webhook creates duplicate invoices",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "Status: In Progress. Assignee: Priya.\n\nWhen the payment provider retries a webhook after a timeout, our handler creates a second invoice for the same payment. Proposed fix: store the provider event id as an idempotency key and ignore events already processed. This bug blocks the Atlas self-serve billing launch."
+ },
+ {
+  "id": "jira-SUP-872",
+  "source": "jira",
+  "title": "SUP-872: Contoso users stuck in SSO login loop",
+  "groups": [
+   "all"
+  ],
+  "text": "Status: Resolved.\n\nContoso reported that users signing in with Okta were redirected back to the login page repeatedly. Investigation found clock skew of about 90 seconds between their identity provider and our servers, which made SAML assertions look expired.\n\nFix: we now accept up to 2 minutes of clock skew on SAML assertions. Contoso confirmed logins work."
+ },
+ {
+  "id": "jira-ENG-1388",
+  "source": "jira",
+  "title": "ENG-1388: Upgrade Postgres 13 to 15",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "Status: Scheduled.\n\nThe upgrade will run during a maintenance window on October 19 from 02:00 to 04:00 UTC. Customers see read-only mode for about 20 minutes.\n\nRollback plan: keep the Postgres 13 replica for 7 days and promote it if checksum validation fails."
+ },
+ {
+  "id": "slack-eng-oncall",
+  "source": "slack",
+  "title": "#eng-oncall",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "[09:12] marcus: disk alert flapped three times last night on db-replica-2\n[09:14] priya: yeah it pages at 75% and the nightly vacuum pushes it over every time\n[09:15] dana-k: lunch order for friday is open, add yours to the sheet\n[09:20] marcus: proposal: raise the disk usage threshold to 85% and add a separate 92% critical alert\n[09:22] priya: +1, agreed. 85% warning, 92% critical. I will update the alert config today\n[09:31] marcus: great, closing the loop. decision made, threshold is 85% from now on"
+ },
+ {
+  "id": "slack-launch-atlas",
+  "source": "slack",
+  "title": "#atlas-launch",
+  "groups": [
+   "all"
+  ],
+  "text": "[14:02] lena: heads up, the Atlas launch is moving from October 14 to October 28\n[14:03] omar: because of the duplicate invoice bug in the billing webhook?\n[14:03] lena: yes, we will not launch billing with that open\n[14:10] omar: pricing question, are we still at $29 per seat for the Starter plan?\n[14:11] lena: yes, Starter is $29 per seat per month, Team is $59\n[14:15] sam: reminder that the launch blog draft is in the shared drive"
+ },
+ {
+  "id": "slack-ask-hr",
+  "source": "slack",
+  "title": "#ask-hr",
+  "groups": [
+   "all"
+  ],
+  "text": "[11:40] jo: how long is parental leave again? asking for a friend\n[11:42] hr-bot: primary caregivers get 16 weeks and secondary caregivers get 8 weeks, fully paid. Details are on the Parental Leave Policy page\n[11:50] jo: thanks! and can I roll my leftover vacation into next year?\n[11:52] hr-bot: yes, up to 5 days carry over"
+ },
+ {
+  "id": "slack-security-alerts",
+  "source": "slack",
+  "title": "#security-alerts",
+  "groups": [
+   "all"
+  ],
+  "text": "[16:05] security-bot: a phishing campaign impersonating IT is circulating, subject line \"Password expires today\"\n[16:07] aisha: if you got it, do not click anything. Use the Report Phish button in your mail client, it forwards the message to security and removes it from your inbox\n[16:09] aisha: we have blocked the sender domain, thanks to everyone who reported"
+ },
+ {
+  "id": "slack-data-eng",
+  "source": "slack",
+  "title": "#data-eng",
+  "groups": [
+   "eng",
+   "all"
+  ],
+  "text": "[10:00] ravi: vector store decision for the new search service: pgvector or a hosted vector database?\n[10:04] priya: we have under 5M vectors and already run Postgres, so pgvector keeps operations simple and avoids a new vendor review\n[10:06] ravi: agreed. We revisit if we pass 20M vectors or need sub-10ms filtered search\n[10:07] ravi: decision: pgvector for now"
+ },
+ {
+  "id": "email-allhands",
+  "source": "email",
+  "title": "All-hands and leadership update",
+  "groups": [
+   "all"
+  ],
+  "text": "From: Chen (CEO)\nSubject: All-hands on October 24\n\nTeam, our next all-hands is on October 24 at 9am PT. We will share the Q3 results and the plan for Atlas.\n\nI am excited to announce that Dana Whitfield is joining as our new Head of Support, starting November 3. Dana previously ran support operations at a large payments company."
+ },
+ {
+  "id": "email-fabrikam-renewal",
+  "source": "email",
+  "title": "Fabrikam renewal and discount",
+  "groups": [
+   "finance"
+  ],
+  "text": "From: Tom (Sales)\nSubject: Fabrikam renewal\n\nFabrikam wants to renew for 12 months at $240,000 and is asking for a 15% discount.\n\nPer the discount policy, account executives may approve up to 10% on their own. Anything above 10% needs CFO approval. I suggest we offer 10% and a multi-year option."
+ },
+ {
+  "id": "email-zephyr-dpa",
+  "source": "email",
+  "title": "Zephyr Analytics DPA signed",
+  "groups": [
+   "finance",
+   "all"
+  ],
+  "text": "From: Legal\nSubject: Zephyr Analytics DPA\n\nThe data processing agreement with Zephyr Analytics is fully executed. Zephyr will store all Northwind customer data in the EU region only, and has agreed to give 30 days notice before adding any subprocessor."
+ },
+ {
+  "id": "email-board-update",
+  "source": "email",
+  "title": "Board update draft",
+  "groups": [
+   "exec"
+  ],
+  "text": "From: CFO\nSubject: Q3 board update (confidential)\n\nQ3 ARR closed at $18.4M, up 22 percent from the previous quarter. Net revenue retention was 118 percent. Cash runway is 31 months."
+ }
+]

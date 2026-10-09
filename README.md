@@ -43,16 +43,20 @@ applied-ai-lab/
 |---|---|---|---|
 | 01 | Personal Chief of Staff | provider abstraction, structured outputs, tool use, evals | deployed |
 | 02 | Deep Research Briefing Agent | planning, citations, critique loops | local MVP |
-| 03 | Ask My Documents | RAG, embeddings, retrieval quality | planned |
+| 03 | Enterprise Search | chunking, hybrid retrieval, reranking, access control, enforced citations, retrieval evals | local MVP |
 | 04 | Personal Context MCP Server | tools, resources, reusable context | planned |
 | 05 | LLM Eval Arena | eval design, model comparison, scoring | planned |
 | 06 | AI Engineering Manager Copilot | issue summarization, decision support | planned |
-| 07 | Meeting-to-Decisions Assistant | transcription, extraction, action items | planned |
+| 07 | Conversation Intelligence | transcription, diarization, structured summaries, LLM-judge evals | planned |
 | 08 | Browser Workflow Agent | browser automation, task state | planned |
 | 09 | Multimodal Product Analyst | image understanding, structured critique | planned |
 | 10 | AI Data Cleaning Copilot | schema inference, transform suggestions | planned |
 | 11 | Voice Journal Memory Coach | speech, memory, reflection loops | planned |
 | 12 | Agent Reliability Dashboard | observability, traces, regression testing | planned |
+| 14 | Document Intelligence Pipeline | messy documents to validated JSON, extractor cost vs quality, per-field precision/recall | planned |
+| 15 | Multi-step Support Agent | ReAct loop, tracing, guardrails, human-in-the-loop, pass@k | planned |
+| 16 | Sovereign AI Engine | open-weight serving, LoRA/QLoRA, quantization, cost crossover | planned |
+| 17 | Work-Backwards Project Finder | target-company research prompt, project briefs | planned |
 | 13 | Equity Research Lab | source-grounded financial research, provider abstraction, immutable prediction snapshots, retrospective evals | MVP |
 
 ## Weekend Workflow
@@ -88,6 +92,15 @@ python3 -m app.server
 
 Open `http://127.0.0.1:8002` and choose **Load example**. See the [Project 02 README](projects/02-deep-research-briefing/README.md) for API key setup and scope.
 
+
+## Project 03
+
+```bash
+cd projects/03-enterprise-search
+python3 -m app.server
+```
+
+Open `http://127.0.0.1:8003`. Runs offline with no keys. See the [Project 03 README](projects/03-enterprise-search/README.md) and its [decision log](projects/03-enterprise-search/docs/DECISIONS.md). The overall plan for the next projects is in [docs/VIDEO_PROJECT_PLAN.md](docs/VIDEO_PROJECT_PLAN.md).
 
 ## Project 13
 
