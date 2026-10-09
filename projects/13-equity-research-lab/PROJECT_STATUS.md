@@ -1,3 +1,6 @@
+## October 8, 2026 — five-case research outlook
+Adapted the five recent stock-analysis chats into a decision-first one-year scenario view: five representative outcomes, explicit assumptions/sources, deterministic weighted returns and loss/gain weights, plus a free local explorer. Unified rating and valuation guardrails remain. No extra provider call. Unsupported sector models remain explicit. See `docs/FIVE_CASE_RESEARCH_2026-10-08.md` and HANDOFF for release checks.
+
 # Project Status
 
 ## Current milestone — 2026-10-07

@@ -1,3 +1,4 @@
+import { buildDistribution } from "./scenario-distribution";
 import { completionState } from './research-completion';
 import { researchGaps } from './server/web-research';
 import { validateThesisReview, researchQuestions } from "./thesis-review";
@@ -25,7 +26,7 @@ const EMPTY_SCORES: ResearchScores = {
 function liveShell(ticker: string): ResearchRun {
   return {
     id: crypto.randomUUID(), ticker, companyName: ticker, analyzedAt: new Date().toISOString(),
-    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.13.0",
+    asOfPrice: 0, dataMode: "hybrid", skillVersion: "equity-research-v0.14.0",
     score: 0, confidence: 0, verdict: "Insufficient data", scores: { ...EMPTY_SCORES },
     highlights: [], risks: [], catalysts: [], managementCredibility: [],
     expectationGap: "Awaiting sufficient live evidence.", valuationSummary: "No valuation conclusion yet.",
@@ -238,6 +239,7 @@ async function research(tickerRaw: string, focus?: string[]): Promise<ResearchRu
     // One scoring model: the six-factor investment score (0 when evidence is insufficient).
     run.score = decision.score ?? 0;
     run.verdict = !decision.available ? "Insufficient data" : decision.action === "Buy candidate" ? "Buy candidate" : decision.action === "Avoid / review selling" ? "Avoid for now" : "Watch";
+    run.scenarioDistribution = buildDistribution(ai.scenarioDistribution, citations, run.analyzedAt);
     run.executiveSummary = ai.executiveSummary;
     run.highlights = ai.highlights;
     run.risks = ai.risks;
