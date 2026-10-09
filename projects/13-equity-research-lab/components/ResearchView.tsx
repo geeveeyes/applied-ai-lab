@@ -1,3 +1,4 @@
+import { ScenarioDistribution } from "./ScenarioDistribution";
 import { RunResearch } from "./RunResearch";
 import { completionState } from "@/lib/research-completion";
 import { ThesisReviewPanel } from "./ThesisReviewPanel";
@@ -43,6 +44,7 @@ export function ResearchView({ run }: { run: ResearchRun }) {
 
     {run.dataMode !== 'demo' && <section className="panel"><h2>Research completion</h2><p>{completionState(run).note}</p>{completionState(run).status === 'evidence blocked' && <ul>{completionState(run).gaps.map(gap=><li key={gap}>{gap}</li>)}</ul>}{completionState(run).followUp && <RunResearch ticker={run.ticker} complete reportId={run.id} />}</section>}
     <ExecutiveSummary run={run} />
+    <ScenarioDistribution key={run.id} run={run} />
     <ThesisReviewPanel run={run} />
     <PeerValuationPanel run={run} />
     <HoldingAdjustment ticker={run.ticker} />
