@@ -3,14 +3,16 @@
 > The baton. Read this first and update it last. Protocol: `AGENTS.md`.
 > Notion mirror: 🧠 Venkat AI Hub → Project — Equity Research Lab → Handoff log.
 
-**Current holder:** none. Browser feedback PR #14 merged as `2e9a1b9` (code `69a1965`). Claude owner-auth PR #11 remains open and separate.
-**Last updated:** 2026-10-07 by Codex
-**Main baseline:** `2e9a1b9` (connected-first holdings and bounded research completion).
-**Latest feature commits:** `69a1965` / merge `2e9a1b9` (browser feedback); `68084dd` / merge `b3a26cd` (portfolio privacy).
-**Validation:** 196 tests, TypeScript, production build, PR CI and both preview/production deployment checks pass. Actual components verified with synthetic two-account selection, shared portfolio scope, refresh/provider date separation, collapsed manual imports/journal and 320px layout. Local production empty-state and Activity navigation verified. Live browser navigation timed out repeatedly after deployment; deployed UI visual verification is not claimed. No paid research, live broker refresh or trades. First brokerage reconciliation and fresh provider evidence validation remain open.
+**Current holder:** none. Five-case research PR #15 merged as `94360fc` (code `0dbe5d3`). Claude owner-auth PR #11 remains open and separate.
+**Last updated:** 2026-10-08 by Codex
+**Main baseline:** `94360fc` (five-case outlook atop connected-first holdings).
+**Latest feature commits:** `0dbe5d3` / merge `94360fc` (five-case outlook); `69a1965` / merge `2e9a1b9` (browser feedback).
+**Validation:** 206 tests, TypeScript, production build, PR CI and both preview/production checks pass. Synthetic actual-component browser verified five cases, weighted calculations, invalid weight rejection and restoration. Live saved cloud report verified new unavailable-model state, free explorer, hypothetical calculations and original rating restoration; no captured browser errors. Live Activity default/archive/completion controls also verified after previous browser timeouts. No paid research, brokerage refresh or trades. Fresh v0.14.0 provider output and source-level model evaluation remain open.
 **Notion plan:** https://app.notion.com/p/3eddf6e02bd78120a3fcf8f8cc768af1
 
 ## State
+
+**October 8 five-case outlook:** Reviewed five recent Investing stock chats as design references, not verified company facts. Reports put the existing unified decision first, then severe bear through severe bull representative outcomes, explicit hypothetical earnings/sales assumptions, source links/dates, weights, deterministic weighted returns and gain/loss weights. A free local explorer changes hypothetical inputs without changing the saved report or rating. Model generation uses the existing synthesis with a 9,000-output-token cap; no additional provider call. Unsupported sector models show exact gaps. Intrinsic values remain separate from one-year prices. Engine/skill v0.14.0. See `docs/FIVE_CASE_RESEARCH_2026-10-08.md`. Existing fresh-source evaluation task in Notion now includes the model assumptions. Binary-event and pre-revenue sector models, probability calibration and live source validation remain open.
 
 **October 7 browser feedback:** Connected account dropdown selects all or one account and scopes Portfolio home/holdings/comparison through tab memory. Values are read-only; app refresh time and provider holdings/sync dates are distinct. Manual imports are collapsed below guidance. Activity starts with Saved research; journal is optional and last. Full research makes at most one automatic targeted evidence follow-up, consuming a second daily slot and at most three searches. Archived incomplete reports offer Complete research. Remaining gaps are explicit; no forced Buy. Foreign SEC USD instant cash/debt facts now accept 20-F/40-F/6-K. IFRS tags and normalized loss-making valuations remain gaps. See `docs/BROWSER_FEEDBACK_2026-10-07.md`.
 
@@ -55,7 +57,7 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 
 - Owner: complete the existing owner-key / security PR #11 setup and first brokerage refresh/reconciliation task. Portfolio home is delivered; no new navigation approval is needed. Next agent: verify imported mutual-fund classification, then improve portfolio-aware candidate additions and destination allocations without adding more menu destinations.
 
-0. Any agent: evaluate one fresh v0.13.0 report against actual source observations, dates, proposed thresholds and event dates. Prefer an existing report; otherwise one explicit capped request. Notion action: https://app.notion.com/p/3efdf6e02bd781399bd9d6c13b0df83e. Skill validation script lacked PyYAML; frontmatter/reference paths inspected manually.
+0. Any agent: evaluate one fresh v0.14.0 report against actual source observations, dates, proposed thresholds, event dates and five-case operating/dilution/valuation assumptions. Prefer an existing report; otherwise one explicit capped request. Notion action: https://app.notion.com/p/3efdf6e02bd781399bd9d6c13b0df83e. Skill validation script lacked PyYAML; frontmatter/reference paths inspected manually.
 1. Venkat: refresh `/accounts` and confirm holdings remain available while navigating to My holdings, Portfolio Lab and Diversify a holding. Reconcile account coverage, totals and dates against the brokers; record status only, never raw values. Reloading should clear the in-memory snapshot.
 2. Build the next approved decision milestone on the shared portfolio: compare destination allocations and staged reductions with clearer cost-basis and uncertainty handling. Keep alternatives user-editable and avoid forced Buy labels.
 3. Verify imported mutual-fund classification before fund look-through, then continue Monarch where its official MCP is available, historical ROI (XIRR/TWR only with sufficient dates/flows), and prospective benchmark validation. No automatic sync/research or trades.
@@ -71,6 +73,12 @@ Codex paused on 2026-09-25 because of credit limits. Claude reviewed the project
 - FMP plan upgrade vs an SEC-only tier for mid-caps?
 
 ## Log
+
+### 2026-10-08 — Codex: five-case research view (PR #15)
+- Adapted IONS, XENE, FRMI, FRVO and Corteva chat structure: clear rating/decision, scenario distribution, operating drivers, downside, timing and change conditions. Chat market facts were not imported; arithmetic inconsistencies informed deterministic regression tests.
+- Five-case sourced starting facts plus explicit forecast assumptions, code-computed prices/returns/weighted outcomes, provenance/date/weight guards. Free local scenario explorer does not change archived ratings. Existing DCF remains separate; unsupported models remain gaps.
+- Code `0dbe5d3`, merge `94360fc`; 206 tests, TypeScript, build, CI and both preview/production checks pass. Synthetic component browser tests and live saved report/explorer/calculation/restoration pass, no captured browser errors.
+- No paid research, trades or brokerage calls. Notion Decision Log/project context and existing fresh-source evaluation task updated. Next agent evaluates one fresh v0.14.0 model against its sources, preferring an existing report. Owner reconciliation/security PR #11 remain open. Holder released.
 
 ### 2026-10-07 — Codex: five browser comments delivered (PR #14)
 - Connected account selection replaces editable account scope for connected holdings, with read-only values and separate refresh/provider dates. Account selection is shared across portfolio tools; imports and journal are lower priority.
