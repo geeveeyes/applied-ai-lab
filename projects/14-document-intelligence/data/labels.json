@@ -1,0 +1,922 @@
+{
+ "c001": {
+  "fields": {
+   "effective_date": "2024-11-02",
+   "term_months": 12,
+   "auto_renewal": false,
+   "payment_terms_days": 15,
+   "termination_notice_days": 60,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "digits",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "fees"
+  },
+  "decoy": false,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Contoso Health Partners"
+ },
+ "c002": {
+  "fields": {
+   "effective_date": "2025-03-10",
+   "term_months": 36,
+   "auto_renewal": true,
+   "payment_terms_days": 15,
+   "termination_notice_days": 90,
+   "governing_law": "California",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "years",
+   "auto_renewal": "auto",
+   "payment_terms_days": "after",
+   "termination_notice_days": "prior",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": true,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c003": {
+  "fields": {
+   "effective_date": "2023-02-19",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 45,
+   "termination_notice_days": 90,
+   "governing_law": "Texas",
+   "liability_cap_usd": 500000
+  },
+  "variants": {
+   "effective_date": "unseen",
+   "term_months": "digits",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "within",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Litware Education Corp."
+ },
+ "c004": {
+  "fields": {
+   "effective_date": "2023-02-09",
+   "term_months": 36,
+   "auto_renewal": false,
+   "payment_terms_days": 15,
+   "termination_notice_days": 30,
+   "governing_law": "California",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "unseen",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "after",
+   "termination_notice_days": "unseen",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": true,
+  "provider": "Marlow Data Systems Inc.",
+  "customer": "Northwind Foods Inc."
+ },
+ "c005": {
+  "fields": {
+   "effective_date": "2023-08-13",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 60,
+   "termination_notice_days": 90,
+   "governing_law": "California",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "digits",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Quill Software Ltd.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c006": {
+  "fields": {
+   "effective_date": "2025-06-20",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 15,
+   "termination_notice_days": 60,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "digits",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": true,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Northwind Foods Inc."
+ },
+ "c007": {
+  "fields": {
+   "effective_date": "2023-06-20",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 90,
+   "governing_law": "Texas",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "digits",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "within",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Adatum Energy LLC"
+ },
+ "c008": {
+  "fields": {
+   "effective_date": "2025-03-17",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 45,
+   "termination_notice_days": 30,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "words",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "within",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "fees"
+  },
+  "decoy": false,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Northwind Foods Inc."
+ },
+ "c009": {
+  "fields": {
+   "effective_date": "2025-08-12",
+   "term_months": 12,
+   "auto_renewal": false,
+   "payment_terms_days": 45,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "years",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "within",
+   "termination_notice_days": "unseen",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Contoso Health Partners"
+ },
+ "c010": {
+  "fields": {
+   "effective_date": "2025-10-27",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 45,
+   "termination_notice_days": 90,
+   "governing_law": "Delaware",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "digits",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "within",
+   "termination_notice_days": "unseen",
+   "governing_law": "construed",
+   "liability_cap_usd": "unlimited"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Northwind Foods Inc."
+ },
+ "c011": {
+  "fields": {
+   "effective_date": "2023-03-05",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 60,
+   "termination_notice_days": 90,
+   "governing_law": "New York",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "unseen",
+   "auto_renewal": "auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Helix Cloud Inc.",
+  "customer": "Litware Education Corp."
+ },
+ "c012": {
+  "fields": {
+   "effective_date": "2025-06-09",
+   "term_months": 36,
+   "auto_renewal": false,
+   "payment_terms_days": 15,
+   "termination_notice_days": 90,
+   "governing_law": "California",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "years",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "after",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Marlow Data Systems Inc.",
+  "customer": "Contoso Health Partners"
+ },
+ "c013": {
+  "fields": {
+   "effective_date": "2025-02-18",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 60,
+   "termination_notice_days": 30,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "years",
+   "auto_renewal": "auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "unlimited"
+  },
+  "decoy": true,
+  "provider": "Quill Software Ltd.",
+  "customer": "Adatum Energy LLC"
+ },
+ "c014": {
+  "fields": {
+   "effective_date": "2025-05-18",
+   "term_months": 18,
+   "auto_renewal": false,
+   "payment_terms_days": 30,
+   "termination_notice_days": 60,
+   "governing_law": "Delaware",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "unseen",
+   "term_months": "digits",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Litware Education Corp."
+ },
+ "c015": {
+  "fields": {
+   "effective_date": "2025-02-13",
+   "term_months": 36,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 30,
+   "governing_law": "Texas",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "unseen",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": true,
+  "provider": "Quill Software Ltd.",
+  "customer": "Contoso Health Partners"
+ },
+ "c016": {
+  "fields": {
+   "effective_date": "2023-02-03",
+   "term_months": 24,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 60,
+   "governing_law": "New York",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "years",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Helix Cloud Inc.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c017": {
+  "fields": {
+   "effective_date": "2023-10-28",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 15,
+   "termination_notice_days": 60,
+   "governing_law": "Delaware",
+   "liability_cap_usd": 500000
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "digits",
+   "auto_renewal": "auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Helix Cloud Inc.",
+  "customer": "Tailspin Travel Co."
+ },
+ "c018": {
+  "fields": {
+   "effective_date": "2024-09-22",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 15,
+   "termination_notice_days": 60,
+   "governing_law": "Delaware",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "digits",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "prior",
+   "governing_law": "construed",
+   "liability_cap_usd": "unlimited"
+  },
+  "decoy": true,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Tailspin Travel Co."
+ },
+ "c019": {
+  "fields": {
+   "effective_date": "2025-12-21",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 45,
+   "termination_notice_days": 30,
+   "governing_law": "New York",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "digits",
+   "auto_renewal": "auto",
+   "payment_terms_days": "within",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "unlimited"
+  },
+  "decoy": true,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Contoso Health Partners"
+ },
+ "c020": {
+  "fields": {
+   "effective_date": "2024-06-11",
+   "term_months": 24,
+   "auto_renewal": true,
+   "payment_terms_days": 45,
+   "termination_notice_days": 30,
+   "governing_law": "California",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "years",
+   "auto_renewal": "auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "unseen",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": true,
+  "provider": "Quill Software Ltd.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c021": {
+  "fields": {
+   "effective_date": "2025-04-03",
+   "term_months": 18,
+   "auto_renewal": false,
+   "payment_terms_days": 60,
+   "termination_notice_days": 60,
+   "governing_law": "Texas",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "unseen",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "after",
+   "termination_notice_days": "unseen",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": true,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Tailspin Travel Co."
+ },
+ "c022": {
+  "fields": {
+   "effective_date": "2024-08-18",
+   "term_months": 12,
+   "auto_renewal": false,
+   "payment_terms_days": 30,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "unseen",
+   "term_months": "years",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "prior",
+   "governing_law": "construed",
+   "liability_cap_usd": "fees"
+  },
+  "decoy": false,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c023": {
+  "fields": {
+   "effective_date": "2025-11-15",
+   "term_months": 36,
+   "auto_renewal": false,
+   "payment_terms_days": 15,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "words",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "after",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "unlimited"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Contoso Health Partners"
+ },
+ "c024": {
+  "fields": {
+   "effective_date": "2023-11-16",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 45,
+   "termination_notice_days": 60,
+   "governing_law": "Texas",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "digits",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "prior",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Helix Cloud Inc.",
+  "customer": "Litware Education Corp."
+ },
+ "c025": {
+  "fields": {
+   "effective_date": "2025-02-05",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 30,
+   "termination_notice_days": 90,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": 500000
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "words",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "unseen",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c026": {
+  "fields": {
+   "effective_date": "2024-07-11",
+   "term_months": 12,
+   "auto_renewal": false,
+   "payment_terms_days": 15,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "words",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "within",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": true,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Northwind Foods Inc."
+ },
+ "c027": {
+  "fields": {
+   "effective_date": "2024-11-05",
+   "term_months": 18,
+   "auto_renewal": false,
+   "payment_terms_days": 60,
+   "termination_notice_days": 90,
+   "governing_law": "California",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "digits",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "after",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Helix Cloud Inc.",
+  "customer": "Litware Education Corp."
+ },
+ "c028": {
+  "fields": {
+   "effective_date": "2024-08-02",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 60,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": 500000
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "digits",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "after",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": true,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Litware Education Corp."
+ },
+ "c029": {
+  "fields": {
+   "effective_date": "2024-07-05",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 60,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "numeric",
+   "term_months": "digits",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "after",
+   "termination_notice_days": "prior",
+   "governing_law": "construed",
+   "liability_cap_usd": "unlimited"
+  },
+  "decoy": true,
+  "provider": "Quill Software Ltd.",
+  "customer": "Tailspin Travel Co."
+ },
+ "c030": {
+  "fields": {
+   "effective_date": "2025-09-17",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 60,
+   "governing_law": "Texas",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "unseen",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "within",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Contoso Health Partners"
+ },
+ "c031": {
+  "fields": {
+   "effective_date": "2024-04-26",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 90,
+   "governing_law": "Delaware",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "digits",
+   "auto_renewal": "auto",
+   "payment_terms_days": "within",
+   "termination_notice_days": "prior",
+   "governing_law": "construed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": true,
+  "provider": "Marlow Data Systems Inc.",
+  "customer": "Northwind Foods Inc."
+ },
+ "c032": {
+  "fields": {
+   "effective_date": "2024-05-08",
+   "term_months": 12,
+   "auto_renewal": true,
+   "payment_terms_days": 45,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": 500000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "years",
+   "auto_renewal": "auto",
+   "payment_terms_days": "unseen",
+   "termination_notice_days": "prior",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Marlow Data Systems Inc.",
+  "customer": "Contoso Health Partners"
+ },
+ "c033": {
+  "fields": {
+   "effective_date": "2024-04-22",
+   "term_months": 36,
+   "auto_renewal": false,
+   "payment_terms_days": 30,
+   "termination_notice_days": 60,
+   "governing_law": "Delaware",
+   "liability_cap_usd": 500000
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "words",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Quill Software Ltd.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c034": {
+  "fields": {
+   "effective_date": "2025-08-20",
+   "term_months": 18,
+   "auto_renewal": false,
+   "payment_terms_days": 60,
+   "termination_notice_days": 60,
+   "governing_law": "Delaware",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "unseen",
+   "term_months": "unseen",
+   "auto_renewal": "no_auto",
+   "payment_terms_days": "after",
+   "termination_notice_days": "unseen",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Orion Logistics Corp.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c035": {
+  "fields": {
+   "effective_date": "2024-04-06",
+   "term_months": 36,
+   "auto_renewal": true,
+   "payment_terms_days": 60,
+   "termination_notice_days": 60,
+   "governing_law": "California",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "unseen",
+   "term_months": "words",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": true,
+  "provider": "Helix Cloud Inc.",
+  "customer": "Contoso Health Partners"
+ },
+ "c036": {
+  "fields": {
+   "effective_date": "2024-09-15",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 60,
+   "termination_notice_days": 30,
+   "governing_law": "Texas",
+   "liability_cap_usd": 250000
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "words",
+   "auto_renewal": "auto",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "usd"
+  },
+  "decoy": false,
+  "provider": "Quill Software Ltd.",
+  "customer": "Contoso Health Partners"
+ },
+ "c037": {
+  "fields": {
+   "effective_date": "2024-12-23",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 45,
+   "termination_notice_days": 30,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "iso",
+   "term_months": "words",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "within",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "fees"
+  },
+  "decoy": true,
+  "provider": "Marlow Data Systems Inc.",
+  "customer": "Fabrikam Retail Group"
+ },
+ "c038": {
+  "fields": {
+   "effective_date": "2023-06-28",
+   "term_months": 24,
+   "auto_renewal": true,
+   "payment_terms_days": 15,
+   "termination_notice_days": 90,
+   "governing_law": "New York",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "long",
+   "term_months": "words",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "within",
+   "termination_notice_days": "convenience",
+   "governing_law": "construed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Bramble Analytics LLC",
+  "customer": "Adatum Energy LLC"
+ },
+ "c039": {
+  "fields": {
+   "effective_date": "2024-03-08",
+   "term_months": 18,
+   "auto_renewal": true,
+   "payment_terms_days": 30,
+   "termination_notice_days": 90,
+   "governing_law": "England and Wales",
+   "liability_cap_usd": null
+  },
+  "variants": {
+   "effective_date": "ordinal",
+   "term_months": "words",
+   "auto_renewal": "evergreen",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "fees"
+  },
+  "decoy": false,
+  "provider": "Quill Software Ltd.",
+  "customer": "Litware Education Corp."
+ },
+ "c040": {
+  "fields": {
+   "effective_date": "2024-02-13",
+   "term_months": 24,
+   "auto_renewal": false,
+   "payment_terms_days": 30,
+   "termination_notice_days": 90,
+   "governing_law": "Delaware",
+   "liability_cap_usd": 1200000
+  },
+  "variants": {
+   "effective_date": "unseen",
+   "term_months": "digits",
+   "auto_renewal": "mutual",
+   "payment_terms_days": "net",
+   "termination_notice_days": "convenience",
+   "governing_law": "governed",
+   "liability_cap_usd": "exceed"
+  },
+  "decoy": false,
+  "provider": "Marlow Data Systems Inc.",
+  "customer": "Contoso Health Partners"
+ }
+}

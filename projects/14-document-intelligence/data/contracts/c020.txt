@@ -1,0 +1,24 @@
+MASTER SERVICES AGREEMENT
+between Quill Software Ltd. ("Provider") and Fabrikam Retail Group ("Customer")
+
+1. Effective Date: 2024-06-11. This Master Services
+Agreement is entered into on the Effective Date.
+2. This Agreement supersedes the Order Form signed on July
+19, 2023.
+3. The initial term of this Agreement is 2 years from the
+Effective Date.
+4. Following the Initial Term, this Agreement
+automatically renews for successive one-year periods
+unless either party gives notice of non-renewal.
+5. Late payments accrue interest after a grace period of
+10 days, and customers must give 90 days notice before
+changing their billing contact.
+6. Fees are invoiced monthly, payment terms Net 45.
+7. Either party may end this Agreement on 30 days' notice,
+for any reason.
+8. This Agreement shall be governed by the laws of the
+State of California.
+9. Neither party's total liability shall exceed $250,000.
+10. Support credits are capped at $5,000 per quarter.
+
+Page 1 of 2 -- Confidential -- Quill Software Ltd. MSA v1

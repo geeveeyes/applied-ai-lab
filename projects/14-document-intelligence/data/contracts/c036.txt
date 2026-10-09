@@ -1,0 +1,20 @@
+MASTER SERVICES AGREEMENT
+between Quill Software Ltd. ("Provider") and Contoso Health Partners ("Customer")
+
+1. This Master Services Agreement is effective as of
+September 15, 2024 (the "Effective Date").
+2. The initial term shall be eighteen (18) months from the
+Effective Date.
+3. Following the Initial Term, this Agreement
+automatically renews for successive one-year periods
+unless either party gives notice of non-renewal.
+4. Fees are invoiced monthly, payment terms Net 60.
+5. Either party may terminate this Agreement for
+convenience upon 30 days' written notice to the other
+party.
+6. This Agreement shall be construed in accordance with
+Texas law.
+7. Aggregate liability under this Agreement is capped at
+USD 250,000.
+
+Page 1 of 2 -- Confidential -- Quill Software Ltd. MSA v3

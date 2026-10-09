@@ -1,0 +1,19 @@
+MASTER SERVICES AGREEMENT
+between Bramble Analytics LLC ("Provider") and Fabrikam Retail Group ("Customer")
+
+1. This Master Services Agreement is dated 02/05/2025 and
+takes effect on that date.
+2. The initial term shall be twenty-four (24) months from
+the Effective Date.
+3. Renewal occurs only by mutual written agreement, and
+the Agreement expires at the end of the term otherwise.
+4. Customer's payment obligation arises 30 days following
+the date of each invoice.
+5. Either party may end this Agreement on 90 days' notice,
+for any reason.
+6. This Agreement is governed by the laws of England and
+Wales.
+7. Aggregate liability under this Agreement is capped at
+USD 500,000.
+
+Page 1 of 2 -- Confidential -- Bramble Analytics LLC MSA v4

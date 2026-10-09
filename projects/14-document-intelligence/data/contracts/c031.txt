@@ -1,0 +1,26 @@
+MASTER SERVICES AGREEMENT
+between Marlow Data Systems Inc. ("Provider") and Northwind Foods Inc. ("Customer")
+
+1. This Master Services Agreement is effective as of April
+26, 2024 (the "Effective Date").
+2. This Agreement supersedes the Order Form signed on
+February 3, 2023.
+3. The Agreement shall continue for a period of 12 months
+from the Effective Date (the "Initial Term").
+4. Following the Initial Term, this Agreement
+automatically renews for successive one-year periods
+unless either party gives notice of non-renewal.
+5. Late payments accrue interest after a grace period of
+10 days, and customers must give 90 days notice before
+changing their billing contact.
+6. Customer shall pay each invoice within thirty (30) days
+of receipt.
+7. Termination without cause requires ninety (90) days
+prior written notice.
+8. This Agreement shall be construed in accordance with
+Delaware law.
+9. Neither party's total liability shall exceed
+$1,200,000.
+10. Support credits are capped at $5,000 per quarter.
+
+Page 1 of 2 -- Confidential -- Marlow Data Systems Inc. MSA v3

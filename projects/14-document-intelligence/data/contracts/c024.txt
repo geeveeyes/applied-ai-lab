@@ -1,0 +1,19 @@
+MASTER SERVICES AGREEMENT
+between Helix Cloud Inc. ("Provider") and Litware Education Corp. ("Customer")
+
+1. This Master Services Agreement is dated 11/16/2023 and
+takes effect on that date.
+2. The Agreement shall continue for a period of 24 months
+from the Effective Date (the "Initial Term").
+3. Renewal occurs only by mutual written agreement, and
+the Agreement expires at the end of the term otherwise.
+4. Customer's payment obligation arises 45 days following
+the date of each invoice.
+5. Termination without cause requires sixty (60) days
+prior written notice.
+6. This Agreement shall be construed in accordance with
+Texas law.
+7. Aggregate liability under this Agreement is capped at
+USD 1,200,000.
+
+Page 1 of 2 -- Confidential -- Helix Cloud Inc. MSA v2

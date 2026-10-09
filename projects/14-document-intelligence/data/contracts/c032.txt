@@ -1,0 +1,19 @@
+MASTER SERVICES AGREEMENT
+between Marlow Data Systems Inc. ("Provider") and Contoso Health Partners ("Customer")
+
+1. Effective Date: 2024-05-08. This Master Services
+Agreement is entered into on the Effective Date.
+2. The initial term of this Agreement is 1 year from the
+Effective Date.
+3. Following the Initial Term, this Agreement
+automatically renews for successive one-year periods
+unless either party gives notice of non-renewal.
+4. Customer's payment obligation arises 45 days following
+the date of each invoice.
+5. Termination without cause requires sixty (60) days
+prior written notice.
+6. This Agreement shall be governed by the laws of the
+State of California.
+7. Neither party's total liability shall exceed $500,000.
+
+Page 1 of 2 -- Confidential -- Marlow Data Systems Inc. MSA v2

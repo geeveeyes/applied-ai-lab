@@ -1,0 +1,19 @@
+MASTER SERVICES AGREEMENT
+between Orion Logistics Corp. ("Provider") and Fabrikam Retail Group ("Customer")
+
+1. Effective as of the 20th of August 2025, the parties
+enter into this Master Services Agreement.
+2. The Agreement remains in force for 18 months after the
+Effective Date.
+3. This Agreement shall not renew automatically; any
+renewal requires a written amendment signed by both
+parties.
+4. All invoices are due 60 days after the invoice date.
+5. Either party may end this Agreement on 60 days' notice,
+for any reason.
+6. This Agreement shall be construed in accordance with
+Delaware law.
+7. Aggregate liability under this Agreement is capped at
+USD 250,000.
+
+Page 1 of 2 -- Confidential -- Orion Logistics Corp. MSA v3

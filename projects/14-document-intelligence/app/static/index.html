@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Document Intelligence</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark">14</span><span>Applied AI Lab <b>/ Document Intelligence</b></span></div><span class="status">LOCAL WORKSPACE</span></header>
+  <main class="grid">
+    <section class="panel">
+      <p class="eyebrow">CONTRACT</p>
+      <div class="row"><label>Sample<select id="sample"></select></label><label>Extractor<select id="extractor"></select></label></div>
+      <textarea id="text" rows="22" placeholder="Paste a contract, or pick a sample."></textarea>
+      <button class="primary" id="run" type="button">Extract fields</button>
+      <p class="error" id="error" role="alert" hidden></p>
+    </section>
+    <section class="panel" aria-live="polite">
+      <p class="eyebrow">STRUCTURED RECORD</p>
+      <div id="summary" class="muted">Pick a sample and extract.</div>
+      <table id="table" hidden><thead><tr><th>Field</th><th>Value</th><th>Evidence</th><th>Status</th></tr></thead><tbody></tbody></table>
+      <pre id="json" hidden></pre>
+    </section>
+  </main>
+  <script src="/main.js" defer></script>
+</body>
+</html>

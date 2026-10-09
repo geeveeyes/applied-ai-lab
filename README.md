@@ -53,7 +53,7 @@ applied-ai-lab/
 | 10 | AI Data Cleaning Copilot | schema inference, transform suggestions | planned |
 | 11 | Voice Journal Memory Coach | speech, memory, reflection loops | planned |
 | 12 | Agent Reliability Dashboard | observability, traces, regression testing | planned |
-| 14 | Document Intelligence Pipeline | messy documents to validated JSON, extractor cost vs quality, per-field precision/recall | planned |
+| 14 | Document Intelligence Pipeline | messy documents to validated JSON, evidence grounding, extractor cost vs quality, per-field precision/recall | local MVP |
 | 15 | Multi-step Support Agent | ReAct loop, tracing, guardrails, human-in-the-loop, pass@k | planned |
 | 16 | Sovereign AI Engine | open-weight serving, LoRA/QLoRA, quantization, cost crossover | planned |
 | 17 | Work-Backwards Project Finder | target-company research prompt, project briefs | planned |
@@ -101,6 +101,15 @@ python3 -m app.server
 ```
 
 Open `http://127.0.0.1:8003`. Runs offline with no keys. See the [Project 03 README](projects/03-enterprise-search/README.md) and its [decision log](projects/03-enterprise-search/docs/DECISIONS.md). The overall plan for the next projects is in [docs/VIDEO_PROJECT_PLAN.md](docs/VIDEO_PROJECT_PLAN.md).
+
+## Project 14
+
+```bash
+cd projects/14-document-intelligence
+python3 -m app.server
+```
+
+Open `http://127.0.0.1:8014`. Offline, no keys. See the [Project 14 README](projects/14-document-intelligence/README.md).
 
 ## Project 13
 

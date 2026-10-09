@@ -1,0 +1,24 @@
+MASTER SERVICES AGREEMENT
+between Quill Software Ltd. ("Provider") and Tailspin Travel Co. ("Customer")
+
+1. This Master Services Agreement is dated 07/05/2024 and
+takes effect on that date.
+2. This Agreement supersedes the Order Form signed on
+January 16, 2023.
+3. The Agreement shall continue for a period of 18 months
+from the Effective Date (the "Initial Term").
+4. This Agreement is evergreen and renews automatically at
+the end of each term.
+5. Late payments accrue interest after a grace period of
+10 days, and customers must give 90 days notice before
+changing their billing contact.
+6. All invoices are due 30 days after the invoice date.
+7. Termination without cause requires sixty (60) days
+prior written notice.
+8. This Agreement is governed by the laws of England and
+Wales.
+9. Nothing in this Agreement limits either party's
+liability for breach of confidentiality.
+10. Support credits are capped at $5,000 per quarter.
+
+Page 1 of 2 -- Confidential -- Quill Software Ltd. MSA v3

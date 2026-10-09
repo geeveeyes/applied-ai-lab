@@ -1,0 +1,26 @@
+MASTER SERVICES AGREEMENT
+between Quill Software Ltd. ("Provider") and Adatum Energy LLC ("Customer")
+
+1. This Master Services Agreement is effective as of
+February 18, 2025 (the "Effective Date").
+2. This Agreement supersedes the Order Form signed on
+September 18, 2024.
+3. The initial term of this Agreement is 1 year from the
+Effective Date.
+4. Following the Initial Term, this Agreement
+automatically renews for successive one-year periods
+unless either party gives notice of non-renewal.
+5. Late payments accrue interest after a grace period of
+10 days, and customers must give 90 days notice before
+changing their billing contact.
+6. Fees are invoiced monthly, payment terms Net 60.
+7. Either party may terminate this Agreement for
+convenience upon 30 days' written notice to the other
+party.
+8. This Agreement is governed by the laws of England and
+Wales.
+9. Nothing in this Agreement limits either party's
+liability for breach of confidentiality.
+10. Support credits are capped at $5,000 per quarter.
+
+Page 1 of 2 -- Confidential -- Quill Software Ltd. MSA v4

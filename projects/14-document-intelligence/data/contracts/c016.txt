@@ -1,0 +1,19 @@
+MASTER SERVICES AGREEMENT
+between Helix Cloud Inc. ("Provider") and Fabrikam Retail Group ("Customer")
+
+1. This Master Services Agreement commences on the 3rd day
+of February, 2023.
+2. The initial term of this Agreement is 2 years from the
+Effective Date.
+3. This Agreement is evergreen and renews automatically at
+the end of each term.
+4. Fees are invoiced monthly, payment terms Net 30.
+5. Either party may terminate this Agreement for
+convenience upon 60 days' written notice to the other
+party.
+6. This Agreement shall be construed in accordance with
+New York law.
+7. Neither party's total liability shall exceed
+$1,200,000.
+
+Page 1 of 2 -- Confidential -- Helix Cloud Inc. MSA v3
